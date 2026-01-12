@@ -1,0 +1,262 @@
+---
+name: draft-clarify
+description: "Creates draft task documents from requirements in temporary files. Atomic skill for Phase A of clarify workflow.\n\nArgs:\n  Task Source (OneOf, Required):\n    REQUEST=\"<text>\" - Free-form user requirement text\n    ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)\n  Output (Optional):\n    OUTPUT_DIR=<path> - Directory for temporary files (uses mktemp if omitted)\n\nExamples:\n  /draft-clarify ISSUE_ID=TA-123\n  /draft-clarify REQUEST=\"Add user authentication feature\"\n  /draft-clarify ISSUE_ID=TA-123 OUTPUT_DIR=.agent/tmp"
+model: claude-opus-4-5
+---
+
+# Draft Clarify Skill
+
+Gathers and structures requirements from different sources (user request or Linear issue) and writes task documents to temporary files. This is an atomic skill that handles Phase A (requirements gathering and clarification) of the clarify workflow, without final output creation to artifacts or Linear.
+
+## Parameters
+
+### Task Source (OneOf, Required)
+
+Provide one of the following to specify where requirements come from:
+
+- `REQUEST` - User's requirement text (free-form description)
+- `ISSUE_ID` - Linear Issue ID (e.g., `ABC-123`)
+
+### Output (Optional)
+
+- `OUTPUT_DIR` - Directory path for temporary files. If not provided, uses `mktemp` skill to create files in `.agent/tmp/`.
+
+## Usage Examples
+
+```bash
+# From Linear issue, auto-generate temp files
+skill: draft-clarify
+args: ISSUE_ID=TA-123
+
+# From user request, auto-generate temp files
+skill: draft-clarify
+args: REQUEST="Add user authentication feature"
+
+# From Linear issue, specify output directory
+skill: draft-clarify
+args: ISSUE_ID=TA-123 OUTPUT_DIR=.agent/tmp
+```
+
+## Process
+
+### 1. Read Requirements
+
+- If `ISSUE_ID` is provided -> Read [Linear Task Document]({baseDir}/references/linear-task.md)
+- If `REQUEST` is provided -> Use the request text as initial requirements
+
+### 2. Analyze Request Completeness
+
+Check if all necessary information is present:
+- Clear task description
+- Acceptance criteria (what defines "done")
+- Scope boundaries (what's included/excluded)
+- Any constraints or dependencies
+
+### 3. Ask Clarifying Questions
+
+If information is missing or unclear, prepare structured questions focusing on:
+
+- **What**: What exactly needs to be built/changed?
+- **Why**: What problem does this solve?
+- **Done**: How will we know it's complete? (Acceptance Criteria)
+- **Scope**: What's in scope? What's out of scope?
+- **Constraints**: Any technical constraints, deadlines, or dependencies?
+
+Use `AskUserQuestion` to gather missing information.
+
+> **CRITICAL**: Do NOT ask about implementation details (file locations, class names, technology choices) unless the user explicitly mentions them. This skill focuses on **what** and **why**, not **how**.
+
+**ALWAYS confirm with user**, even if requirements seem complete:
+- Show summary of understood requirements
+- Ask: "Is this understanding correct?"
+- Ask: "Are there any additional requirements or constraints?"
+
+### 4. Break Down into Tasks
+
+Based on the clarified requirements, break down the work into individual tasks. Tasks represent work units that can be executed in parallel.
+
+Consider:
+- Dependencies between tasks
+- Logical groupings of related work
+- Optimal parallelization opportunities
+
+For example, if the requirement involves implementing an API server and its client, you might define tasks as: (1) API interface definition (prerequisite), then (2) client implementation and (3) server implementation (parallelizable).
+
+### 5. Create Output Files
+
+- If `OUTPUT_DIR` is provided -> Write files to that directory with pattern `{OUTPUT_DIR}/task-{n}.md`
+- If `OUTPUT_DIR` is not provided -> Use the `mktemp` skill:
+  ```
+  skill: mktemp
+  args: task1 task2 task3
+  ```
+
+### 6. Write Draft Task Documents
+
+Write each task's requirements document to a separate file following the [Output Format](#output-format).
+
+## Output Format
+
+Each task document must include YAML frontmatter followed by the content sections.
+
+### YAML Frontmatter
+
+```yaml
+---
+name: Task name
+blockedBy:
+  - Prerequisite task name
+---
+```
+
+- `name`: Task identifier (used for issue title and dependency references)
+- `blockedBy`: List of task names this task depends on (empty array `[]` if no dependencies)
+
+### Task Summary
+
+Provide a 2-3 sentence summary of what problem needs to be solved and what behavior is expected. Focus on the goal and context, not the implementation approach.
+
+### Acceptance Criteria
+
+List specific, testable requirements as checklist items. Each criterion should be verifiable and define what "done" means.
+
+**Focus on behavior, not implementation:**
+
+Good (behavior-level):
+- "User is redirected to dashboard after successful login"
+- "Password input is masked"
+- "Error message is displayed for invalid credentials"
+- "Search results update within 2 seconds"
+
+Bad (implementation-level):
+- "JWT token is stored in localStorage"
+- "AuthContext uses useReducer for state management"
+- "POST /api/auth/login endpoint is called"
+- "UserRepository implements IUserRepository interface"
+
+### Scope
+
+Clearly define boundaries to prevent scope creep:
+
+#### In Scope
+- What will be built in this iteration
+- What features will be included
+
+#### Out of Scope
+- What will NOT be built in this iteration
+- What features are explicitly excluded
+
+### Constraints
+
+Document any technical, business, or timeline constraints that affect the implementation.
+
+### Additional Context
+
+Include any other relevant information:
+- Prerequisite tasks that must be completed first
+- Links to related documentation or tickets
+- Dependencies on other work
+- Background information
+
+### Questions Resolved
+
+Record all clarifying questions and user answers in a table format. This documents decisions made during clarification.
+
+## Output Example
+
+```markdown
+---
+name: User authentication
+blockedBy: []
+---
+
+# Task Summary
+
+[Provide 2-3 sentence summary explaining what problem needs to be solved and what behavior is expected]
+
+# Acceptance Criteria
+
+- [ ] [Specific, testable criterion 1]
+- [ ] [Specific, testable criterion 2]
+- [ ] [Specific, testable criterion 3]
+
+# Scope
+
+## In Scope
+- [Feature or component to be built]
+- [Another feature to be included]
+
+## Out of Scope
+- [Feature explicitly excluded from this iteration]
+- [Another out-of-scope item]
+
+# Constraints
+- [Technical constraint if applicable]
+- [Business constraint if applicable]
+- [Timeline constraint if applicable]
+
+# Additional Context
+- [Link to related documentation]
+- [Dependencies on other work]
+- [Any other relevant background]
+
+# Questions Resolved
+
+| Question                      | Answer            |
+| ----------------------------- | ----------------- |
+| [Question asked to user]      | [User's answer]   |
+| [Another clarifying question] | [User's response] |
+```
+
+## What NOT to Include
+
+This skill produces **requirements documents**, not implementation plans. Do NOT include:
+
+- **File/directory paths**: "Implement in src/components/Auth.tsx"
+- **Class/function names**: "Create UserService class", "Add handleAuth function"
+- **Technology stack decisions**: "Use Redux", "Implement with JWT tokens"
+- **API endpoint paths**: "POST /api/v1/users"
+- **Database schema details**: "Add user_tokens table with columns..."
+
+**Exception**: Include implementation details ONLY if the user explicitly specified them as a requirement (e.g., "We must use PostgreSQL" -> include as a Constraint).
+
+## Quality Checklist
+
+Before completing the draft, verify:
+
+- [ ] **User confirmation obtained**: Even if requirements seem complete, show summary and ask for confirmation
+- [ ] **Specific requirements**: Avoid vague requirements like "make it better" - drill down to specifics
+- [ ] **Testable criteria**: Each acceptance criterion should be verifiable at the behavior level
+- [ ] **Clear scope**: Explicitly state what's in and out of scope to prevent scope creep
+- [ ] **Documented decisions**: Record all clarifying questions and answers in "Questions Resolved" section
+- [ ] **No implementation details**: Focus on WHAT/WHY, not HOW (unless user explicitly specified)
+- [ ] **All decisions finalized**: No vague "A or B" options left unresolved
+
+## Output
+
+Return comma-separated list of created draft file paths:
+
+```
+DRAFT_PATHS: {path1},{path2},{path3}
+```
+
+## Notice
+
+### Strict Decision Making
+
+All decisions must be finalized before output. Do not leave vague content such as "Do A or B" or "needs investigation". If multiple options exist:
+
+1. Use `AskUserQuestion` to get user selection
+2. Document the decision in the "Questions Resolved" section
+3. Write the final decision to the task document
+
+### No Final Output in This Skill
+
+This skill only creates draft task documents in temporary files. User review and final output creation (to artifacts or Linear) should be handled by the `finalize-clarify` skill or the parent `clarify` workflow.
+
+### Dependency on Other Skills
+
+This skill uses:
+- `mktemp` skill for temporary file creation
+- `linear-issue` skill for fetching Linear issue details (when `ISSUE_ID` provided)
+- `linear-comment` skill for additional context from Linear comments
