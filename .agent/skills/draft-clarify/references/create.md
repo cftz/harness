@@ -72,10 +72,16 @@ If information is missing or unclear, prepare structured questions focusing on:
 - **Done**: How will we know it's complete? (Acceptance Criteria)
 - **Scope**: What's in scope? What's out of scope?
 - **Constraints**: Any technical constraints, deadlines, or dependencies?
+- **Integration**: If multiple components involved, how do they interact?
 
 Use `AskUserQuestion` to gather missing information.
 
-> **CRITICAL**: Do NOT ask about implementation details (file locations, class names, technology choices) unless the user explicitly mentions them. This skill focuses on **what** and **why**, not **how**.
+> **CRITICAL**: Do NOT ask about implementation details (file locations, class names, code-level technology choices) unless the user explicitly mentions them. This skill focuses on **what** and **why**, not **how**.
+
+> **IMPORTANT**: DO ask about scope-affecting architectural decisions:
+> - If scope includes "A에서 B로 요청/통신" → Ask: "기존 gRPC를 사용할까요, 새 메커니즘을 추가할까요?"
+> - If scope includes "데이터 저장" → Ask: "기존 DB 스키마에 추가? 새 저장소?"
+> - These are NOT implementation details - they define the scope boundary.
 
 **ALWAYS confirm with user**, even if requirements seem complete:
 - Show summary of understood requirements

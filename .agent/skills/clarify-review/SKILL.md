@@ -91,6 +91,10 @@ For each draft task document, verify the following checklists:
 
 - [ ] No "A or B" ambiguities left unresolved
 - [ ] Questions Resolved section contains all Q&A
+- [ ] No unresolved flexibility patterns in Additional Context:
+  - "A 또는 B 가능", "A or B 선택", "either A or B"
+  - "추후 결정", "TBD", "to be determined"
+  - "기존 X 또는 새로운 Y"
 
 #### Checklist A4: Required Sections Present
 
@@ -103,6 +107,18 @@ For each draft task document, verify the following checklists:
 
 - [ ] blockedBy relationships are logical
 - [ ] No circular dependencies
+
+#### Checklist A6: Scope-Architecture Alignment
+
+When In Scope includes component interaction (e.g., "A에서 B로 요청"), verify:
+
+- [ ] Communication mechanism is explicitly decided (not "A or B 가능")
+- [ ] Initiating component is clear
+- [ ] No dangling "Additional Context" that should be a decision
+
+**Examples:**
+- ❌ In Scope: "CLI에서 Daemon으로 스캔 요청" / Additional Context: "gRPC 또는 새 메커니즘 가능"
+- ✅ In Scope: "CLI에서 Daemon으로 gRPC를 통해 스캔 요청"
 
 ### 3. Perform Prompt Alignment Review (Category B)
 
@@ -180,6 +196,7 @@ The task documents follow draft-clarify rules and properly address the original 
 | Decisions Finalized | Pass | All questions resolved |
 | Required Sections | Pass | All sections present |
 | Dependency Logic | Pass | No circular dependencies |
+| Scope-Architecture Alignment | Pass | Component interactions clearly specified |
 
 ### B. PROMPT -> Clarify Alignment
 
@@ -227,6 +244,7 @@ Review identified issues that need to be addressed before finalization. The task
 |------|------|-------|----------------|
 | {task_name} | Behavior-level Criteria | Contains file path "src/auth.ts" | Remove implementation details from acceptance criteria |
 | {task_name} | Decisions Finalized | Contains "A or B" option | Resolve with user and document decision |
+| {task_name} | Scope-Architecture Alignment | In Scope의 "A->B 요청"에 대한 통신 방식 미결정 | Additional Context의 "A or B 가능"을 결정하여 In Scope에 반영 |
 
 ### B. PROMPT -> Clarify Alignment Issues
 
@@ -246,6 +264,7 @@ Review identified issues that need to be addressed before finalization. The task
 | Decisions Finalized | {Pass/Fail} | {Notes} |
 | Required Sections | {Pass/Fail} | {Notes} |
 | Dependency Logic | {Pass/Fail} | {Notes} |
+| Scope-Architecture Alignment | {Pass/Fail} | {Notes} |
 
 ### B. PROMPT -> Clarify Alignment
 

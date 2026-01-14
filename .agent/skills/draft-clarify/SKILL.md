@@ -180,11 +180,28 @@ This skill produces **requirements documents**, not implementation plans. Do NOT
 
 - **File/directory paths**: "Implement in src/components/Auth.tsx"
 - **Class/function names**: "Create UserService class", "Add handleAuth function"
-- **Technology stack decisions**: "Use Redux", "Implement with JWT tokens"
+- **Code-level technology decisions**: "Use Redux for state", "Implement with JWT tokens"
 - **API endpoint paths**: "POST /api/v1/users"
 - **Database schema details**: "Add user_tokens table with columns..."
 
 **Exception**: Include implementation details ONLY if the user explicitly specified them as a requirement (e.g., "We must use PostgreSQL" -> include as a Constraint).
+
+## Scope-Affecting Decisions (MUST Resolve)
+
+Some architectural decisions directly affect task scope and MUST be resolved during clarification. These are NOT implementation details - they define WHAT is being built:
+
+| Decision Type | Example | Why It Matters |
+|--------------|---------|----------------|
+| Inter-component communication | gRPC vs HTTP vs Socket | Affects API design scope |
+| Data flow pattern | Sync vs Async vs Event-driven | Affects component boundaries |
+| Integration boundary | Which system initiates? | Affects dependency direction |
+
+**When In Scope includes component interaction (e.g., "CLI에서 Daemon으로 요청"), you MUST resolve:**
+1. Communication mechanism (existing protocol? new endpoint?)
+2. Which component initiates the interaction
+3. Data format expectations (if not obvious)
+
+Use `AskUserQuestion` to resolve these decisions. Do NOT leave them as "A or B가 가능".
 
 ## Quality Checklist
 
@@ -197,6 +214,7 @@ Before completing the draft, verify:
 - [ ] **Documented decisions**: Record all clarifying questions and answers in "Questions Resolved" section
 - [ ] **No implementation details**: Focus on WHAT/WHY, not HOW (unless user explicitly specified)
 - [ ] **All decisions finalized**: No vague "A or B" options left unresolved
+- [ ] **Scope-affecting architecture resolved**: If In Scope includes component interaction, communication mechanism is decided
 
 ## Notice
 
