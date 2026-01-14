@@ -1,6 +1,15 @@
 ---
 name: linear-state
-description: "List Linear workflow states for a team.\n\nCommands:\n  list [TEAM_ID=<id>] [ISSUE_ID=<id>] [NAME=<name>] - List workflow states\n\nExamples:\n  /linear-state list\n  /linear-state list TEAM_ID=abc-123\n  /linear-state list ISSUE_ID=TA-123\n  /linear-state list ISSUE_ID=TA-123 NAME=Todo"
+description: |
+  Use this skill to get workflow state IDs for Linear issues. Required when updating issue states.
+
+  Commands:
+    list [TEAM_ID=<id>] [ISSUE_ID=<id>] [NAME=<name>] - List workflow states (TEAM_ID or ISSUE_ID required)
+
+  Examples:
+    /linear-state list TEAM_ID=abc-123
+    /linear-state list ISSUE_ID=TA-123
+    /linear-state list ISSUE_ID=TA-123 NAME=Todo
 user-invocable: false
 ---
 

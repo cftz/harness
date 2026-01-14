@@ -20,22 +20,6 @@ Batch processes project issues by finding eligible ones, creating plans in paral
 - `STATE` - Issue state filter. Defaults to `Todo,Backlog`. Comma-separated values supported.
 - `LIMIT` - Maximum number of issues to process in parallel. Defaults to `4`.
 
-## Usage Examples
-
-```bash
-# Default usage - find and plan eligible issues
-/plan-issues
-
-# Only Todo state (default includes Backlog too)
-/plan-issues STATE=Todo
-
-# Process more in parallel
-/plan-issues LIMIT=6
-
-# Both options
-/plan-issues STATE=Backlog LIMIT=8
-```
-
 ## Skill Overview
 
 ```
@@ -50,9 +34,8 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 1. Use linear-issue skill to list issues:
    ```
-   Use Skill tool:
-   - skill: linear-issue
-   - args: list STATE=$STATE
+   skill: linear-issue
+   args: list STATE=$STATE
    ```
 
 2. Filter results to find eligible issues:
@@ -66,11 +49,9 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 ### Step 2: Parallel Planning (Temporary Files)
 
-1. For each selected issue, launch step-by-step in parallel:
+1. For each selected issue, launch step-by-step in parallel using Task tool with `subagent_type: step-by-step-agent`:
    ```
-   Use Task tool:
-   - subagent_type: step-by-step
-   - prompt: /plan-workflow ISSUE_ID=$ISSUE_ID
+   /plan-workflow ISSUE_ID=$ISSUE_ID
    ```
 
    > **Note**: The plan skill writes to a temporary file (via mktemp) first,
@@ -86,7 +67,7 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 1. For each temporary plan file, launch step-by-step in parallel:
    ```
    Use Task tool:
-   - subagent_type: step-by-step
+   - subagent_type: step-by-step-agent
    - prompt: /plan-review PLAN_PATH=$TMP_PLAN_PATH ARTIFACT_DIR_PATH=.agent/tmp
    ```
 
@@ -153,12 +134,12 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 An issue is eligible for planning if ALL of the following are true:
 
-| Criterion | How to Check |
-|-----------|--------------|
-| State matches filter | Issue state matches any value in `STATE` parameter (comma-separated) |
-| Is a Leaf Task | `children` array is empty |
-| No blocking dependencies | `relations` with type "blocks" are all Done |
-| No existing plan | `attachments` has no Document |
+| Criterion                | How to Check                                                         |
+| ------------------------ | -------------------------------------------------------------------- |
+| State matches filter     | Issue state matches any value in `STATE` parameter (comma-separated) |
+| Is a Leaf Task           | `children` array is empty                                            |
+| No blocking dependencies | `relations` with type "blocks" are all Done                          |
+| No existing plan         | `attachments` has no Document                                        |
 
 ## Error Handling
 
@@ -174,8 +155,8 @@ On successful completion:
 
 Registered {N} plans to Linear:
 
-| Issue | Title | Plan Document |
-|-------|-------|---------------|
+| Issue  | Title          | Plan Document                |
+| ------ | -------------- | ---------------------------- |
 | TA-123 | Implement auth | [Plan: Implement auth](link) |
 | TA-124 | Add validation | [Plan: Add validation](link) |
 ```

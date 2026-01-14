@@ -1,6 +1,15 @@
 ---
 name: verify-rule
-description: "Analyzes rule files for conflicts, duplications, and ambiguities, then fixes them.\n\nArgs:\n  RULES_DIR=<path> (Required) - Directory containing rule files\n  AUTO_FIX=true (Optional) - Apply recommended fixes without confirmation\n\nExamples:\n  /verify-rule RULES_DIR=.agent/rules/python\n  /verify-rule RULES_DIR=.agent/rules/go AUTO_FIX=true"
+description: |
+  Use this skill to analyze rule files for conflicts, duplications, and ambiguities, then fix them.
+
+  Args:
+    RULES_DIR=<path> (Required) - Directory containing rule files
+    AUTO_FIX=true (Optional) - Apply recommended fixes without confirmation
+
+  Examples:
+    /verify-rule RULES_DIR=.agent/rules/python
+    /verify-rule RULES_DIR=.agent/rules/go AUTO_FIX=true
 model: claude-opus-4-5
 ---
 
@@ -17,16 +26,6 @@ Analyzes rule files in a directory for conflicts, duplications, and ambiguities.
 ### Optional
 
 - `AUTO_FIX` - If `true`, apply recommended fixes without user confirmation. Defaults to `false`.
-
-## Usage Examples
-
-```bash
-# Analyze Python rules and fix interactively
-/verify-rule RULES_DIR=.agent/rules/python
-
-# Analyze Go rules with auto-fix
-/verify-rule RULES_DIR=.agent/rules/go AUTO_FIX=true
-```
 
 ## Process
 
@@ -111,19 +110,19 @@ For each ambiguity, record:
 Present findings in organized sections:
 
 #### Conflicts
-For each conflict, use `AskUserQuestion` to ask:
+For each conflict, ask the user:
 - Which rule should be kept?
 - Should rules be merged?
 - Is this not actually a conflict?
 
 #### Duplications
-For each duplication, use `AskUserQuestion` to ask:
+For each duplication, ask the user:
 - Keep in parent file (for hierarchical)?
 - Create new shared file (for unrelated paths)?
 - Keep both (intentional duplication)?
 
 #### Ambiguities
-For each ambiguity, use `AskUserQuestion` to ask:
+For each ambiguity, ask the user:
 - Should this be clarified?
 - What specific values/examples should be added?
 

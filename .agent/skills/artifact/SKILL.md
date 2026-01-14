@@ -1,6 +1,17 @@
 ---
 name: artifact
-description: "Manages artifact directories and files for organizing work outputs.\n\nCommands:\n  init [PREFIX] - Initialize new artifact directory\n  create ARTIFACT_DIR_PATH name... - Create sequential files in directory\n\nExamples:\n  /artifact init\n  /artifact create .agent/artifacts/20260107-120000 plan review"
+description: |
+  Use this skill to create artifact directories or sequential artifact files.
+
+  IMPORTANT: ALWAYS use this skill instead of manually creating directories in .agent/artifacts/.
+
+  Commands:
+    init [PREFIX] - Initialize new artifact directory
+    create ARTIFACT_DIR_PATH name... - Create sequential files in directory
+
+  Examples:
+    /artifact init
+    /artifact create .agent/artifacts/20260107-120000 plan review
 user-invocable: false
 ---
 
@@ -17,12 +28,6 @@ This skill provides commands to initialize artifact directories and create seque
 ### `init`
 
 Initialize a new artifact directory with a unique timestamp-based name.
-
-**Skill Invocation:**
-```
-skill: artifact
-args: init [PREFIX]
-```
 
 **Script Equivalent:**
 ```bash
@@ -52,12 +57,6 @@ ARTIFACT_DIR_PATH=$({baseDir}/scripts/init.sh docs/artifacts)
 ### `create`
 
 Create sequentially numbered artifact files in an existing artifact directory.
-
-**Skill Invocation:**
-```
-skill: artifact
-args: create ARTIFACT_DIR_PATH name [name2 name3 ...]
-```
 
 **Script Equivalent:**
 ```bash

@@ -1,6 +1,8 @@
 ---
 name: implement-workflow
 description: |
+  Use this skill to execute a complete implementation cycle with automated code review and iterative fixes.
+
   Orchestrates implementation by combining implement, code-review, fix, and finalize-implement skills with automated review loop.
 
   Args:
@@ -11,7 +13,7 @@ description: |
       ARTIFACT_DIR_PATH=<path> - Save review documents to artifact directory
     Options:
       AUTO_ACCEPT=true - Skip user approval on Pass (default: false)
-      BRANCH=<name> - Base branch for code-review (default: main)
+      BRANCH=<name> - Base branch for PR target in finalize-implement (default: main)
       MAX_CYCLES=<n> - Maximum fix cycles (default: 10)
 
   Examples:
@@ -19,8 +21,7 @@ description: |
     /implement-workflow ISSUE_ID=TA-123 AUTO_ACCEPT=true
     /implement-workflow PLAN_PATH=.agent/artifacts/20260107/02_plan.md TASK_PATH=.agent/artifacts/20260107/01_task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107
 model: claude-opus-4-5
-context: fork
-agent: step-by-step-agent
+
 ---
 
 # Implement Workflow Skill
@@ -47,32 +48,8 @@ If not provided:
 ### Options
 
 - `AUTO_ACCEPT` - If set to `true`, skip user approval on final Pass. Defaults to `false`.
-- `BRANCH` - Base branch for code-review git diff comparison. Defaults to `main`.
+- `BRANCH` - Base branch for PR target in finalize-implement. Defaults to `main`.
 - `MAX_CYCLES` - Maximum number of fix cycles before aborting. Defaults to `10`.
-
-## Usage Examples
-
-```bash
-# Linear issue -> Linear Document output
-skill: implement-workflow
-args: ISSUE_ID=TA-123
-
-# Linear issue with auto-accept
-skill: implement-workflow
-args: ISSUE_ID=TA-123 AUTO_ACCEPT=true
-
-# Linear issue -> Artifact output
-skill: implement-workflow
-args: ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Artifact files -> Artifact output
-skill: implement-workflow
-args: PLAN_PATH=.agent/artifacts/20260107/02_plan.md TASK_PATH=.agent/artifacts/20260107/01_task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107
-
-# Custom branch and max cycles
-skill: implement-workflow
-args: ISSUE_ID=TA-123 BRANCH=develop MAX_CYCLES=5
-```
 
 ## Workflow Overview
 
@@ -100,7 +77,7 @@ args: ISSUE_ID=TA-123 BRANCH=develop MAX_CYCLES=5
 │  │ LOOP:                                                   ││
 │  │   1. cycle_count++                                      ││
 │  │   2. Check MAX_CYCLES limit                             ││
-│  │   3. Run code-review (AUTO_ACCEPT=true)                 ││
+│  │   3. Run code-review (USE_TEMP=true)                    ││
 │  │   4. If Pass → EXIT LOOP                                ││
 │  │   5. If Changes Required → Run implement fix            ││
 │  │   6. CONTINUE LOOP                                      ││
@@ -126,7 +103,7 @@ args: ISSUE_ID=TA-123 BRANCH=develop MAX_CYCLES=5
 │  Step 5: Finalize Implementation                             │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │ skill: finalize-implement                             │  │
-│  │ args: ISSUE_ID=<id> AUTO_ACCEPT=<bool> BRANCH=<name>  │  │
+│  │ args: ISSUE_ID=<id> BRANCH=<name>                     │  │
 │  └──────────────────────────────────────────────────────┘  │
 │  - Commit changes (idempotent)                              │
 │  - Push to remote (idempotent)                              │
@@ -191,11 +168,11 @@ LOOP:
   3. Run code-review:
      # For ISSUE_ID:
      skill: code-review
-     args: ISSUE_ID=<id> BRANCH=<branch> AUTO_ACCEPT=true
+     args: ISSUE_ID=<id> USE_TEMP=true
 
      # For ARTIFACT_DIR_PATH:
      skill: code-review
-     args: ARTIFACT_DIR_PATH=<path> BRANCH=<branch> AUTO_ACCEPT=true
+     args: ARTIFACT_DIR_PATH=<path> USE_TEMP=true
 
   4. Check result:
      If status == "Pass":
@@ -224,7 +201,7 @@ LOOP:
 ```
 
 **Key design decisions:**
-- `AUTO_ACCEPT=true` is passed to code-review during the loop to enable automatic progression
+- `USE_TEMP=true` is passed to code-review during the loop to save review results to temp files
 - User approval is handled at the workflow level after the final Pass result
 
 ### 4. Final User Approval
@@ -267,16 +244,15 @@ Invoke the `finalize-implement` skill:
 ```
 # For ISSUE_ID input (full flow with Linear):
 skill: finalize-implement
-args: ISSUE_ID=<id> AUTO_ACCEPT=true BRANCH=<branch>
+args: ISSUE_ID=<id> BRANCH=<branch>
 
 # For local files (PLAN_PATH + TASK_PATH) - Git ops only:
 skill: finalize-implement
-args: AUTO_ACCEPT=true BRANCH=<branch>
+args: BRANCH=<branch>
 ```
 
 **Key points:**
-- `AUTO_ACCEPT=true` is passed to skip internal approval (already obtained in Step 4)
-- `BRANCH` uses the same value as code-review (default: main)
+- `BRANCH` specifies the PR target branch (default: main)
 - For local file workflows: Git ops only, Linear update skipped
 
 **On failure:**
@@ -320,12 +296,12 @@ Output the final result to user.
 
 ### Finalize Result
 
-| Operation | Status | Details |
-|-----------|--------|---------|
-| Commit | {Created/Skipped} | {commit_hash} |
-| Push | {Pushed/Skipped} | {branch_name} |
-| Pull Request | {Created/Skipped/N/A} | {pr_url} |
-| Linear State | {Updated/Skipped/N/A} | {state_name} |
+| Operation    | Status                | Details       |
+| ------------ | --------------------- | ------------- |
+| Commit       | {Created/Skipped}     | {commit_hash} |
+| Push         | {Pushed/Skipped}      | {branch_name} |
+| Pull Request | {Created/Skipped/N/A} | {pr_url}      |
+| Linear State | {Updated/Skipped/N/A} | {state_name}  |
 
 - **PR URL**: {pr_url} (if feature branch)
 - **Linear Issue**: {linear_url} → {final_state} (if ISSUE_ID provided)
@@ -398,7 +374,7 @@ This skill requires the following skills to exist:
 This skill differs from `plan-workflow` and `clarify-workflow` in that:
 - User approval happens only at the **end** (when Pass), not during drafting
 - The loop is between code-review and implement fix, fully automated
-- `AUTO_ACCEPT=true` is passed to code-review during the loop
+- `USE_TEMP=true` is passed to code-review during the loop
 
 **Anti-patterns to avoid:**
 - Requesting user approval during each fix cycle

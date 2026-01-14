@@ -42,14 +42,3 @@ Run the script:
 {baseDir}/scripts/list_labels.sh "team-uuid"
 ```
 
-## Examples
-
-```
-# List labels for current team (uses linear-current team)
-skill: linear-issue-label
-args: list
-
-# List labels for a specific team
-skill: linear-issue-label
-args: list TEAM_ID=abc-123
-```

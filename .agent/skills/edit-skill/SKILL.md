@@ -1,6 +1,10 @@
 ---
 name: edit-skill
 description: |
+  Use this skill to create new skills or modify existing ones.
+
+  IMPORTANT: ALWAYS use this skill instead of manually creating skill files - it ensures proper structure and validation.
+
   Creates or modifies skills by guiding through type selection, parameter design, and structure generation.
 
   Args:
@@ -35,6 +39,7 @@ All skill operations must follow these rules. These apply to both create and mod
 | Type            | Description                                        | Structure                          |
 | --------------- | -------------------------------------------------- | ---------------------------------- |
 | **workflow**    | Complex multi-step processes with user interaction | SKILL.md, references/              |
+| **orchestrator**| Coordinates SubAgents/Skills in parallel           | SKILL.md only                      |
 | **utility**     | Simple focused operations with shell scripts       | SKILL.md, scripts/                 |
 | **integration** | API wrappers with multiple sub-commands            | SKILL.md, references/, scripts/    |
 | **validation**  | Analysis and reporting tools                       | SKILL.md only                      |
@@ -75,8 +80,24 @@ This ensures skills work correctly regardless of installation location.
 | `model`          | Optional     | Model to use (e.g., `claude-opus-4-5`)                     |
 | `allowed-tools`  | Optional     | Tools allowed without asking permission                    |
 | `context`        | Optional     | Set to `fork` for sub-agent context                        |
+| `agent`          | Optional     | Agent type to use (e.g., `step-by-step-agent`)             |
+| `hooks`          | Optional     | Lifecycle hooks configuration                              |
+| `user-invocable` | Optional     | Set to `false` to hide from user invocation (default: true)|
 
 **Description Format**: Use YAML multiline syntax (`|`) for readability. Include Args and Examples sections.
+
+### Example Placement
+
+Invocation examples must be placed **only in the frontmatter description**, not in the SKILL.md body.
+
+| Location | Allowed | Reason |
+|----------|---------|--------|
+| Frontmatter `description` | Yes | Agent sees this before invoking the skill |
+| SKILL.md body | No | Agent reads this after invocation - too late for invocation guidance |
+
+**What belongs where:**
+- **Frontmatter description**: How to invoke the skill (`/skill-name ARG=value`)
+- **SKILL.md body**: Process steps, output formats, internal logic examples
 
 ### Quality Checklist
 
@@ -108,6 +129,7 @@ Follow the process in `{baseDir}/references/modify-process.md`
 Templates for creating new skills are located in `{baseDir}/references/`:
 
 - `{baseDir}/references/workflow-template.md` - For complex multi-step processes
+- `{baseDir}/references/orchestrator-template.md` - For SubAgent/Skill coordination
 - `{baseDir}/references/utility-template.md` - For simple focused operations
 - `{baseDir}/references/integration-template.md` - For API wrappers
 - `{baseDir}/references/validation-template.md` - For analysis tools

@@ -1,6 +1,8 @@
 ---
 name: plan-review
 description: |
+  Use this skill to review plan documents for rule compliance before implementation.
+
   Reviews plan documents for rule compliance and suggests implementation improvements. Validates plans against .agent/rules/.
 
   Args:
@@ -8,9 +10,10 @@ description: |
       PLAN_PATH=<path> - Direct path to plan file
       ARTIFACT_DIR_PATH=<path> - Load plan from artifact directory
       ISSUE_ID=<id> - Load plan from Linear issue's linked document
-    Output Destination (Optional):
+    Output Destination (Optional, OneOf):
+      USE_TEMP=true - Save to temp file (default)
       ARTIFACT_DIR_PATH=<path> - Save review to artifact directory
-      (If omitted, review stays in temp file only)
+      ISSUE_ID=<id> - Save as Linear Document attached to issue
 
   Examples:
     /plan-review PLAN_PATH=.agent/tmp/plan.md
@@ -33,37 +36,17 @@ Provide one of the following to specify where the plan is located:
 - `ARTIFACT_DIR_PATH` - Artifact directory path (e.g., `.agent/artifacts/20260105-120000`)
 - `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
 
-### Output Destination (Optional)
+### Output Destination (Optional, OneOf)
 
-- `ARTIFACT_DIR_PATH` - When provided as Plan Source, it automatically becomes the Output Destination (review saved to the same directory). No need to specify twice.
+- `USE_TEMP=true` - Save to temp file (default behavior)
+- `ARTIFACT_DIR_PATH` - Artifact directory path to save the review result (when provided as Plan Source, it automatically becomes the Output Destination)
+- `ISSUE_ID` - Save as Linear Document attached to the issue (when provided as Plan Source, it automatically becomes the Output Destination)
 
-> **Note**: If `ISSUE_ID` is provided without explicit output destination, the review will be saved as a Document attached to the Issue in Linear.
-
-> **Note**: If no output destination is provided, the review will be saved to a temporary file only (created via `mktemp` skill) and presented to the user. No permanent output is created.
-
-## Usage Examples
-
-```bash
-# Direct plan file -> temp file only (no permanent output)
-skill: plan-review
-args: PLAN_PATH=.agent/tmp/plan.md
-
-# Direct plan file -> save to artifact directory
-skill: plan-review
-args: PLAN_PATH=.agent/tmp/plan.md ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Artifact directory -> review saved to same directory
-skill: plan-review
-args: ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Linear Issue -> Linear Document output
-skill: plan-review
-args: ISSUE_ID=TA-123
-
-# Linear Issue -> Artifact output (explicit)
-skill: plan-review
-args: ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-```
+**Output Priority**:
+1. `USE_TEMP=true` → Temp file
+2. `ARTIFACT_DIR_PATH` → Artifact
+3. `ISSUE_ID` → Linear Document
+4. Default (no option) → Temp file
 
 ## Process
 
@@ -146,7 +129,28 @@ For each Implementation Step in the plan:
    - Description of the issue
    - Specific recommended fix
 
-### 5. Analyze for Improvements
+### 5. Perform Task Alignment Review (ISSUE_ID only)
+
+> Skip this step if `ISSUE_ID` is not provided as Plan Source.
+
+When `ISSUE_ID` is provided, the Issue Description contains the Task document (requirements). Compare the plan against this Task document:
+
+1. **Acceptance Criteria Coverage**
+   - All acceptance criteria from Task are addressed in Plan
+   - No requirements are omitted
+   - Each criteria has corresponding implementation steps
+
+2. **Scope Alignment**
+   - Plan stays within Task's In Scope boundaries
+   - Plan doesn't include Out of Scope items
+   - Any deviations are justified
+
+3. **Record Task Alignment Issues**:
+   - Missing acceptance criteria coverage
+   - Scope violations
+   - Unjustified additions
+
+### 6. Analyze for Improvements
 
 Beyond rule compliance, analyze the plan for:
 
@@ -165,19 +169,21 @@ Beyond rule compliance, analyze the plan for:
    - Are there missing test scenarios?
    - Could steps be combined or split more effectively?
 
-### 6. Determine Result
+### 7. Determine Result
 
 **Approved Criteria:**
 - All proposed changes follow applicable rules
 - No critical architectural concerns
+- Task alignment passes (if ISSUE_ID provided)
 - Any minor suggestions are informational only
 
 **Revision Needed Criteria:**
 - At least one rule violation found
 - Critical architectural concern identified
 - Missing required test scenarios
+- Task alignment issues (if ISSUE_ID provided)
 
-### 7. Write Review Document
+### 8. Write Review Document
 
 Use `mktemp` skill to create temporary file:
 
@@ -188,19 +194,20 @@ args: plan-review
 
 Write the review result following the [Output Format](#output-format).
 
-### 8. Create Final Output
+### 9. Create Final Output
 
-Once review is complete, create the final output:
+Determine output destination based on parameters:
 
-- If `ARTIFACT_DIR_PATH` is provided -> Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
-- Else if `ISSUE_ID` is provided -> Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
-- Else -> Follow [Temp File Only Output](#temp-file-only-output) below
+1. If `USE_TEMP=true` -> Follow [Temp File Only Output](#temp-file-only-output) below
+2. Else if `ARTIFACT_DIR_PATH` is provided -> Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
+3. Else if `ISSUE_ID` is provided -> Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
+4. Else (default) -> Follow [Temp File Only Output](#temp-file-only-output) below
 
 ### Temp File Only Output
 
-When no output destination is provided (`PLAN_PATH` used without `ARTIFACT_DIR_PATH`):
+When temp file output is selected:
 
-1. Review result remains in the temp file created by `mktemp` skill in Step 7
+1. Review result remains in the temp file created by `mktemp` skill in Step 8
 2. Present the review result to the user
 3. Inform user: "Review saved to: {temp_file_path}"
 4. No artifact or Linear Document is created
@@ -245,6 +252,13 @@ The plan follows project rules and is ready for implementation.
 | Architecture | Pass | Structure follows hexagonal architecture |
 | Test Coverage | Pass | All branches have test scenarios |
 | Package Selection | Pass | Selected packages are appropriate |
+
+## Task Alignment (ISSUE_ID only)
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Acceptance Criteria Coverage | Pass | All criteria addressed |
+| Scope Alignment | Pass | Within defined scope |
 
 ## Optional Improvements
 
@@ -312,6 +326,13 @@ Plan review identified issues that need to be addressed before implementation. T
 | Architecture | {Pass/Warn/Fail} | {Notes} |
 | Test Coverage | {Pass/Warn} | {Notes} |
 | Package Selection | {Pass/Warn} | {Notes} |
+
+## Task Alignment (ISSUE_ID only)
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Acceptance Criteria Coverage | {Pass/Fail} | {Notes} |
+| Scope Alignment | {Pass/Fail} | {Notes} |
 
 ## Rules Applied
 

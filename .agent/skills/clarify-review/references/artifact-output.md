@@ -21,7 +21,7 @@ This creates a file like `{ARTIFACT_DIR_PATH}/03_clarify-review.md` (number depe
 
 ### 2. Copy Review Content
 
-Copy the review content from the temp file (created in Step 6 of main process) to the artifact file.
+Copy the review content from the temp file (created in Step 5 of main process) to the artifact file.
 
 ### 3. Notify User
 

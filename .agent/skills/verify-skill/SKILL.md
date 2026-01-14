@@ -1,6 +1,8 @@
 ---
 name: verify-skill
 description: |
+  Use this skill to verify skill documentation for standards compliance.
+
   Verifies skill documentation for standards compliance, consistency, accuracy, and completeness. Checks directory structure, frontmatter fields, path references, parameter names, and dependent skill interfaces.
 
   Args:
@@ -10,8 +12,6 @@ description: |
   Examples:
     /verify-skill plan
     /verify-skill clarify-workflow FIX=true
-context: fork
-agent: step-by-step-agent
 ---
 
 # Verify-Skill
@@ -27,18 +27,6 @@ Verifies skill documentation for standards compliance, consistency, and accuracy
 ### Optional
 
 - `FIX=true` - Include specific fix suggestions in the report. Omit for report only.
-
-## Usage Examples
-
-```bash
-# Verify a single skill
-skill: verify-skill
-args: plan
-
-# Verify with fix suggestions
-skill: verify-skill
-args: plan FIX=true
-```
 
 ## Process
 
@@ -148,11 +136,17 @@ Skills may be installed in different locations. Using `{baseDir}` ensures paths 
 
 Verify the frontmatter description accurately represents the skill's behavior:
 
-| Check                      | Description                                                                     |
-| :------------------------- | :------------------------------------------------------------------------------ |
-| Accurate behavior coverage | Description should accurately represent what the skill does                     |
-| Invocation clarity         | Description should be detailed enough for LLM to know when to invoke this skill |
-| Argument documentation     | If skill has Parameters, description MUST include invocation format             |
+| Check                      | Description                                                                                              |
+| :------------------------- | :------------------------------------------------------------------------------------------------------- |
+| Accurate behavior coverage | Description should accurately represent what the skill does                                              |
+| Invocation clarity         | Description should be detailed enough for LLM to know when to invoke this skill                          |
+| Usage context              | Description should specify when/why to use this skill (e.g., "Use this when...", "Use this skill to...") |
+| Directive phrasing         | Description should include directive phrases ("ALWAYS", "Use this", "IMPORTANT") to guide LLM behavior   |
+| Argument documentation     | If skill has Parameters, description MUST include invocation format                                      |
+
+**Severity:**
+- Missing usage context → **High** (LLM may not recognize when to use the skill)
+- Missing directive phrasing → **High** (LLM may choose alternatives instead of this skill)
 
 **Description Format:**
 
@@ -276,6 +270,26 @@ args: plan
 skill: mktemp plan
 ```
 
+**Example Placement Check:**
+
+Invocation examples must be in the frontmatter description only, not in the SKILL.md body.
+
+| Pattern to Flag                                              | Severity | Issue                                     |
+| ------------------------------------------------------------ | -------- | ----------------------------------------- |
+| `## Usage Examples` section in body                          | **High** | Invocation examples belong in frontmatter |
+| `## Examples` section with `/skill-name` patterns            | **High** | Move to frontmatter description           |
+| `skill:` + `args:` examples showing how to call *this* skill | **High** | Redundant - already in frontmatter        |
+
+**Why This Matters:**
+- Agent reads frontmatter description **before** invoking the skill
+- Agent reads SKILL.md body **after** invoking - too late for invocation guidance
+- Duplicating examples creates maintenance burden
+
+**How to Verify:**
+1. Search SKILL.md body for sections like "Usage Examples", "Examples", "How to Use"
+2. Check if they contain invocation patterns (`/skill-name`, `skill:` + `args:`)
+3. Flag as High severity - suggest moving to frontmatter description
+
 ### 9. Documentation Duplication Check
 
 Check for content overlap between SKILL.md and reference documents (references/*.md).
@@ -341,7 +355,34 @@ grep -r "skill:\s*$SKILL_NAME" .agent/skills/ --include="*.md"
 
 ---
 
-### 11. Generate Report
+## Skill Type-Specific Checks
+
+### 11. Orchestrator Pattern Check
+
+If skill contains "CRITICAL ROLE CONSTRAINT" block, verify orchestrator-specific requirements.
+
+**Detection:**
+
+Search for `> **CRITICAL ROLE CONSTRAINT**` or `CRITICAL ROLE CONSTRAINT` pattern in SKILL.md.
+
+**Required Sections for Orchestrator Skills:**
+
+| Section | Severity | Description |
+|---------|----------|-------------|
+| Subagent Selection | **High** | Must document how to choose subagents |
+| Behavior Rules | **High** | Must define behavior rules |
+
+**How to Verify:**
+1. Search for "CRITICAL ROLE CONSTRAINT" in SKILL.md
+2. If found, check for "## Subagent Selection" or "Subagent Selection" heading
+3. If found, check for "## Behavior Rules" or "Behavior Rules" heading
+4. Flag missing sections as High severity
+
+**Note:** This check only applies when the CRITICAL ROLE CONSTRAINT pattern is detected. Skills without this pattern are not validated as orchestrators.
+
+---
+
+### 12. Generate Report
 
 Output a verification report:
 

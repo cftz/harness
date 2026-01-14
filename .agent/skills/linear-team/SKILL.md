@@ -1,6 +1,13 @@
 ---
 name: linear-team
-description: "List Linear teams.\n\nCommands:\n  list - List all teams\n\nExamples:\n  /linear-team list"
+description: |
+  Use this skill to list all Linear teams.
+
+  Commands:
+    list - List all teams
+
+  Examples:
+    /linear-team list
 user-invocable: false
 ---
 

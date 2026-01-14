@@ -1,6 +1,17 @@
 ---
 name: linear-current
-description: "Get current Linear context (team, project, user) with read-through caching.\n\nCommands:\n  project - Get current project\n  team - Get current team\n  user - Get current user (viewer)\n\nExamples:\n  /linear-current project\n  /linear-current team\n  /linear-current user"
+description: |
+  Use this skill to get the current Linear context (team, project, user) with read-through caching.
+
+  Commands:
+    project - Get current project
+    team - Get current team
+    user - Get current user (viewer)
+
+  Examples:
+    /linear-current project
+    /linear-current team
+    /linear-current user
 user-invocable: false
 ---
 
@@ -34,6 +45,3 @@ Uses a read-through cache pattern:
 }
 ```
 
-## Environment Variables
-
-- `LINEAR_API_KEY` - Required for API authentication (only for `user` command)

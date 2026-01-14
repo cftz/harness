@@ -1,6 +1,8 @@
 ---
 name: clarify-workflow
 description: |
+  Use this skill to clarify and refine requirements before implementation.
+
   Orchestrates requirements clarification by combining draft-clarify, clarify-review, and finalize-clarify skills with automated review loop and user approval.
 
   Args:
@@ -21,8 +23,6 @@ description: |
     /clarify-workflow ISSUE_ID=TA-123 PROJECT_ID=cops
     /clarify-workflow REQUEST="Add auth feature" ARTIFACT_DIR_PATH=.agent/artifacts/20260107
 model: claude-opus-4-5
-context: fork
-agent: step-by-step-agent
 ---
 
 # Clarify Workflow Skill
@@ -64,34 +64,6 @@ args: project
 - `MAX_CYCLES` - Maximum number of auto-fix cycles for clarify-review loop. Defaults to `10`.
 
 > **Note:** When `ISSUE_ID` is provided as input, it is automatically passed as `PARENT_ISSUE_ID` to `finalize-clarify`, creating the resulting tasks as sub-issues under the original issue.
-
-## Usage Examples
-
-```bash
-# Linear issue -> Current project (uses linear-current for project and assignee)
-skill: clarify-workflow
-args: ISSUE_ID=TA-123
-
-# Linear issue -> Specific project
-skill: clarify-workflow
-args: ISSUE_ID=TA-123 PROJECT_ID=my-project
-
-# User request -> Artifact output
-skill: clarify-workflow
-args: REQUEST="Add user authentication feature" ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Linear issue -> Artifact output
-skill: clarify-workflow
-args: ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Linear issue -> Specific project with specific assignee
-skill: clarify-workflow
-args: ISSUE_ID=TA-123 PROJECT_ID=my-project ASSIGNEE=john@example.com
-
-# Linear issue -> Current project with auto-accept
-skill: clarify-workflow
-args: ISSUE_ID=TA-123 AUTO_ACCEPT=true
-```
 
 ## Workflow Overview
 

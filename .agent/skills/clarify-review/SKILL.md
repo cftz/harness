@@ -7,9 +7,9 @@ description: |
     Task Source (OneOf, Required):
       PROMPT_PATH=<path> + DRAFT_PATHS=<paths> - Direct file paths
       ISSUE_ID=<id> - Linear Issue (parent description = prompt, sub-issues = drafts)
-    Output Destination (Optional):
+    Output Destination (Optional, OneOf):
+      USE_TEMP=true - Save to temp file (default)
       ARTIFACT_DIR_PATH=<path> - Save review to artifact directory
-      (If omitted, saves to temp file via mktemp)
 
   Examples:
     /clarify-review PROMPT_PATH=.agent/tmp/prompt DRAFT_PATHS=.agent/tmp/task1,.agent/tmp/task2
@@ -39,28 +39,17 @@ Provide one of the following:
   - Parent issue description = original prompt
   - Sub-issues = clarified task documents
 
-### Output Destination (Optional)
+### Output Destination (Optional, OneOf)
 
+- `USE_TEMP=true` - Save to temp file (default behavior)
 - `ARTIFACT_DIR_PATH` - Artifact directory path to save the review result
-- If not provided, saves to a temp file via `mktemp` skill
 
-> **Note**: Linear Document output is not supported. Input only supports ISSUE_ID.
+**Output Priority**:
+1. `USE_TEMP=true` → Temp file
+2. `ARTIFACT_DIR_PATH` → Artifact
+3. Default (no option) → Temp file
 
-## Usage Examples
-
-```bash
-# Review with direct file paths
-skill: clarify-review
-args: PROMPT_PATH=.agent/tmp/prompt DRAFT_PATHS=.agent/tmp/task1,.agent/tmp/task2
-
-# Review Linear issue (parent = prompt, sub-issues = drafts)
-skill: clarify-review
-args: ISSUE_ID=TA-123
-
-# Review with artifact output
-skill: clarify-review
-args: ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260111
-```
+> **Note**: ISSUE_ID is for input only (task source). Linear Document output is not supported since issues are not yet created at clarify stage.
 
 ## Process
 
@@ -152,8 +141,11 @@ Write the review result following the [Output Format](#output-format).
 
 ### 6. Create Final Output
 
-- If `ARTIFACT_DIR_PATH` provided -> Read [Artifact Output]({baseDir}/references/artifact-output.md)
-- Else -> Read [Temp Output]({baseDir}/references/temp-output.md)
+Determine output destination based on parameters:
+
+1. If `USE_TEMP=true` -> Read [Temp Output]({baseDir}/references/temp-output.md)
+2. Else if `ARTIFACT_DIR_PATH` provided -> Read [Artifact Output]({baseDir}/references/artifact-output.md)
+3. Else (default) -> Read [Temp Output]({baseDir}/references/temp-output.md)
 
 ## Output Format
 

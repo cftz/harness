@@ -32,6 +32,8 @@ The content should follow the output format defined in SKILL.md:
 
 ### 3. Notify User (if applicable)
 
+> Note: `AUTO_ACCEPT` is passed by orchestrator workflows (e.g., implement-workflow), not directly to code-review.
+
 If `AUTO_ACCEPT` is not `true` and result is Pass:
 - Inform user that review passed
 - Show summary of files reviewed

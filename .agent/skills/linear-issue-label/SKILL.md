@@ -1,6 +1,14 @@
 ---
 name: linear-issue-label
-description: "List Linear issue labels.\n\nCommands:\n  list [TEAM_ID=...] - List labels for a team (defaults to linear-current team)\n\nExamples:\n  /linear-issue-label list\n  /linear-issue-label list TEAM_ID=abc-123"
+description: |
+  Use this skill to list Linear issue labels for a team.
+
+  Commands:
+    list [TEAM_ID=...] - List labels for a team (defaults to linear-current team)
+
+  Examples:
+    /linear-issue-label list
+    /linear-issue-label list TEAM_ID=abc-123
 user-invocable: false
 ---
 
