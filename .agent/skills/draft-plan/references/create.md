@@ -15,19 +15,6 @@ Provide one of the following to specify where requirements come from:
 
 - `OUTPUT_PATH` - Path to write the draft plan. If not provided, uses `mktemp` skill to create a temporary file.
 
-## Usage Examples
-
-```bash
-# From Linear issue, auto-generate temp file
-/draft-plan create ISSUE_ID=TA-123
-
-# From task file, auto-generate temp file
-/draft-plan create TASK_PATH=.agent/artifacts/20260105/01_task.md
-
-# From Linear issue, specify output path
-/draft-plan create ISSUE_ID=TA-123 OUTPUT_PATH=.agent/tmp/plan.md
-```
-
 ## Process
 
 ### 1. Read Requirements

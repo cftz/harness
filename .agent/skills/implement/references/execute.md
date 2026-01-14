@@ -19,16 +19,6 @@ Both must be provided together.
   - Plan: Retrieved from Document attached to the issue
   - Requirements: Retrieved from issue description
 
-## Usage Examples
-
-```bash
-# From Linear Issue (plan from attached Document, requirements from description)
-/implement execute ISSUE_ID=TA-123
-
-# From local files
-/implement execute PLAN_PATH=.agent/artifacts/20260107/02_plan.md TASK_PATH=.agent/artifacts/20260107/01_task.md
-```
-
 ## Process
 
 ### 1. Read Plan and Requirements

@@ -2,8 +2,6 @@
 name: plan-workflow
 description: "Orchestrates plan creation by combining draft-plan, plan-review, and finalize-plan skills with automated review loop and user approval.\n\nArgs:\n  Task Source (OneOf, Required):\n    TASK_PATH=<path> - Task document path\n    ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)\n  Output (Optional):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory (If omitted with ISSUE_ID, saves as Linear Document)\n  Options:\n    AUTO_ACCEPT=true - Skip user review (default: false)\n    MAX_CYCLES=<n> - Maximum auto-fix cycles (default: 10)\n\nExamples:\n  /plan-workflow ISSUE_ID=TA-123\n  /plan-workflow ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260107\n  /plan-workflow TASK_PATH=.agent/tmp/task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107"
 model: claude-opus-4-5
-context: fork
-agent: step-by-step-agent-agent
 ---
 
 # Plan Workflow Skill
@@ -31,26 +29,6 @@ If not provided and `ISSUE_ID` is provided, the plan will be saved as a Document
 
 - `AUTO_ACCEPT` - If set to `true`, skip user review at the end. Defaults to `false`.
 - `MAX_CYCLES` - Maximum number of auto-fix cycles for plan-review loop. Defaults to `10`.
-
-## Usage Examples
-
-```bash
-# Linear issue -> Linear Document (attached to issue)
-skill: plan-workflow
-args: ISSUE_ID=TA-123
-
-# Linear issue -> Artifact output
-skill: plan-workflow
-args: ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Task file -> Artifact output
-skill: plan-workflow
-args: TASK_PATH=.agent/artifacts/20260105/01_task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# With auto-accept (skip user review)
-skill: plan-workflow
-args: ISSUE_ID=TA-123 AUTO_ACCEPT=true
-```
 
 ## Workflow Overview
 

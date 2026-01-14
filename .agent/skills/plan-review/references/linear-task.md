@@ -1,6 +1,6 @@
 # Linear Task Document (Plan Review)
 
-This document defines how to load a plan from a Linear issue's linked document.
+This document defines how to load a plan and task document from a Linear issue.
 
 ## Input
 
@@ -19,10 +19,20 @@ args: get ID={ISSUE_ID}
 
 Extract:
 - Title
-- Description
+- **Description** (this is the Task document containing requirements)
 - Documents array (linked documents)
 
-### 2. Find Plan Document
+### 2. Extract Task Document
+
+The Issue Description contains the Task document (requirements) from clarify stage:
+- Task Summary
+- Acceptance Criteria
+- Scope (In Scope / Out of Scope)
+- Constraints
+
+Store this as the Task document for Task Alignment Review in Step 5.
+
+### 3. Find Plan Document
 
 From the issue's `documents` array, look for documents with titles containing:
 - "Plan"
@@ -34,7 +44,7 @@ Example documents array:
 "documents": [{"id": "doc-456", "title": "[Plan] Add user authentication"}]
 ```
 
-### 3. Load Plan Document Content
+### 4. Load Plan Document Content
 
 Use the `linear-document` skill to get the plan content:
 
@@ -43,7 +53,7 @@ skill: linear-document
 args: get ID={document_id}
 ```
 
-### 4. Parse Plan Content
+### 5. Parse Plan Content
 
 From the document content, extract:
 - Title (from document title or first heading)
@@ -56,8 +66,9 @@ From the document content, extract:
 
 After reading the issue and documents, you should have:
 
+- **Task document**: Issue Description (requirements from clarify)
 - **Plan document**: Full content from Linear document
-- **Issue context**: Title, description from the issue
+- **Issue context**: Title from the issue
 - **Target file list**: Files mentioned in the plan
 
 ## Example
@@ -66,6 +77,20 @@ After reading the issue and documents, you should have:
 ISSUE_ID: TA-123
 
 Issue: "Add user authentication"
+  - Description: (Task document)
+    # Task Summary
+    Implement JWT-based authentication...
+
+    # Acceptance Criteria
+    - [ ] User can login with email/password
+    - [ ] JWT token is returned on success
+    ...
+
+    # Scope
+    ## In Scope
+    - Login endpoint
+    ...
+
   - documents: [{"id": "doc-456", "title": "[Plan] Add user authentication"}]
 
 Document doc-456 (Plan):
@@ -73,6 +98,7 @@ Document doc-456 (Plan):
   - Content: Implementation steps...
 
 Extracted:
-- Title: Add user authentication
+- Task document: Issue Description (for Task Alignment Review)
+- Plan document: doc-456 content
 - Target files: internal/service/auth/auth.go, etc.
 ```

@@ -2,8 +2,7 @@
 name: finalize-clarify
 description: "Converts approved temporary task files to final outputs (Artifact files or Linear issues).\n\nArgs:\n  DRAFT_PATHS=<paths> (Required) - Comma-separated list of temporary file paths\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    PROJECT_ID=<id> - Create Linear issues in project\n  Options:\n    ASSIGNEE=<id|name|email|me> - Issue assignee (default: linear-current user)\n    PARENT_ISSUE_ID=<id> - Create as sub-issues under this parent\n\nExamples:\n  /finalize-clarify DRAFT_PATHS=.agent/tmp/20260110-task1,.agent/tmp/20260110-task2 ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-clarify DRAFT_PATHS=.agent/tmp/20260110-task1 PROJECT_ID=cops\n  /finalize-clarify DRAFT_PATHS=.agent/tmp/20260110-task1 PROJECT_ID=cops PARENT_ISSUE_ID=TA-123 ASSIGNEE=me"
 model: claude-sonnet-4-5
-context: fork
-agent: step-by-step-agent
+
 ---
 
 # Finalize Clarify Skill

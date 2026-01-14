@@ -43,7 +43,7 @@ Before making changes, verify they comply with Rules (from main SKILL.md):
 
 - [ ] Parameter naming follows UPPERCASE_WITH_UNDERSCORES
 - [ ] Path references use `{baseDir}` variable
-- [ ] Frontmatter description is single-line with `\n`
+- [ ] Frontmatter description uses YAML multiline syntax (`|`)
 - [ ] Directory structure remains flat
 - [ ] Skill name remains kebab-case
 

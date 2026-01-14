@@ -15,16 +15,6 @@ Provide one of the following:
 - `FEEDBACK` - Feedback text directly (e.g., `FEEDBACK="Add error handling for network failures"`)
 - `FEEDBACK_PATH` - Path to a file containing feedback (e.g., review document)
 
-## Usage Examples
-
-```bash
-# Revise with inline feedback
-/draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK="Add error handling for network failures"
-
-# Revise with feedback from file
-/draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK_PATH=.agent/tmp/review.md
-```
-
 ## Process
 
 ### 1. Read Existing Draft

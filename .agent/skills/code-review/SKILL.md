@@ -7,16 +7,15 @@ description: |
     Task Source (OneOf, Required):
       ARTIFACT_DIR_PATH=<path> - Artifact directory (e.g., .agent/artifacts/20260105-120000)
       ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)
-    Options:
-      BRANCH=<name> - Base branch for comparison (default: main)
-      AUTO_ACCEPT=true - Skip notification on Pass (default: false)
+    Output Destination (Optional, OneOf):
+      USE_TEMP=true - Save to temp file (default)
+      ARTIFACT_DIR_PATH=<path> - Save review to artifact directory
+      ISSUE_ID=<id> - Save as Linear Document attached to issue
 
   Examples:
     /code-review ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
     /code-review ISSUE_ID=TA-123
 model: claude-opus-4-5
-context: fork
-agent: step-by-step-agent
 ---
 
 # Code-Review Skill
@@ -32,40 +31,17 @@ Provide one of the following to specify the review context:
 - `ARTIFACT_DIR_PATH` - Artifact directory path (e.g., `.agent/artifacts/20260105-120000`)
 - `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
 
-### Output Destination (Optional)
+### Output Destination (Optional, OneOf)
 
-- `ARTIFACT_DIR_PATH` - If already provided as Task Source, review document is saved to the same directory
+- `USE_TEMP=true` - Save to temp file (default behavior)
+- `ARTIFACT_DIR_PATH` - Artifact directory path to save the review result (when provided as Task Source, it automatically becomes the Output Destination)
+- `ISSUE_ID` - Save as Linear Document attached to the issue (when provided as Task Source, it automatically becomes the Output Destination)
 
-> **Note**: If `ISSUE_ID` is provided without `ARTIFACT_DIR_PATH`, the review will be saved as a Document attached to the Issue in Linear.
-
-### Optional
-
-- `BRANCH` - Base branch for comparison. Defaults to `main`.
-- `AUTO_ACCEPT` - If set to `true`, skip user notification on Pass result. Defaults to `false`.
-
-## Usage Examples
-
-```bash
-# Artifact → Artifact output
-skill: code-review
-args: ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Linear Issue → Linear Document output
-skill: code-review
-args: ISSUE_ID=TA-123
-
-# Linear Issue → Artifact output (explicit)
-skill: code-review
-args: ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
-
-# Custom branch comparison
-skill: code-review
-args: ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000 BRANCH=develop
-
-# Auto-accept on pass
-skill: code-review
-args: ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000 AUTO_ACCEPT=true
-```
+**Output Priority**:
+1. `USE_TEMP=true` → Temp file
+2. `ARTIFACT_DIR_PATH` → Artifact
+3. `ISSUE_ID` → Linear Document
+4. Default (no option) → Temp file
 
 ## Process
 
@@ -83,12 +59,14 @@ Understand:
 
 ### 2. Get Changed Files
 
-Use `git diff` to identify files that have been modified:
+Use `git status` to identify files that have been modified (including uncommitted changes):
 
 ```bash
-# Get files changed compared to base branch
-git diff --name-only ${BRANCH:-main}...HEAD
+# Get all modified files (staged and unstaged)
+git status --porcelain | awk '{print $2}'
 ```
+
+This captures uncommitted changes from the `implement` skill. Do NOT use `git diff main...HEAD` as it only shows committed changes.
 
 Focus review on these changed files only.
 
@@ -139,8 +117,12 @@ For each changed file:
 
 Once review is complete, create the final output:
 
-- If `ARTIFACT_DIR_PATH` is provided → Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
-- Else if `ISSUE_ID` is provided → Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
+Determine output destination based on parameters:
+
+1. If `USE_TEMP=true` → Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
+2. Else if `ARTIFACT_DIR_PATH` is provided → Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
+3. Else if `ISSUE_ID` is provided → Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
+4. Else (default) → Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
 
 ## Output Format
 
@@ -228,3 +210,14 @@ Before submitting the review document, verify:
 - [ ] If violations found, they are documented in requirements format
 - [ ] If pass, all reviewed files and applied rules are listed
 - [ ] Output saved to correct destination (artifact or Linear)
+
+## Constraints
+
+**This skill is READ-ONLY. You MUST NOT modify repository state:**
+
+- Do NOT modify any source files
+- Do NOT run `git checkout`, `git branch`, or any branch-changing commands
+- Do NOT run `git add`, `git commit`, `git push`, or any staging/committing commands
+- Do NOT run `git stash`, `git reset`, or any commands that alter working directory state
+
+If `git status` shows no changes, report "No Changes to Review" - do NOT attempt to fix this by switching branches or other workarounds.

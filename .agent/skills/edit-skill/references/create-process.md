@@ -11,14 +11,15 @@ Analyze `PROMPT` to understand the skill requirement:
 
 ## 2. Select Skill Type
 
-Present the four skill types with their characteristics:
+Present the five skill types with their characteristics:
 
-| Type            | When to Use                                                         |
-| --------------- | ------------------------------------------------------------------- |
-| **workflow**    | Complex processes requiring user confirmation, multiple I/O sources |
-| **utility**     | Simple file operations, transformations, or single-purpose tools    |
-| **integration** | External API integrations, multi-command interfaces                 |
-| **validation**  | Code analysis, linting, verification tasks                          |
+| Type            | When to Use                                                           |
+| --------------- | --------------------------------------------------------------------- |
+| **workflow**    | Complex processes requiring user confirmation, multiple I/O sources   |
+| **orchestrator**| Coordinating multiple SubAgents/Skills in parallel, dynamic outputs   |
+| **utility**     | Simple file operations, transformations, or single-purpose tools      |
+| **integration** | External API integrations, multi-command interfaces                   |
+| **validation**  | Code analysis, linting, verification tasks                            |
 
 Use `AskUserQuestion` to confirm the skill type selection.
 
@@ -36,6 +37,11 @@ Based on the selected skill type, guide through parameter definition:
 - Task Source parameters (input sources)
 - Output Destination parameters
 - Optional control parameters (e.g., `AUTO_ACCEPT`)
+
+**For Orchestrator Skills:**
+- Input collection parameters (what to orchestrate)
+- Execution control parameters (e.g., `LIMIT`, `PARALLEL`)
+- No fixed output destination (output is dynamic)
 
 **For Utility Skills:**
 - Required arguments
@@ -67,6 +73,12 @@ Guide the user through defining the execution process:
    - Any decision points or user interactions
 
 **For Workflow Skills:** Include numbered steps with detailed guidance, user confirmation points.
+
+**For Orchestrator Skills:** Define:
+- Subagent selection criteria (when to use step-by-step vs general-purpose)
+- Behavior rules (parallel vs sequential, interaction handling)
+- Result aggregation logic
+- Error handling per-task vs all-tasks
 
 **For Utility Skills:** Define script inputs, outputs, and error handling.
 
@@ -104,6 +116,7 @@ Once approved, create the skill directory and files:
 | Type        | Files Created                                            |
 | ----------- | -------------------------------------------------------- |
 | workflow    | `SKILL.md`, `references/*.md`                            |
+| orchestrator| `SKILL.md`                                               |
 | utility     | `SKILL.md`, `scripts/*.sh`                               |
 | integration | `SKILL.md`, `references/*.md`, `scripts/*.sh` (optional) |
 | validation  | `SKILL.md`                                               |

@@ -23,19 +23,6 @@ Both must be provided together.
   - Plan: Retrieved from Document attached to the issue
   - Review: Auto-discovered from attached Documents (see [Linear Review Document]({baseDir}/references/linear-review.md))
 
-## Usage Examples
-
-```bash
-# From Linear Issue (auto-discover review document)
-/implement fix ISSUE_ID=TA-123
-
-# From Linear Issue with explicit review path
-/implement fix ISSUE_ID=TA-123 REVIEW_PATH=.agent/artifacts/20260107/03_review.md
-
-# From local files
-/implement fix PLAN_PATH=.agent/artifacts/20260107/02_plan.md REVIEW_PATH=.agent/artifacts/20260107/03_review.md
-```
-
 ## Process
 
 ### 1. Read Plan and Review
