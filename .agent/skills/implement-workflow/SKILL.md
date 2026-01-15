@@ -28,6 +28,19 @@ model: claude-opus-4-5
 
 Orchestrates a complete implementation cycle from plan execution through code review and iterative fixes until the code passes review. This skill manages the automated review loop between implementation and code review, with user approval only at the final result.
 
+## Important: DO / DON'T
+
+**DO:**
+- Invoke `/implement execute` skill for implementation
+- Invoke `/code-review` skill for code review
+- Invoke `/implement fix` skill for fixing violations
+- Invoke `/finalize-implement` skill for commit/push/PR
+
+**DON'T:**
+- Edit code files directly (use Edit, Write tools)
+- Read plan documents and implement yourself
+- Make implementation decisions - delegate to `implement` skill
+
 ## Parameters
 
 ### Task Source (OneOf, Required)

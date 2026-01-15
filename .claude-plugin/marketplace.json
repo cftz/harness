@@ -1,0 +1,19 @@
+{
+  "name": "jayce-marketplace",
+  "owner": {
+    "name": "Jayce",
+    "email": "jayce@cftz.io"
+  },
+  "metadata": {
+    "description": "Plugin marketplace for Claude Code skills",
+    "version": "0.0.0"
+  },
+  "plugins": [
+    {
+      "name": "linear",
+      "source": "./plugins/linear",
+      "description": "Linear integration plugin",
+      "version": "1.0.0"
+    }
+  ]
+}

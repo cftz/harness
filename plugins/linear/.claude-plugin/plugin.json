@@ -1,0 +1,6 @@
+{
+  "name": "linear",
+  "version": "1.0.0",
+  "description": "Linear integration plugin",
+  "skills": "./skills/"
+}
