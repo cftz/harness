@@ -27,7 +27,8 @@ description: |
     /draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md,.agent/tmp/task2.md FEEDBACK="Split auth into separate tasks"
     /draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md FEEDBACK_PATH=.agent/tmp/review.md PROMPT_PATH=.agent/tmp/prompt
 model: claude-opus-4-5
-
+context: fork
+agent: step-by-step-agent
 ---
 
 # Draft Clarify Skill

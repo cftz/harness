@@ -47,7 +47,7 @@ All skill operations must follow these rules. These apply to both create and mod
 ### Directory Structure Standards
 
 1. **Location**: All skills must be in `.agent/skills/{skill-name}/`
-2. **Required Files**: Every skill must have `SKILL.md`
+2. **Required Files**: Every skill must have `SKILL.md` and `README.md`
 3. **Allowed Directories**: Only `scripts/`, `references/`, `assets/` are permitted
 4. **Flat Structure**: No subdirectories within standard directories
 
@@ -144,6 +144,7 @@ Location: .agent/skills/{NAME}/
 
 Files created:
 - SKILL.md
+- README.md
 - [additional files based on type]
 
 Validation: [PASSED | ISSUES FOUND]

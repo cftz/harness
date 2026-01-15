@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: |
-  Validates implementations against project rules defined in .agent/rules/. Supports Artifact or Linear Issue as input source, outputs Pass or Changes Required document to Artifact directory or Linear Document.
+  Use this skill after completing implementation to validate code against project rules. Validates implementations against project rules defined in .agent/rules/. Supports Artifact or Linear Issue as input source, outputs Pass or Changes Required document to Artifact directory or Linear Document.
 
   Args:
     Task Source (OneOf, Required):
@@ -16,6 +16,8 @@ description: |
     /code-review ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
     /code-review ISSUE_ID=TA-123
 model: claude-opus-4-5
+context: fork
+agent: step-by-step-agent
 ---
 
 # Code-Review Skill

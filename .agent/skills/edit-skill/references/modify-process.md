@@ -5,11 +5,14 @@ Execute this process when `MODE=modify`.
 ## 1. Load Existing Skill
 
 1. Locate skill directory: `.agent/skills/{NAME}/`
-2. Read and parse `SKILL.md` completely
-3. Identify skill type from current structure
-4. Load all supporting files (`references/*.md`, `scripts/*.sh`)
+2. Read and parse `README.md` to understand the skill's original intent
+3. Read and parse `SKILL.md` completely
+4. Identify skill type from current structure
+5. Load all supporting files (`references/*.md`, `scripts/*.sh`)
 
 If skill does not exist, report error and exit.
+
+If `README.md` does not exist, notify the user and offer to create one before proceeding with modifications.
 
 ## 2. Understand Modification Request
 
@@ -25,6 +28,13 @@ Parse `PROMPT` to understand what changes are needed:
 | Update documentation | "Improve examples section"                         |
 
 If request is unclear, use `AskUserQuestion` to clarify.
+
+**Intent Alignment Check:**
+
+Before proceeding, verify the proposed modification aligns with the skill's stated intent in README.md:
+- If modification **violates** the intent, warn the user and ask for confirmation
+- If modification **changes** the intent, explicitly note this for user confirmation
+- If modification **extends** the intent without conflict, proceed normally
 
 ## 3. Analyze Impact
 
@@ -70,6 +80,7 @@ Show the user:
 2. Files that will be modified
 3. Files that will be created/deleted (if any)
 4. Any dependent skills that may need updates
+5. **Intent Impact**: If the modification changes the skill's original intent, highlight this clearly
 
 Use `AskUserQuestion` to get approval:
 - "Approve changes"
@@ -82,6 +93,7 @@ Once approved:
 1. Update `SKILL.md` with modifications
 2. Create/update/delete reference files as needed
 3. Create/update/delete scripts as needed
+4. If intent changed and user confirmed, update `README.md` with the new intent
 
 Use the Edit tool for modifications, Write tool for new files.
 

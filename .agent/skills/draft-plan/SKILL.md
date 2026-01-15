@@ -1,8 +1,9 @@
 ---
 name: draft-plan
-description: "Creates or modifies draft execution plans in temporary files. Atomic skill for Phase A of planning workflow.\n\nCommands:\n  create - Create new draft plan\n    Task Source (OneOf, Required):\n      TASK_PATH=<path> - Task document path\n      ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)\n    Output (Optional):\n      OUTPUT_PATH=<path> - Output file path (uses mktemp if omitted)\n  modify - Revise existing draft plan\n    DRAFT_PATH=<path> (Required) - Existing draft to revise\n    Feedback (OneOf, Required):\n      FEEDBACK=\"<text>\" - Feedback text\n      FEEDBACK_PATH=<path> - Feedback file path\n\nExamples:\n  /draft-plan create ISSUE_ID=TA-123\n  /draft-plan create TASK_PATH=.agent/tmp/task.md\n  /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK=\"Add error handling\"\n  /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK_PATH=.agent/tmp/review.md"
+description: "Use this skill to create or modify draft execution plans in temporary files. Atomic skill for Phase A of planning workflow.\n\nCommands:\n  create - Create new draft plan\n    Task Source (OneOf, Required):\n      TASK_PATH=<path> - Task document path\n      ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)\n    Output (Optional):\n      OUTPUT_PATH=<path> - Output file path (uses mktemp if omitted)\n  modify - Revise existing draft plan\n    DRAFT_PATH=<path> (Required) - Existing draft to revise\n    Feedback (OneOf, Required):\n      FEEDBACK=\"<text>\" - Feedback text\n      FEEDBACK_PATH=<path> - Feedback file path\n\nExamples:\n  /draft-plan create ISSUE_ID=TA-123\n  /draft-plan create TASK_PATH=.agent/tmp/task.md\n  /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK=\"Add error handling\"\n  /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK_PATH=.agent/tmp/review.md"
 model: claude-opus-4-5
-
+context: fork
+agent: step-by-step-agent
 ---
 
 # Draft Plan Skill

@@ -20,6 +20,8 @@ description: |
     /plan-review ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
     /plan-review ISSUE_ID=TA-123
 model: claude-opus-4-5
+context: fork
+agent: step-by-step-agent
 ---
 
 # Plan-Review Skill

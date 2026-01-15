@@ -62,6 +62,7 @@ Verify the skill follows the standard directory structure.
 | Flat structure                | **High**     | No subdirectories within standard directories     |
 | Referenced files exist        | **Critical** | All referenced files must actually exist          |
 | `SKILL.md` exists             | **Critical** | Main skill definition file must exist             |
+| `README.md` exists            | **High**     | Intent documentation file must exist              |
 
 **How to Verify:**
 
@@ -75,6 +76,37 @@ find .agent/skills/$SKILL_NAME/scripts -mindepth 1 -type d 2>/dev/null
 find .agent/skills/$SKILL_NAME/references -mindepth 1 -type d 2>/dev/null
 find .agent/skills/$SKILL_NAME/assets -mindepth 1 -type d 2>/dev/null
 ```
+
+### 2.5 README.md Content Check
+
+Verify the skill has proper intent documentation in README.md.
+
+**Required Sections:**
+
+| Section | Required | Description |
+|---------|----------|-------------|
+| `## Intent` | **Yes** | What problem this skill solves |
+| `## Motivation` | No | Why this skill was created |
+| `## Design Decisions` | No | Key architectural choices |
+| `## Constraints` | No | What this skill should NOT do |
+
+**Checks:**
+
+| Check | Severity | Description |
+|-------|----------|-------------|
+| README.md exists | **High** | Every skill must have intent documentation |
+| Intent section exists | **High** | README.md must have "## Intent" section |
+| Intent is non-empty | **Medium** | Intent section must have meaningful content (not placeholder) |
+
+**Why This Matters:**
+
+README.md preserves the skill's original purpose. Without it, future modifications may drift from the intended design. The Intent section is critical for understanding what the skill should and should not do.
+
+**How to Verify:**
+
+1. Check `.agent/skills/{SKILL_NAME}/README.md` exists
+2. Parse for `## Intent` heading
+3. Verify Intent section has content (not just placeholder text like `{Purpose statement...}`)
 
 ### 3. Standard Frontmatter Field Check
 

@@ -1,6 +1,8 @@
 ---
 name: codex
 description: |
+  Use this skill when you need to leverage OpenAI Codex for code explanation, review, or getting a second AI perspective.
+
   OpenAI Codex CLI wrapper for AI agent collaboration.
 
   Args:

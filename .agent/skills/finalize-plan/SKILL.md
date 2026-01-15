@@ -1,8 +1,9 @@
 ---
 name: finalize-plan
-description: "Converts temporary draft files to final outputs (Artifact or Linear Document).\n\nArgs:\n  DRAFT_PATH=<path> (Required) - Path to temporary draft file\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    ISSUE_ID=<id> - Save as Linear Document and update issue state\n\nExamples:\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123"
+description: "Use this skill to finalize approved plans by converting temporary draft files to final outputs (Artifact or Linear Document).\n\nArgs:\n  DRAFT_PATH=<path> (Required) - Path to temporary draft file\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    ISSUE_ID=<id> - Save as Linear Document and update issue state\n\nExamples:\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123"
 model: claude-sonnet-4-5
-
+context: fork
+agent: step-by-step-agent
 ---
 
 # Finalize Plan Skill

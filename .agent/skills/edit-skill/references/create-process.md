@@ -23,13 +23,26 @@ Present the five skill types with their characteristics:
 
 Use `AskUserQuestion` to confirm the skill type selection.
 
-## 3. Validate Skill Name
+## 3. Define Skill Intent
+
+Capture the skill's core purpose and design rationale for README.md:
+
+1. **Intent**: What problem does this skill solve? (Required)
+2. **Motivation**: Why was this skill created? What need drove its creation?
+3. **Design Decisions**: What important architectural choices were made?
+4. **Constraints**: What should this skill NOT do? What are its boundaries?
+
+Use `AskUserQuestion` to gather this information from the user.
+
+This information will be documented in README.md to preserve the skill's original intent across future modifications.
+
+## 4. Validate Skill Name
 
 1. Verify `NAME` follows kebab-case convention
 2. Check that `.agent/skills/{NAME}/` does not exist
 3. If name is invalid or exists, report error and ask for new name
 
-## 4. Define Parameters
+## 5. Define Parameters
 
 Based on the selected skill type, guide through parameter definition:
 
@@ -61,7 +74,7 @@ Document each parameter with:
 - Description
 - Whether required or optional
 
-## 5. Define Process Steps
+## 6. Define Process Steps
 
 Guide the user through defining the execution process:
 
@@ -86,7 +99,7 @@ Guide the user through defining the execution process:
 
 **For Validation Skills:** Define checks to perform and severity levels.
 
-## 6. Create Temporary Draft
+## 7. Create Temporary Draft
 
 Use `mktemp` skill to create temporary files for drafting:
 
@@ -97,7 +110,7 @@ args: skill-draft
 
 Write the generated SKILL.md content to the temp file for user review.
 
-## 7. User Review
+## 8. User Review
 
 Present the draft to the user:
 1. Show the SKILL.md content
@@ -105,7 +118,7 @@ Present the draft to the user:
 3. Ask for approval or modifications
 4. Iterate until approved
 
-## 8. Generate Final Structure
+## 9. Generate Final Structure
 
 Once approved, create the skill directory and files:
 
@@ -113,17 +126,42 @@ Once approved, create the skill directory and files:
 
 **Files by Type:**
 
-| Type        | Files Created                                            |
-| ----------- | -------------------------------------------------------- |
-| workflow    | `SKILL.md`, `references/*.md`                            |
-| orchestrator| `SKILL.md`                                               |
-| utility     | `SKILL.md`, `scripts/*.sh`                               |
-| integration | `SKILL.md`, `references/*.md`, `scripts/*.sh` (optional) |
-| validation  | `SKILL.md`                                               |
+| Type        | Files Created                                                        |
+| ----------- | -------------------------------------------------------------------- |
+| workflow    | `SKILL.md`, `README.md`, `references/*.md`                           |
+| orchestrator| `SKILL.md`, `README.md`                                              |
+| utility     | `SKILL.md`, `README.md`, `scripts/*.sh`                              |
+| integration | `SKILL.md`, `README.md`, `references/*.md`, `scripts/*.sh` (optional)|
+| validation  | `SKILL.md`, `README.md`                                              |
+
+**README.md Template:**
+
+```markdown
+# {SKILL_NAME}
+
+## Intent
+
+{Purpose statement - what problem this skill solves}
+
+## Motivation
+
+{Why this skill was created - the driving need}
+
+## Design Decisions
+
+{Key architectural and design choices made}
+
+## Constraints
+
+{What this skill should NOT do - boundaries and limitations}
+
+---
+*This document captures the original intent. Modifications should preserve this intent or explicitly update it with user approval.*
+```
 
 **Note:** Use `{baseDir}` variable in SKILL.md to reference files: `{baseDir}/references/guide.md`
 
-## 9. Validate Generated Skill
+## 10. Validate Generated Skill
 
 Run validation:
 

@@ -1,0 +1,13 @@
+{
+  "name": "jayce-marketplace",
+  "version": "0.0.0",
+  "description": "Plugin marketplace for Claude Code skills",
+  "plugins": [
+    {
+      "name": "linear",
+      "path": "plugins/linear",
+      "description": "Linear integration plugin",
+      "version": "1.0.0"
+    }
+  ]
+}

@@ -21,7 +21,8 @@ description: |
     /implement fix ISSUE_ID=TA-123
     /implement fix PLAN_PATH=.agent/artifacts/20260107/02_plan.md REVIEW_PATH=.agent/artifacts/20260107/03_review.md
 model: claude-opus-4-5
-
+context: fork
+agent: step-by-step-agent
 ---
 
 # Implement Skill

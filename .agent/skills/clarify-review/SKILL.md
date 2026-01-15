@@ -1,7 +1,7 @@
 ---
 name: clarify-review
 description: |
-  Reviews clarified task documents to ensure they follow draft-clarify rules and properly address the original request.
+  Use this skill to validate clarified task documents before finalization. Reviews documents to ensure they follow draft-clarify rules and properly address the original request.
 
   Args:
     Task Source (OneOf, Required):
@@ -16,6 +16,8 @@ description: |
     /clarify-review ISSUE_ID=TA-123
     /clarify-review ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260111
 model: claude-opus-4-5
+context: fork
+agent: step-by-step-agent
 ---
 
 # Clarify Review Skill
