@@ -20,7 +20,7 @@ context: fork
 agent: step-by-step-agent
 ---
 
-# Code-Review Skill
+# Description
 
 Validates that implementations follow all applicable project rules. Reviews changed files against rules in `.agent/rules/` and outputs either a Pass result or a Changes Required document.
 
@@ -40,10 +40,10 @@ Provide one of the following to specify the review context:
 - `ISSUE_ID` - Save as Linear Document attached to the issue (when provided as Task Source, it automatically becomes the Output Destination)
 
 **Output Priority**:
-1. `USE_TEMP=true` → Temp file
-2. `ARTIFACT_DIR_PATH` → Artifact
-3. `ISSUE_ID` → Linear Document
-4. Default (no option) → Temp file
+1. `USE_TEMP=true` - Temp file
+2. `ARTIFACT_DIR_PATH` - Artifact
+3. `ISSUE_ID` - Linear Document
+4. Default (no option) - Temp file
 
 ## Process
 
@@ -51,8 +51,8 @@ Provide one of the following to specify the review context:
 
 Load prior planning documents to understand what was supposed to be implemented:
 
-- If `ARTIFACT_DIR_PATH` is provided → Read [Artifact Task Document]({baseDir}/references/artifact-task.md)
-- If `ISSUE_ID` is provided → Read [Linear Task Document]({baseDir}/references/linear-task.md)
+- If `ARTIFACT_DIR_PATH` is provided - Read [Artifact Task Document]({baseDir}/references/artifact-task.md)
+- If `ISSUE_ID` is provided - Read [Linear Task Document]({baseDir}/references/linear-task.md)
 
 Understand:
 - What was originally requested
@@ -75,8 +75,8 @@ Focus review on these changed files only.
 ### 3. Load Applicable Rules
 
 For each changed file, identify which rules apply based on:
-- **File extension**: `.go` → `go/*.md`, `.tsx` → `react/*.md`, etc.
-- **File path**: `internal/adapter/` → `go-port-adapter-pattern.md`, etc.
+- **File extension**: `.go` - `go/*.md`, `.tsx` - `react/*.md`, etc.
+- **File path**: `internal/adapter/` - `go-port-adapter-pattern.md`, etc.
 - **Always applicable**: `common.md`, `workflow.md`
 
 Use the frontmatter `paths` field in rule files (if present) to determine applicability, or use file extension/path heuristics.
@@ -121,14 +121,14 @@ Once review is complete, create the final output:
 
 Determine output destination based on parameters:
 
-1. If `USE_TEMP=true` → Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
-2. Else if `ARTIFACT_DIR_PATH` is provided → Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
-3. Else if `ISSUE_ID` is provided → Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
-4. Else (default) → Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
+1. If `USE_TEMP=true` - Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
+2. Else if `ARTIFACT_DIR_PATH` is provided - Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
+3. Else if `ISSUE_ID` is provided - Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
+4. Else (default) - Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
 
-## Output Format
+## Review Document Format
 
-### Pass Output
+### Pass Document
 
 ```markdown
 # Review Result
@@ -151,7 +151,7 @@ All changes follow project rules correctly.
 - `.agent/rules/react/react-web.md`
 ```
 
-### Changes Required Output
+### Changes Required Document
 
 When violations are found, output a requirements document:
 
@@ -223,3 +223,11 @@ Before submitting the review document, verify:
 - Do NOT run `git stash`, `git reset`, or any commands that alter working directory state
 
 If `git status` shows no changes, report "No Changes to Review" - do NOT attempt to fix this by switching branches or other workarounds.
+
+## Output
+
+SUCCESS:
+- RESULT: PASS or CHANGES_REQUIRED
+- REVIEW_PATH: Path to the saved review document
+
+ERROR: Error message string (e.g., "No changed files found to review")
