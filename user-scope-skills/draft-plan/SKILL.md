@@ -15,15 +15,12 @@ description: |
       Feedback (OneOf, Required):
         FEEDBACK="<text>" - Feedback text
         FEEDBACK_PATH=<path> - Feedback file path
-    resume - Continue from saved context
-      CONTEXT_PATH=<path> (Required) - Context file with answers filled in
 
   Examples:
     /draft-plan create ISSUE_ID=TA-123
     /draft-plan create TASK_PATH=.agent/tmp/task.md
     /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK="Add error handling"
     /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK_PATH=.agent/tmp/review.md
-    /draft-plan resume CONTEXT_PATH=.agent/tmp/xxx-context.md
 model: claude-opus-4-5
 context: fork
 agent: step-by-step-agent
@@ -39,7 +36,6 @@ Creates or modifies draft execution plans and writes them to temporary files. Th
 | -------- | --------------------------------------- | -------------------------------- |
 | `create` | Create new draft plan from requirements | `{baseDir}/references/create.md` |
 | `modify` | Revise existing draft based on feedback | `{baseDir}/references/modify.md` |
-| `resume` | Continue from saved context with answers | `{baseDir}/references/resume.md` |
 
 ## Plan Document Format
 
@@ -166,7 +162,5 @@ This skill only creates/modifies the draft. User review and final output creatio
 
 SUCCESS:
 - DRAFT_PATH: Path to the created/modified draft plan file
-
-AWAIT: Use context skill to save state when user input is needed (package selection, architecture decisions)
 
 ERROR: Error message string (e.g., "Task file not found: {path}", "Linear issue not found: {id}")

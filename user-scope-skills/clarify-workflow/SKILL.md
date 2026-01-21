@@ -214,49 +214,13 @@ The skill returns one of the following statuses per output-format rule:
 
 When draft-clarify returns `AWAIT`:
 
-1. **Load Context**
-   ```
-   skill: context
-   args: load CONTEXT_PATH=<context_path>
-   ```
-   Extract pending questions from the context.
+1. Load context using `checkpoint load`
+2. Convert questions to `AskUserQuestion` format
+3. Fill answers in context file
+4. Validate with `checkpoint update`
+5. Resume with `draft-clarify resume CONTEXT_PATH=...`
 
-2. **Collect User Answers**
-   Convert each question to `AskUserQuestion` format and collect answers:
-   ```
-   AskUserQuestion:
-     question: "{question.question}"
-     header: "{question.header}"
-     options: {question.options}
-   ```
-
-3. **Fill Answers in Context File**
-   For each answered question, edit the context file to fill the `**Answer**:` field:
-   ```
-   Edit the context file at CONTEXT_PATH:
-   - Find "### Q{N}: {question}"
-   - Replace empty "**Answer**:" with "**Answer**: {user_answer}"
-   ```
-
-4. **Validate Context**
-   ```
-   skill: context
-   args: update CONTEXT_PATH=<context_path>
-   ```
-   Ensure all questions have answers filled in.
-
-5. **Resume Skill**
-   ```
-   skill: draft-clarify
-   args: resume CONTEXT_PATH=<context_path>
-   ```
-
-6. **Check Return Status**
-   - If `SUCCESS`: Extract `PROMPT_PATH` and `DRAFT_PATHS`, proceed to Step 3
-   - If `AWAIT`: Loop back to step 1 with new context
-   - If `ERROR`: Report error and exit workflow
-
-Store `PROMPT_PATH` for use in revision loops.
+Loop until SUCCESS. Store `PROMPT_PATH` for use in revision loops.
 
 ### 3. Auto-review Loop
 
@@ -365,8 +329,6 @@ SUCCESS:
 - CYCLE_COUNT: Number of auto-fix cycles
 - CYCLE_HISTORY: Summary of each cycle result
 
-AWAIT: context skill generates Context document with pending questions
-
 ERROR: Error message string
 
 ### Output Report Format
@@ -427,7 +389,7 @@ This skill requires the following skills to exist:
 - `clarify-review` - Validates drafts against rules and original request
 - `finalize-clarify` - Saves approved tasks to final destination
 - `linear-current` - Resolves default project and user
-- `context` - Manages interruptible context files for resume support
+- `checkpoint` - Manages interruptible checkpoint files for resume support
 
 ### Three-Phase Workflow
 

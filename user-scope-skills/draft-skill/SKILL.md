@@ -108,6 +108,15 @@ Invocation examples must be placed **only in the frontmatter description**, not 
 - **Frontmatter description**: How to invoke the skill (`/skill-name ARG=value`)
 - **SKILL.md body**: Process steps, output formats, internal logic examples
 
+### AWAIT/Resume Documentation
+
+AWAIT and resume patterns are handled by global rules. When creating skills that return AWAIT:
+
+- **Do NOT** document resume command in SKILL.md
+- **Do NOT** create references/*.md for resume handling
+- **Do** document only SUCCESS and ERROR in the Output section
+- The resume command is automatically available for all skills that return AWAIT
+
 ### Quality Checklist
 
 Before completing any skill operation, verify:

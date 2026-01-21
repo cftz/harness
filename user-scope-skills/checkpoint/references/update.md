@@ -1,16 +1,16 @@
 # `update` Command
 
-Validate context file after answers have been filled in.
+Validate checkpoint file after answers have been filled in.
 
 ## Parameters
 
 | Parameter      | Required | Description                      |
 | -------------- | -------- | -------------------------------- |
-| `CONTEXT_PATH` | Yes      | Path to the context file         |
+| `CONTEXT_PATH` | Yes      | Path to the checkpoint file      |
 
 ## Process
 
-Read the context file and check if all Answer fields in Pending Questions are filled.
+Read the checkpoint file and check if all Answer fields in Pending Questions are filled.
 
 ### Validation
 

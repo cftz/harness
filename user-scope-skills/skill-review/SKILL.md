@@ -606,15 +606,15 @@ Then, launch Task for item 2...
 
 ### 6.3 Standard Output Format Check
 
-Verify skill output follows the standard resumable format defined in `.agent/rules/skill/output-format.md`.
+Verify skill output follows the standard format defined in `.agent/rules/skill/output-format.md`.
 
 **Output Format Checklist:**
 
 - [ ] Does `## Output` section exist in SKILL.md?
-- [ ] Does it document the standard format (SUCCESS/AWAIT/ERROR)?
 - [ ] Does SUCCESS include OUTPUT field definitions, or explicitly state none?
-- [ ] If skill supports AWAIT, does it reference context skill usage?
 - [ ] Does ERROR format specify error message string?
+
+**Note:** AWAIT and resume are handled by global rules. Individual skills do NOT need to document AWAIT or resume command in their Output section.
 
 **Valid Output Section Examples:**
 
@@ -637,18 +637,17 @@ ERROR: 에러 메시지 문자열
 
 **Severity:**
 
-| Check                              | Severity   | Description                                   |
-| ---------------------------------- | ---------- | --------------------------------------------- |
-| No `## Output` section in SKILL.md | **High**   | Output section missing from document          |
-| AWAIT with custom OUTPUT           | **High**   | Using custom OUTPUT instead of context skill  |
-| Missing ERROR format               | **Medium** | ERROR format description missing              |
+| Check                              | Severity   | Description                          |
+| ---------------------------------- | ---------- | ------------------------------------ |
+| No `## Output` section in SKILL.md | **High**   | Output section missing from document |
+| Missing ERROR format               | **Medium** | ERROR format description missing     |
 
 **How to Verify:**
 
 1. Check for `## Output` section in SKILL.md
 2. Verify SUCCESS format includes OUTPUT field definitions (if applicable)
-3. Verify AWAIT format references context skill usage
-4. Verify ERROR format specifies error message string
+3. Verify ERROR format specifies error message string
+4. Do NOT flag missing AWAIT documentation (handled by global rules)
 
 # Severity Definitions
 

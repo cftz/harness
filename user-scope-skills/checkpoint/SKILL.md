@@ -1,5 +1,5 @@
 ---
-name: context
+name: checkpoint
 description: |
   Utility skill for managing interruptible context files.
 
@@ -18,9 +18,9 @@ description: |
       Returns: READY or INCOMPLETE status
 
   Examples:
-    /context save
-    /context load CONTEXT_PATH=.agent/tmp/xxx-context.md
-    /context update CONTEXT_PATH=.agent/tmp/xxx-context.md
+    /checkpoint save
+    /checkpoint load CONTEXT_PATH=.agent/tmp/xxx-context.md
+    /checkpoint update CONTEXT_PATH=.agent/tmp/xxx-context.md
 user-invocable: false
 ---
 
@@ -32,8 +32,8 @@ Allows draft-* skills to save execution state to a file when user input is requi
 
 | Command  | Description                       | Docs                             |
 | -------- | --------------------------------- | -------------------------------- |
-| `save`   | Create and save context file      | `{baseDir}/references/save.md`   |
-| `load`   | Read context file and parse state | `{baseDir}/references/load.md`   |
+| `save`   | Create and save checkpoint file   | `{baseDir}/references/save.md`   |
+| `load`   | Read checkpoint file and parse state | `{baseDir}/references/load.md`   |
 | `update` | Validate answer fields are filled | `{baseDir}/references/update.md` |
 
 ## Output
@@ -41,9 +41,9 @@ Allows draft-* skills to save execution state to a file when user input is requi
 ### save Command
 
 SUCCESS:
-- CONTEXT_PATH: Path to the created context file
+- CONTEXT_PATH: Path to the created checkpoint file
 
-AWAIT: Uses context file pattern (this skill creates the context)
+AWAIT: Uses checkpoint file pattern (this skill creates the checkpoint)
 
 ERROR: Error message string
 

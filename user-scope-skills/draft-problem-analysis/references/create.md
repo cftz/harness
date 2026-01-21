@@ -57,30 +57,14 @@ Analyze the problem against these criteria:
 
 #### Checkpoint: Save Context if Clarification Needed
 
-If the problem statement is ambiguous or domain context is unclear, **save context and return** for clarification:
+If the problem statement is ambiguous or domain context is unclear, **save context and return** for clarification.
 
-1. **Save context using context skill**:
-   ```
-   skill: context
-   args: save
-   ```
+Use the `checkpoint` skill to save state and return AWAIT:
 
-   Fill the context template with:
-   - `{SKILL_INVOCATION}`: Original invocation (e.g., `/draft-problem-analysis create PROBLEM="..."`)
-   - `{PROGRESS_SUMMARY}`: Summary of progress so far, why execution stopped (detailed, natural language)
-   - `{PARTIAL_OUTPUTS}`: Research results, collected data
-   - `{QUESTIONS}`: Questions requiring answers (with empty Answer fields)
-
-2. **Return AWAIT status**:
-   ```
-   STATUS: AWAIT
-   CONTEXT_PATH: .agent/tmp/xxx-context.md
-   ```
-
-The workflow will:
-1. Collect answers via AskUserQuestion
-2. Fill answers in the context file
-3. Call `resume CONTEXT_PATH=...` to continue
+```
+STATUS: AWAIT
+CONTEXT_PATH: .agent/tmp/xxx-context.md
+```
 
 ### 4. Create Output File
 

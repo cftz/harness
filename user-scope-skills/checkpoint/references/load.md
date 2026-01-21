@@ -1,16 +1,16 @@
 # `load` Command
 
-Load context from a Markdown file to resume work.
+Load checkpoint from a Markdown file to resume work.
 
 ## Parameters
 
-| Parameter      | Required | Description                      |
-| -------------- | -------- | -------------------------------- |
-| `CONTEXT_PATH` | Yes      | Path to the context file to load |
+| Parameter      | Required | Description                          |
+| -------------- | -------- | ------------------------------------ |
+| `CONTEXT_PATH` | Yes      | Path to the checkpoint file to load  |
 
 ## Process
 
-Read the context file and continue from where the previous work left off.
+Read the checkpoint file and continue from where the previous work left off.
 
 ### Sections to Read
 

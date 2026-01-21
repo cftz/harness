@@ -70,33 +70,14 @@ Aim for 5-10 ideas with varying levels of innovation.
 
 #### Checkpoint: Save Context if Clarification Needed
 
-If you need user input to focus the ideation direction, **save context and return**:
+If you need user input to focus the ideation direction, **save context and return**.
 
-1. **Create context file**:
-   ```
-   skill: mktemp
-   args: draft-problem-solution-context
-   ```
+Use the `checkpoint` skill to save state and return AWAIT:
 
-2. **Fill context template** (`context/assets/context-template.md`):
-   - `{SKILL_INVOCATION}`: 원래 호출 (예: `/draft-problem-solution create ANALYSIS_PATH=...`)
-   - `{PROGRESS_SUMMARY}`: 지금까지 진행한 것, 왜 멈췄는지 (자연어로 상세히)
-   - `{PARTIAL_OUTPUTS}`: 분석 요약, 초기 아이디어 등
-   - `{PENDING_QUESTIONS}`: 답변이 필요한 질문들 (question-template 형식)
-   - `{ANSWERED_QUESTIONS}`: 이전에 답변된 질문들
-
-3. **Return AWAIT status**:
-   ```
-   STATUS: AWAIT
-   CONTEXT_PATH: .agent/tmp/xxx-context.md
-   ```
-
-   The workflow will use `CONTEXT_PATH` to load questions from the context file.
-
-The workflow will:
-1. Collect answers via AskUserQuestion
-2. Fill answers in the context file
-3. Call `resume CONTEXT_PATH=...` to continue
+```
+STATUS: AWAIT
+CONTEXT_PATH: .agent/tmp/xxx-context.md
+```
 
 ### 5. Rank Recommendations
 

@@ -41,31 +41,14 @@ If external libraries are needed rather than building from scratch:
 
 #### Checkpoint: Save Context if User Input Needed
 
-When you need user input for package selection or other decisions, **save context and return** instead of using AskUserQuestion directly:
+When you need user input for package selection or other decisions, **save context and return** instead of using AskUserQuestion directly.
 
-1. **Create context file** using context skill:
-   ```
-   skill: context
-   args: save
-   ```
+Use the `checkpoint` skill to save state and return AWAIT:
 
-2. **Fill context sections**:
-   - Skill Invocation: Original call (e.g., `/draft-plan create ISSUE_ID=TA-123`)
-   - Progress Summary: What has been done, why paused (detailed natural language)
-   - Partial Outputs: Research results, package comparisons, requirements analysis
-   - Pending Questions: Questions requiring answers (using question-template format)
-   - Answered Questions: Previously answered questions
-
-3. **Return AWAIT status**:
-   ```
-   STATUS: AWAIT
-   CONTEXT_PATH: .agent/tmp/xxx-context.md
-   ```
-
-The workflow will:
-1. Collect answers via AskUserQuestion
-2. Fill answers in the context file
-3. Call `resume CONTEXT_PATH=...` to continue
+```
+STATUS: AWAIT
+CONTEXT_PATH: .agent/tmp/xxx-context.md
+```
 
 ### 3. Explore Codebase
 

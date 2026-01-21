@@ -70,31 +70,14 @@ If information is missing or unclear, prepare structured questions focusing on:
 
 #### Checkpoint: Save Context if User Input Needed
 
-When you need to ask clarifying questions, **save context and return** instead of using AskUserQuestion directly:
+When you need to ask clarifying questions, **save context and return** instead of using AskUserQuestion directly.
 
-1. **Create context file**:
-   ```
-   skill: mktemp
-   args: draft-clarify-context
-   ```
+Use the `checkpoint` skill to save state and return AWAIT:
 
-2. **Fill context template** (using `context` skill assets):
-   - `{SKILL_INVOCATION}`: Original invocation (e.g., `/draft-clarify create ISSUE_ID=TA-123`)
-   - `{PROGRESS_SUMMARY}`: What has been done so far, why execution paused (detailed description)
-   - `{PARTIAL_OUTPUTS}`: Generated file paths, collected data
-   - `{PENDING_QUESTIONS}`: Questions that need answers (question-template format)
-   - `{ANSWERED_QUESTIONS}`: Previously answered questions
-
-3. **Return AWAIT**:
-   ```
-   STATUS: AWAIT
-   CONTEXT_PATH: .agent/tmp/xxx-context.md
-   ```
-
-The workflow will:
-1. Collect answers via AskUserQuestion
-2. Fill answers in the context file
-3. Call `resume CONTEXT_PATH=...` to continue
+```
+STATUS: AWAIT
+CONTEXT_PATH: .agent/tmp/xxx-context.md
+```
 
 **ALWAYS confirm with user**, even if requirements seem complete:
 - Show summary of understood requirements
@@ -146,7 +129,5 @@ Write each task's requirements document to a separate file following the Task Do
 SUCCESS:
 - PROMPT_PATH: Path to the generated prompt file
 - DRAFT_PATHS: Comma-separated list of task document paths
-
-AWAIT: Use context skill to save context when user input is needed
 
 ERROR: Error message string

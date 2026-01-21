@@ -1,19 +1,19 @@
 # `save` Command
 
-Save execution context to a Markdown file when user input is needed.
+Save execution checkpoint to a Markdown file when user input is needed.
 
 ## Process
 
-### 1. Create Context File
+### 1. Create Checkpoint File
 
 ```
 skill: mktemp
-args: {skill-name}-context
+args: {skill-name}-checkpoint
 ```
 
 ### 2. Copy and Fill Template
 
-Read `{baseDir}/assets/context-template.md` and fill:
+Read `{baseDir}/assets/checkpoint-template.md` and fill:
 
 | Placeholder | Value | Example |
 |-------------|-------|---------|

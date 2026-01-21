@@ -19,15 +19,12 @@ description: |
         FEEDBACK_PATH=<path> - Feedback file path
       Optional:
         PROMPT_PATH=<path> - Original request file for context
-    resume - Continue from saved context
-      CONTEXT_PATH=<path> (Required) - Context file with answers filled in
 
   Examples:
     /draft-clarify create ISSUE_ID=TA-123
     /draft-clarify create REQUEST="Add user authentication feature"
     /draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md,.agent/tmp/task2.md FEEDBACK="Split auth into separate tasks"
     /draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md FEEDBACK_PATH=.agent/tmp/review.md PROMPT_PATH=.agent/tmp/prompt
-    /draft-clarify resume CONTEXT_PATH=.agent/tmp/xxx-context.md
 model: claude-opus-4-5
 context: fork
 agent: step-by-step-agent
@@ -43,7 +40,6 @@ Creates or modifies draft task documents and writes them to temporary files. Thi
 | -------- | ------------------------------------------- | -------------------------------- |
 | `create` | Create new task documents from requirements | `{baseDir}/references/create.md` |
 | `modify` | Revise existing drafts based on feedback    | `{baseDir}/references/modify.md` |
-| `resume` | Continue from saved context with answers    | `{baseDir}/references/resume.md` |
 
 ## Prompt File Format
 
@@ -239,7 +235,5 @@ This skill only creates/modifies draft task documents in temporary files. User r
 SUCCESS:
 - PROMPT_PATH: Path to the generated prompt file (create command only)
 - DRAFT_PATHS: Comma-separated list of task document paths
-
-AWAIT: Use context skill to create Context document when user input is needed
 
 ERROR: Error message string

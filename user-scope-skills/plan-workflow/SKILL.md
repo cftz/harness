@@ -171,46 +171,13 @@ The skill returns one of two statuses:
 
 When draft-plan returns `AWAIT`:
 
-1. **Load Context**
-   ```
-   skill: context
-   args: load CONTEXT_PATH=<context_path>
-   ```
-   Extract pending questions from the context.
+1. Load context using `checkpoint load`
+2. Convert questions to `AskUserQuestion` format
+3. Fill answers in context file
+4. Validate with `checkpoint update`
+5. Resume with `draft-plan resume CONTEXT_PATH=...`
 
-2. **Collect User Answers**
-   Convert each question to `AskUserQuestion` format and collect answers:
-   ```
-   AskUserQuestion:
-     question: "{question.question}"
-     header: "{question.header}"
-     options: {question.options}
-   ```
-
-3. **Fill Answers in Context File**
-   For each answered question, edit the context file to fill the `**Answer**:` field:
-   ```
-   Edit the context file at CONTEXT_PATH:
-   - Find "### Q{N}: {question}"
-   - Replace empty "**Answer**:" with "**Answer**: {user_answer}"
-   ```
-
-4. **Validate Context**
-   ```
-   skill: context
-   args: update CONTEXT_PATH=<context_path>
-   ```
-   Ensure all questions have answers filled in.
-
-5. **Resume Skill**
-   ```
-   skill: draft-plan
-   args: resume CONTEXT_PATH=<context_path>
-   ```
-
-6. **Check Return Status**
-   - If `SUCCESS`: Extract `DRAFT_PATH`, proceed to Step 3
-   - If `AWAIT`: Loop back to step 1 with new context
+Loop until SUCCESS.
 
 ### 3. Auto-review Loop
 
@@ -387,7 +354,7 @@ This skill requires the following skills to exist:
 - `draft-plan` - Creates draft plan in temporary file
 - `plan-review` - Validates drafts against rules
 - `finalize-plan` - Saves approved plan to final destination
-- `context` - Manages interruptible context files for resume support
+- `checkpoint` - Manages interruptible checkpoint files for resume support (global rule)
 
 ### Three-Phase Workflow
 

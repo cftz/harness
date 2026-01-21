@@ -1,4 +1,4 @@
-# Context Skill
+# Checkpoint Skill
 
 ## Intent
 
@@ -11,11 +11,11 @@ Draft-* skills run with `context: fork`, meaning:
 - They cannot directly prompt users via AskUserQuestion
 - Traditional fork completion does not support resuming state
 
-The context file pattern solves this by:
+The checkpoint file pattern solves this by:
 1. Saving state to a file when user input is needed
 2. Returning `AWAIT` status to the workflow
 3. Workflow collects answers via AskUserQuestion
-4. Workflow records answers in the context file
+4. Workflow records answers in the checkpoint file
 5. `resume` command reloads state and continues
 
 ## Design Decisions
@@ -26,6 +26,6 @@ The context file pattern solves this by:
 
 ## Constraints
 
-- Context files are stored in `.agent/tmp/`
+- Checkpoint files are stored in `.agent/tmp/`
 - Files are not auto-deleted (user must clean up manually)
 - Useful for debugging and retry scenarios

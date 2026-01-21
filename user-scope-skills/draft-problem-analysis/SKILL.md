@@ -16,14 +16,11 @@ description: |
       Feedback (OneOf, Required):
         FEEDBACK="<text>" - Feedback text
         FEEDBACK_PATH=<path> - Feedback file path
-    resume - Continue from saved context
-      CONTEXT_PATH=<path> (Required) - Context file with answers filled in
 
   Examples:
     /draft-problem-analysis create PROBLEM="How to synchronize state across microservices"
     /draft-problem-analysis create PROBLEM="State sync issue" DOMAIN="distributed systems"
     /draft-problem-analysis modify DRAFT_PATH=.agent/tmp/xxx-analysis FEEDBACK="Focus on eventual consistency"
-    /draft-problem-analysis resume CONTEXT_PATH=.agent/tmp/xxx-context.md
 model: claude-opus-4-5
 context: fork
 agent: step-by-step-agent
@@ -39,7 +36,6 @@ Creates or modifies draft problem analysis documents and writes them to temporar
 | -------- | ------------------------------------------- | -------------------------------- |
 | `create` | Create new problem analysis                 | `{baseDir}/references/create.md` |
 | `modify` | Revise existing analysis based on feedback  | `{baseDir}/references/modify.md` |
-| `resume` | Continue from saved context with answers    | `{baseDir}/references/resume.md` |
 
 ## Output Format
 
@@ -127,33 +123,10 @@ Before completing the draft, verify:
 
 ## Output
 
-### SUCCESS
+SUCCESS:
+- DRAFT_PATH: Path to the created/modified analysis file
 
-When command completes successfully:
-
-```
-STATUS: SUCCESS
-OUTPUT:
-  DRAFT_PATH: .agent/tmp/xxx-analysis.md
-```
-
-### AWAIT
-
-When user input is needed (clarification required):
-
-```
-STATUS: AWAIT
-CONTEXT_PATH: .agent/tmp/xxx-context.md
-```
-
-### ERROR
-
-When an error occurs:
-
-```
-STATUS: ERROR
-OUTPUT: Error message describing what went wrong
-```
+ERROR: Error message describing what went wrong
 
 ## Notice
 

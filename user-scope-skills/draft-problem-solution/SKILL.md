@@ -15,13 +15,10 @@ description: |
       Feedback (OneOf, Required):
         FEEDBACK="<text>" - Feedback text
         FEEDBACK_PATH=<path> - Feedback file path
-    resume - Continue from saved context
-      CONTEXT_PATH=<path> (Required) - Context file with answers filled in
 
   Examples:
     /draft-problem-solution create ANALYSIS_PATH=.agent/tmp/xxx-analysis
     /draft-problem-solution modify DRAFT_PATH=.agent/tmp/xxx-solution FEEDBACK="Explore more cross-domain approaches"
-    /draft-problem-solution resume CONTEXT_PATH=.agent/tmp/xxx-context.md
 model: claude-opus-4-5
 context: fork
 agent: step-by-step-agent
@@ -37,7 +34,6 @@ Creates or modifies draft solution documents and writes them to temporary files.
 | -------- | ------------------------------------------- | -------------------------------- |
 | `create` | Create new solution ideas from analysis     | `{baseDir}/references/create.md` |
 | `modify` | Revise existing solutions based on feedback | `{baseDir}/references/modify.md` |
-| `resume` | Continue from saved context with answers    | `{baseDir}/references/resume.md` |
 
 ## Approach Reference Documents
 
@@ -121,26 +117,10 @@ Before completing the draft, verify:
 
 ## Output
 
-Follows standard skill output format from `.agent/rules/skill/output-format.md`.
+SUCCESS:
+- DRAFT_PATH: Path to the created/modified solution file
 
-**SUCCESS:**
-```
-STATUS: SUCCESS
-OUTPUT:
-  DRAFT_PATH: .agent/tmp/xxx-solution.md
-```
-
-**AWAIT:**
-```
-STATUS: AWAIT
-CONTEXT_PATH: .agent/tmp/xxx-context.md
-```
-
-**ERROR:**
-```
-STATUS: ERROR
-OUTPUT: {error message}
-```
+ERROR: Error message string
 
 ## Notice
 
