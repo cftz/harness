@@ -1,81 +1,81 @@
 ---
 name: linear-guide
 description: |
-  Linear 작업 시 행동 지침. Linear 이슈, 문서, 댓글 등을 다룰 때 이 가이드라인을 따라야 합니다.
+  Behavioral guidelines for Linear tasks. You must follow these guidelines when working with Linear issues, documents, comments, etc.
 
-  IMPORTANT: Linear 관련 작업을 수행할 때 반드시 이 지침을 참고하세요.
+  IMPORTANT: Always refer to these guidelines when performing Linear-related tasks.
 user-invocable: false
 ---
 
 # Linear Guide
 
-Linear 관련 작업 수행 시 따라야 하는 행동 지침입니다.
+Behavioral guidelines to follow when performing Linear-related tasks.
 
-## 핵심 원칙
+## Core Principles
 
-### 1. Skill 우선 사용
+### 1. Prioritize Skills Over MCP
 
-Linear 작업 시 **MCP보다 Skill을 우선 사용**해야 합니다.
+When working with Linear, **you must use Skills over MCP**.
 
-| 작업 | 사용할 Skill | MCP 사용 금지 |
-|------|-------------|---------------|
-| 이슈 조회/생성/수정 | `linear-issue` | linear MCP get/create/update |
-| 문서 조회/생성/수정 | `linear-document` | linear MCP document |
-| 댓글 조회/생성 | `linear-comment` | linear MCP comment |
-| 이슈 관계 관리 | `linear-issue-relation` | linear MCP relation |
-| 워크플로우 상태 조회 | `linear-state` | linear MCP state |
-| 팀 조회 | `linear-team` | linear MCP team |
-| 프로젝트 조회 | `linear-project` | linear MCP project |
-| 라벨 조회 | `linear-issue-label` | linear MCP label |
-| 현재 컨텍스트 | `linear-current` | - |
+| Task | Skill to Use | MCP Usage Prohibited |
+|------|-------------|----------------------|
+| Issue get/create/update | `linear-issue` | linear MCP get/create/update |
+| Document get/create/update | `linear-document` | linear MCP document |
+| Comment list/create | `linear-comment` | linear MCP comment |
+| Issue relation management | `linear-issue-relation` | linear MCP relation |
+| Workflow state lookup | `linear-state` | linear MCP state |
+| Team lookup | `linear-team` | linear MCP team |
+| Project lookup | `linear-project` | linear MCP project |
+| Label lookup | `linear-issue-label` | linear MCP label |
+| Current context | `linear-current` | - |
 
-**예외**: Skill에서 지원하지 않는 기능만 MCP 사용 허용
+**Exception**: MCP usage is only allowed for features not supported by Skills
 
-### 2. 이슈 리스트 조회 시 필수 파라미터
+### 2. Required Parameters for Issue List Queries
 
-이슈 목록을 가져올 때는 **반드시 다음 파라미터를 명시**해야 합니다:
+When fetching issue lists, **you must specify the following parameters**:
 
 ```
 skill: linear-issue
 args: list PROJECT_ID=<project_id> STATE=<state> FIRST=<limit>
 ```
 
-| 파라미터 | 필수 | 설명 |
-|----------|------|------|
-| `PROJECT_ID` | **Yes** | 프로젝트 ID 또는 이름 |
-| `STATE` | **Yes** | 상태 필터 (예: Todo, In Progress, Done) |
-| `FIRST` | **Yes** | 가져올 최대 개수 (기본값 없음, 명시 필수) |
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `PROJECT_ID` | **Yes** | Project ID or name |
+| `STATE` | **Yes** | State filter (e.g., Todo, In Progress, Done) |
+| `FIRST` | **Yes** | Maximum number to fetch (no default, must be specified) |
 
-**잘못된 예시:**
+**Incorrect example:**
 ```
 skill: linear-issue
 args: list
 ```
 
-**올바른 예시:**
+**Correct example:**
 ```
 skill: linear-issue
 args: list PROJECT_ID=cops STATE=Todo FIRST=10
 ```
 
-## 사용 가능한 Linear Skills
+## Available Linear Skills
 
-| Skill | 용도 |
-|-------|------|
-| `linear-issue` | 이슈 CRUD (get, list, create, update) |
-| `linear-document` | 문서 CRUD (get, list, search, create, update) |
-| `linear-comment` | 댓글 (list, create) |
-| `linear-issue-relation` | 이슈 관계 (create, list, update, delete) |
-| `linear-state` | 워크플로우 상태 조회 |
-| `linear-team` | 팀 목록 조회 |
-| `linear-project` | 프로젝트 목록 조회 |
-| `linear-issue-label` | 라벨 목록 조회 |
-| `linear-current` | 현재 팀/프로젝트/사용자 컨텍스트 |
+| Skill | Purpose |
+|-------|---------|
+| `linear-issue` | Issue CRUD (get, list, create, update) |
+| `linear-document` | Document CRUD (get, list, search, create, update) |
+| `linear-comment` | Comments (list, create) |
+| `linear-issue-relation` | Issue relations (create, list, update, delete) |
+| `linear-state` | Workflow state lookup |
+| `linear-team` | Team list lookup |
+| `linear-project` | Project list lookup |
+| `linear-issue-label` | Label list lookup |
+| `linear-current` | Current team/project/user context |
 
-## 체크리스트
+## Checklist
 
-Linear 작업 전 확인:
+Before performing Linear tasks, verify:
 
-- [ ] 해당 작업을 수행하는 Skill이 있는가?
-- [ ] 이슈 리스트 조회 시 PROJECT_ID, STATE, FIRST가 모두 명시되었는가?
-- [ ] MCP 사용이 불가피한 경우인가? (Skill 미지원 기능)
+- [ ] Is there a Skill that performs this task?
+- [ ] When listing issues, are PROJECT_ID, STATE, and FIRST all specified?
+- [ ] Is MCP usage unavoidable? (feature not supported by Skills)

@@ -63,22 +63,17 @@ Input:
 Execution:
   0. skill: mktemp
      args: review
-     → Returns: .agent/tmp/20260110-143052-review
+     -> Returns: .agent/tmp/20260110-143052-review
 
   1. skill: linear-document
      args: create TITLE="Code Review - TA-123" ISSUE_ID=TA-123 CONTENT_FILE=.agent/tmp/20260110-143052-review
-     → Creates document with review content
+     -> Creates document with review content
 
   2. skill: linear-comment
      args: create ISSUE_ID=TA-123 BODY="Code review completed..."
-     → Adds comment to TA-123
+     -> Adds comment to TA-123
 
-Output:
+Result:
   Document created and linked to TA-123
   Review URL: https://linear.app/team/document/...
 ```
-
-## Output
-
-- Link to the created Linear document
-- Confirmation that document is attached to the issue

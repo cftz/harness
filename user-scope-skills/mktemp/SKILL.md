@@ -16,7 +16,7 @@ description: |
 user-invocable: false
 ---
 
-# mktemp Skill
+# Description
 
 Creates temporary files in `.agent/tmp/` (project-local temp directory) with sortable timestamp prefixes (YYYYMMDD-HHMMSS). Background subtasks have write access to this directory.
 
@@ -33,8 +33,7 @@ Creates temporary files in `.agent/tmp/` (project-local temp directory) with sor
 
 ## Output
 
-```
-.agent/tmp/{YYYYMMDD-HHMMSS}-{SUFFIX1}
-.agent/tmp/{YYYYMMDD-HHMMSS}-{SUFFIX2}
-...
-```
+SUCCESS:
+- FILE_PATHS: One or more created file paths (one per line)
+
+ERROR: Error message string

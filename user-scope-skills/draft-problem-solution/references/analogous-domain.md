@@ -6,11 +6,11 @@ Use this approach when the problem is **Specialized** - domain-specific but simi
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  ✓ 상태 동기화 문제 → PLC Controller 참조                          │
-│  ✓ 리소스 스케줄링 → 운영체제 스케줄러 참조                        │
-│  ✓ UI 인터랙션 → 게임 디자인 참조                                  │
-│  ✓ 데이터 파이프라인 → 신호 처리 시스템 참조                       │
-│  ✓ 장애 복구 → 항공/의료 시스템 참조                               │
+│  ✓ State synchronization → Reference PLC Controllers               │
+│  ✓ Resource scheduling → Reference OS schedulers                   │
+│  ✓ UI interactions → Reference game design                         │
+│  ✓ Data pipelines → Reference signal processing systems            │
+│  ✓ Fault recovery → Reference aviation/medical systems             │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -23,12 +23,12 @@ Remove domain-specific terminology to reveal the core challenge:
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Original Problem                                                   │
-│  "마이크로서비스 간 상태 동기화"                                    │
+│  "State synchronization between microservices"                      │
 │                                                                     │
 │                          ▼                                          │
 │                                                                     │
 │  Abstracted Problem                                                 │
-│  "분산된 여러 엔티티 간의 일관된 상태 유지"                         │
+│  "Maintaining consistent state across distributed entities"         │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -126,9 +126,9 @@ Additional fields for analogous approach:
 
 ## Example
 
-**Problem**: "실시간 협업 문서에서 충돌 해결"
+**Problem**: "Conflict resolution in real-time collaborative documents"
 
-**Abstracted**: "분산된 여러 사용자의 동시 편집 충돌 해결"
+**Abstracted**: "Resolving concurrent edit conflicts among distributed users"
 
 **Related Domains**:
 - Database (MVCC, conflict resolution)

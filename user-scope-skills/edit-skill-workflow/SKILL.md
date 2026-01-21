@@ -22,7 +22,7 @@ description: |
 model: claude-opus-4-5
 ---
 
-# Edit Skill Workflow
+# Description
 
 Orchestrates the complete skill creation/modification workflow with automated review loop and user approval before finalization.
 
@@ -172,24 +172,14 @@ This skill uses the Skill tool directly (not Task tool with subagents) because:
 
 ## Output
 
-```markdown
-## edit-skill-workflow Complete
+SUCCESS:
+- STATUS: Success or Failure
+- SKILL_NAME: Name of the created/modified skill
+- SKILL_DIR: Final skill location path
+- CYCLES: Number of auto-fix cycles completed
+- CYCLE_SUMMARY: Table of cycle results
 
-- **Status**: Success
-- **Skill**: {NAME}
-- **Location**: {SKILL_DIR}
-- **Cycles**: {N} auto-fix cycle(s)
-
-### Cycle Summary
-| Cycle | Result | Issues |
-|-------|--------|--------|
-| 1     | Fail   | 3 High, 1 Medium |
-| 2     | Fail   | 1 High |
-| 3     | Pass   | 0 |
-
-### Final Review
-[Summary of final skill-review output]
-```
+ERROR: Error message string
 
 ## Error Handling
 

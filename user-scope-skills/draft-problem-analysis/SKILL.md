@@ -26,7 +26,7 @@ context: fork
 agent: step-by-step-agent
 ---
 
-# Draft Problem Analysis Skill
+# Description
 
 Creates or modifies draft problem analysis documents and writes them to temporary files. This is an atomic skill that handles the problem analysis phase, recommending appropriate approaches for ideation.
 
@@ -37,7 +37,7 @@ Creates or modifies draft problem analysis documents and writes them to temporar
 | `create` | Create new problem analysis                 | `{baseDir}/references/create.md` |
 | `modify` | Revise existing analysis based on feedback  | `{baseDir}/references/modify.md` |
 
-## Output Format
+## Analysis Document Format
 
 Each analysis document must include YAML frontmatter followed by the content sections.
 

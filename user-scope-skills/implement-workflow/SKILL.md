@@ -24,7 +24,7 @@ model: claude-opus-4-5
 
 ---
 
-# Implement Workflow Skill
+# Description
 
 Orchestrates a complete implementation cycle from plan execution through code review and iterative fixes until the code passes review. This skill manages the automated review loop between implementation and code review, with user approval only at the final result.
 
@@ -275,6 +275,12 @@ args: BRANCH=<branch>
 ### 6. Report Result
 
 Output the final result to user.
+
+## Output
+
+SUCCESS: (no output fields)
+
+ERROR: Error message string
 
 ## Output Format
 

@@ -13,7 +13,7 @@ description: |
     /codex PROMPT="Review this function for bugs"
 ---
 
-# Codex Skill
+# Description
 
 Executes OpenAI Codex CLI as an intermediate AI agent. Enables collaboration between different AI agents by passing prompts to Codex and returning results.
 
@@ -32,6 +32,12 @@ Executes OpenAI Codex CLI as an intermediate AI agent. Enables collaboration bet
    ```
 3. Return the response to the caller
 
+## Output
+
+SUCCESS: (no output fields)
+
+ERROR: Error message string
+
 ## Error Handling
 
 ### Codex CLI Not Found
@@ -45,4 +51,3 @@ If `codex` command is not available:
 If rate limit error occurs:
 1. Report the error to user
 2. Suggest waiting before retry
-

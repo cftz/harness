@@ -14,7 +14,7 @@ description: |
 model: claude-sonnet-4-5
 ---
 
-# Finalize Implement Skill
+# Description
 
 Atomic skill for finalizing implementation after code review passes. Performs git operations (commit, push, PR creation) and updates Linear issue state. All operations are idempotent - safe to re-run without side effects.
 
@@ -255,7 +255,13 @@ Execute each sub-step with idempotency checks:
 
 Output the final result to user.
 
-## Output Format
+## Output
+
+SUCCESS:
+- PR_URL: Pull request URL (if feature branch)
+- LINEAR_STATE: Updated issue state (if ISSUE_ID provided)
+
+ERROR: Error message string
 
 ### Success Output
 

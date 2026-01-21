@@ -70,10 +70,17 @@ Overwrite the existing draft at `DRAFT_PATH` with the revised content.
 
 ## Output
 
-Return confirmation with the path:
-
+**On Success:**
 ```
-Draft plan revised: {DRAFT_PATH}
+STATUS: SUCCESS
+OUTPUT:
+  DRAFT_PATH: {DRAFT_PATH}
+```
+
+**On Error:**
+```
+STATUS: ERROR
+OUTPUT: {error message}
 ```
 
 ## Quality Verification

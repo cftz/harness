@@ -15,7 +15,7 @@ This document defines how to save review results as a Linear document attached t
 Query the issue to find existing Plan Review document:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: get ID={ISSUE_ID}
 ```
 
@@ -35,7 +35,7 @@ From the `documents` array, find a document with title starting with `[Plan Revi
 Use the `linear-document` skill's `update` command:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: update ID={existing_doc_id} CONTENT_FILE={temp_file_path}
 ```
 
@@ -44,7 +44,7 @@ args: update ID={existing_doc_id} CONTENT_FILE={temp_file_path}
 Use the `linear-document` skill's `create` command:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: create TITLE="[Plan Review] {ISSUE_ID}" CONTENT_FILE={temp_file_path} ISSUE_ID={ISSUE_ID}
 ```
 
@@ -54,19 +54,19 @@ Consider adding labels to indicate review status using the `linear-issue` skill:
 
 **If Approved:**
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: update ID={ISSUE_ID} ADD_LABEL_IDS=plan-approved-label-id
 ```
 
 **If Revision Needed:**
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: update ID={ISSUE_ID} ADD_LABEL_IDS=plan-needs-revision-label-id
 ```
 
 > **Note**: To get label IDs:
 > ```
-> skill: linear-issue-label
+> skill: linear:linear-issue-label
 > args: list
 > ```
 > Use the returned `id` value (not the label name) for `ADD_LABEL_IDS`.
@@ -86,7 +86,7 @@ Input:
   Temp file: .agent/tmp/plan-review.xxxxxxxx
 
 Execution:
-  1. skill: linear-issue
+  1. skill: linear:linear-issue
      args: get ID=TA-123
      -> documents: [
           {"id": "doc-123", "title": "[Plan] Add user authentication"},
@@ -94,11 +94,11 @@ Execution:
         ]
      -> Found existing review document: doc-456
 
-  2. skill: linear-document
+  2. skill: linear:linear-document
      args: update ID=doc-456 CONTENT_FILE=.agent/tmp/plan-review.xxxxxxxx
      -> Updates existing review document
 
-  3. skill: linear-issue
+  3. skill: linear:linear-issue
      args: update ID=TA-123 ADD_LABEL_IDS=revision-label-id
      -> Updates issue labels
 

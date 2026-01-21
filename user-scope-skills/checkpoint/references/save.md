@@ -28,7 +28,6 @@ Read `{baseDir}/assets/checkpoint-template.md` and fill:
 STATUS: SUCCESS
 OUTPUT:
   CONTEXT_PATH: .agent/tmp/xxx-context.md
-  QUESTIONS: [...]
 ```
 
 ## Example Output

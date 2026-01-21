@@ -13,7 +13,7 @@ description: |
 model: claude-opus-4-5
 ---
 
-# Verify Rule Skill
+# Description
 
 Analyzes rule files in a directory for conflicts, duplications, and ambiguities. After analysis, presents findings to the user and applies approved fixes.
 
@@ -142,6 +142,16 @@ Based on user decisions (or recommended defaults if `AUTO_FIX=true`):
 **For Ambiguities:**
 - Add specific examples or thresholds
 - Replace vague terms with concrete values
+
+## Output
+
+SUCCESS:
+- CONFLICTS_RESOLVED: Number of conflicts resolved
+- DUPLICATIONS_FIXED: Number of duplications fixed
+- AMBIGUITIES_CLARIFIED: Number of ambiguities clarified
+- FILES_MODIFIED: List of modified files
+
+ERROR: Error message string (e.g., "RULES_DIR not found: {path}")
 
 ## Output Format
 

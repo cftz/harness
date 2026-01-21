@@ -1,7 +1,7 @@
 ---
 name: checkpoint
 description: |
-  Utility skill for managing interruptible context files.
+  Use this skill to manage interruptible context files.
 
   Context files allow draft-* skills to save state when user input is needed,
   enabling resume after collecting answers via AskUserQuestion.
@@ -26,7 +26,7 @@ user-invocable: false
 
 # Description
 
-Allows draft-* skills to save execution state to a file when user input is required, and resume later.
+Use this skill to manage interruptible context files. Allows draft-* skills to save execution state to a file when user input is required, and resume later.
 
 ## Commands
 
@@ -36,6 +36,24 @@ Allows draft-* skills to save execution state to a file when user input is requi
 | `load`   | Read checkpoint file and parse state | `{baseDir}/references/load.md`   |
 | `update` | Validate answer fields are filled | `{baseDir}/references/update.md` |
 
+## Parameters
+
+### save Command
+
+No parameters - internally uses mktemp skill.
+
+### load Command
+
+| Parameter      | Required | Description                         |
+| -------------- | -------- | ----------------------------------- |
+| `CONTEXT_PATH` | Yes      | Path to the checkpoint file to load |
+
+### update Command
+
+| Parameter      | Required | Description                 |
+| -------------- | -------- | --------------------------- |
+| `CONTEXT_PATH` | Yes      | Path to the checkpoint file |
+
 ## Output
 
 ### save Command
@@ -43,13 +61,12 @@ Allows draft-* skills to save execution state to a file when user input is requi
 SUCCESS:
 - CONTEXT_PATH: Path to the created checkpoint file
 
-AWAIT: Uses checkpoint file pattern (this skill creates the checkpoint)
-
 ERROR: Error message string
 
 ### load Command
 
 SUCCESS:
+- CONTEXT_PATH: Path to the loaded checkpoint file
 - INVOCATION: Original skill invocation string
 - PENDING_QUESTIONS: List of questions without answers
 - ANSWERED_QUESTIONS: List of questions with answers
@@ -59,7 +76,8 @@ ERROR: Error message string
 ### update Command
 
 SUCCESS:
-- STATUS: READY or INCOMPLETE
+- CONTEXT_PATH: Path to the checkpoint file
+- RESULT: READY or INCOMPLETE
 - MISSING: List of unanswered questions (if INCOMPLETE)
 
 ERROR: Error message string

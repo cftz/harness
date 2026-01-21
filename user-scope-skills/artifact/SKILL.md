@@ -15,9 +15,7 @@ description: |
 user-invocable: false
 ---
 
-# Artifact Skill
-
-## Description
+# Description
 
 This skill provides commands to initialize artifact directories and create sequential artifact files. Artifacts are stored with timestamped directory names and sequentially numbered files.
 
@@ -84,3 +82,13 @@ ARTIFACT_DIR_PATH=.agent/artifacts/20260107-120000
 # -> .agent/artifacts/20260107-120000/01_clarify.md
 # -> .agent/artifacts/20260107-120000/01_plan.md
 ```
+
+## Output
+
+SUCCESS:
+- For `init` command:
+  - ARTIFACT_DIR_PATH: Created artifact directory path (e.g., `.agent/artifacts/20260107-120000`)
+- For `create` command:
+  - FILE_PATHS: List of created file paths
+
+ERROR: Error message string

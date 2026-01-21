@@ -13,7 +13,7 @@ This document defines how to load a plan and task document from a Linear issue.
 Use the `linear-issue` skill to get the issue information:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: get ID={ISSUE_ID}
 ```
 
@@ -49,7 +49,7 @@ Example documents array:
 Use the `linear-document` skill to get the plan content:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: get ID={document_id}
 ```
 

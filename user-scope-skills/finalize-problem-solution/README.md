@@ -24,5 +24,4 @@ The problem-solving workflow separates draft creation from finalization to enabl
 - Should NOT be called without user approval (except when AUTO_ACCEPT=true in workflow)
 - Expects draft files in the format produced by `draft-problem-solution`
 
----
 *This document captures the original intent. Modifications should preserve this intent or explicitly update it with user approval.*

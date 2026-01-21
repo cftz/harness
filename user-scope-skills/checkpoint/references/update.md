@@ -24,14 +24,15 @@ For each question in the Pending Questions section:
 ```
 STATUS: SUCCESS
 OUTPUT:
-  RESULT: READY
   CONTEXT_PATH: .agent/tmp/xxx-context.md
+  RESULT: READY
 ```
 
 **Missing answers:**
 ```
 STATUS: SUCCESS
 OUTPUT:
+  CONTEXT_PATH: .agent/tmp/xxx-context.md
   RESULT: INCOMPLETE
   MISSING: [Q1, Q3]
 ```

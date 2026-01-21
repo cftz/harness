@@ -4,7 +4,7 @@ description: "Batch planning for project issues. Finds eligible issues, plans in
 model: claude-opus-4-5
 ---
 
-# Plan Issues Skill
+# Description
 
 > **CRITICAL ROLE CONSTRAINT**
 >
@@ -34,7 +34,7 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 1. Use linear-issue skill to list issues:
    ```
-   skill: linear-issue
+   skill: linear:linear-issue
    args: list STATE=$STATE
    ```
 
@@ -81,7 +81,7 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 1. Check each review result:
 
    **If "Revision Needed":**
-   - Respond to the plan skill's pending approval with "수정 필요"
+   - Respond to the plan skill's pending approval with "Revision Needed"
    - Provide the review feedback from the plan-review result
    - The plan skill will revise the temporary file and wait for approval again
    - Re-run Step 3 for this issue
@@ -104,26 +104,26 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 3. Request final approval:
    ```
    Use AskUserQuestion:
-   - Question: "다음 이슈들의 플랜이 plan-review를 통과했습니다. Linear에 등록하시겠습니까?"
+   - Question: "The following issues have passed plan-review. Would you like to register them to Linear?"
    - Header: "Final Approval"
    - Options:
-     - label: "승인 - Linear에 등록"
-       description: "모든 플랜을 Linear Document로 등록합니다"
-     - label: "수정 필요"
-       description: "특정 플랜을 수정합니다"
-     - label: "취소"
-       description: "등록하지 않고 종료합니다"
+     - label: "Approve - Register to Linear"
+       description: "Register all plans as Linear Documents"
+     - label: "Revision Needed"
+       description: "Revise specific plans"
+     - label: "Cancel"
+       description: "Exit without registering"
    ```
 
 4. Handle response:
-   - **"승인"**: Proceed to Step 6
-   - **"수정 필요"**: Get user feedback, apply to relevant plans, return to Step 4
-   - **"취소"**: Exit workflow, respond "취소" to all pending plan approvals
+   - **"Approve"**: Proceed to Step 6
+   - **"Revision Needed"**: Get user feedback, apply to relevant plans, return to Step 4
+   - **"Cancel"**: Exit workflow, respond "Cancel" to all pending plan approvals
 
 ### Step 6: Complete (Automatic Registration)
 
 1. For each plan skill waiting for approval:
-   - Respond with "승인" to trigger Phase B
+   - Respond with "Approve" to trigger Phase B
    - The plan skill will automatically create the Linear Document and attach to the issue
 
 2. Report completion:
@@ -149,14 +149,8 @@ An issue is eligible for planning if ALL of the following are true:
 
 ## Output
 
-On successful completion:
-```
-## Plan Issues Complete
+SUCCESS:
+- REGISTERED_COUNT: Number of plans registered
+- ISSUES: List of registered issue IDs with plan document links
 
-Registered {N} plans to Linear:
-
-| Issue  | Title          | Plan Document                |
-| ------ | -------------- | ---------------------------- |
-| TA-123 | Implement auth | [Plan: Implement auth](link) |
-| TA-124 | Add validation | [Plan: Add validation](link) |
-```
+ERROR: Error message string

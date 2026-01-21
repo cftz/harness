@@ -19,22 +19,6 @@ Provide one of the following:
 
 - `PROMPT_PATH` - Path to the original prompt file. When provided, use it as context to ensure modifications remain aligned with the original request.
 
-## Usage Examples
-
-```bash
-# Revise single draft with inline feedback
-/draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md FEEDBACK="Add more specific acceptance criteria"
-
-# Revise multiple drafts with inline feedback
-/draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md,.agent/tmp/task2.md FEEDBACK="Split auth into separate tasks"
-
-# Revise with feedback from file
-/draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md FEEDBACK_PATH=.agent/tmp/review.md
-
-# Revise with original prompt context
-/draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md FEEDBACK="Add error handling" PROMPT_PATH=.agent/tmp/prompt
-```
-
 ## Process
 
 ### 1. Read Existing Drafts
@@ -112,12 +96,11 @@ For each modified task:
 
 ## Output
 
-Return the updated list of draft file paths:
+SUCCESS:
+- DRAFT_PATHS: Comma-separated list of updated draft file paths
+- REMOVED_PATHS: Comma-separated list of removed file paths (if any tasks were removed)
 
-```
-DRAFT_PATHS: {path1},{path2},{path3}
-Removed: {removed_path1},{removed_path2}  # If any tasks were removed
-```
+ERROR: Error message string
 
 ## Quality Verification
 

@@ -26,13 +26,13 @@ Provide one of the following to specify where requirements come from:
 
 1. Fetch issue details:
    ```
-   skill: linear-issue
+   skill: linear:linear-issue
    args: get ID={ISSUE_ID}
    ```
 
 2. (Optional) Fetch comments for additional context:
    ```
-   skill: linear-comment
+   skill: linear:linear-comment
    args: list ISSUE_ID={ISSUE_ID}
    ```
 

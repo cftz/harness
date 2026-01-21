@@ -7,12 +7,12 @@ description: |
     TASKS="..." (Required) - Comma-separated list of tasks to execute in parallel
 
   Examples:
-    /run-parallelly TASKS="TA-123 플랜 작성, TA-124 플랜 작성, TA-125 플랜 작성"
-    /run-parallelly TASKS="코드 리뷰, 테스트 실행, 린트 검사"
+    /run-parallelly TASKS="TA-123 plan creation, TA-124 plan creation, TA-125 plan creation"
+    /run-parallelly TASKS="code review, run tests, lint check"
 model: claude-opus-4-5
 ---
 
-# Run Parallelly Skill
+# Description
 
 > **CRITICAL ROLE CONSTRAINT**
 >
@@ -228,7 +228,7 @@ For each agent that requires user interaction:
 
 ### Scenario 1: Multiple Plan Creation
 
-User: "TA-123, TA-124, TA-125 플랜을 병렬로 작성해줘"
+User: "Create plans for TA-123, TA-124, TA-125 in parallel"
 
 ```
 Step 1: Parse tasks → 3 planning tasks
@@ -243,7 +243,7 @@ Step 5: Report all plan results
 
 ### Scenario 2: Mixed Task Types
 
-User: "코드 리뷰하고 README 업데이트해줘"
+User: "Run code review and update README"
 
 ```
 Step 1: Parse tasks → code-review (skill), README update (general)
@@ -290,6 +290,16 @@ Step 5: Report combined results
 ### Notes
 {Any important observations or follow-up suggestions}
 ```
+
+## Output
+
+SUCCESS:
+- TOTAL_TASKS: Number of tasks executed
+- SUCCEEDED: Number of successful tasks
+- FAILED: Number of failed tasks
+- RESULTS: Array of task results (task, status, output summary)
+
+ERROR: Error message string (e.g., "No tasks provided", "All tasks failed")
 
 ## Quality Checklist
 

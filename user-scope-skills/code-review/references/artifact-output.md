@@ -52,14 +52,10 @@ Input:
 Execution:
   1. skill: artifact
      args: create .agent/artifacts/20260105-120000 review
-     → Returns: .agent/artifacts/20260105-120000/03_review.md
+     -> Returns: .agent/artifacts/20260105-120000/03_review.md
 
   2. Write review content to .agent/artifacts/20260105-120000/03_review.md
 
-Output:
+Result:
   Review saved to: .agent/artifacts/20260105-120000/03_review.md
 ```
-
-## Output
-
-- Path to the created review file (e.g., `.agent/artifacts/20260105-120000/03_review.md`)

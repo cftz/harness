@@ -10,9 +10,9 @@ description: |
     PROMPT="..." (Required) - User's request text to analyze
 
   Examples:
-    /skill-finder PROMPT="Linear 이슈를 생성하고 싶어"
-    /skill-finder PROMPT="코드 리뷰를 받고 싶어"
-    /skill-finder PROMPT="플랜을 작성해야 해"
+    /skill-finder PROMPT="I want to create a Linear issue"
+    /skill-finder PROMPT="I want to get a code review"
+    /skill-finder PROMPT="I need to write a plan"
 model: claude-sonnet-4-20250514
 context: fork
 allowed-tools:

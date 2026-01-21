@@ -86,7 +86,7 @@ Verify against the Acceptance Criteria from the review document:
 
 ## Output
 
-See [Output Format]({baseDir}/SKILL.md#output-format) in main skill documentation.
+See [Output Format]({baseDir}/SKILL.md#output) in main skill documentation.
 
 For fix command specifically, the Acceptance Criteria section should reflect the review violations that were addressed:
 

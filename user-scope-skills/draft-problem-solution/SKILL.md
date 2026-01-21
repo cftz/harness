@@ -24,7 +24,7 @@ context: fork
 agent: step-by-step-agent
 ---
 
-# Draft Problem Solution Skill
+# Description
 
 Creates or modifies draft solution documents and writes them to temporary files. This is an atomic skill that handles the ideation phase of problem-solving workflow, generating ideas based on the analysis from draft-problem-analysis.
 
@@ -45,7 +45,7 @@ Based on the approach recommended in the analysis, load the corresponding refere
 | `analogous` | `{baseDir}/references/analogous-domain.md` |
 | `cross-domain` | `{baseDir}/references/cross-domain.md` |
 
-## Output Format
+## Solution Document Format
 
 Each solution document must include YAML frontmatter followed by the content sections.
 

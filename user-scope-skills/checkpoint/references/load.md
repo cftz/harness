@@ -33,6 +33,7 @@ After parsing context content, return information needed to resume:
 ```
 STATUS: SUCCESS
 OUTPUT:
+  CONTEXT_PATH: .agent/tmp/xxx-context.md
   INVOCATION: /draft-clarify create ISSUE_ID=TA-123
   PENDING_QUESTIONS: [Q1, Q2, ...]  (questions without answers)
   ANSWERED_QUESTIONS: [Q0, ...]     (questions with answers)

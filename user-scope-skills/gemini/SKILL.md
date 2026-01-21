@@ -13,7 +13,7 @@ description: |
     /gemini PROMPT="Review this function for bugs"
 ---
 
-# Gemini Skill
+# Description
 
 Executes Google Gemini CLI as an intermediate AI agent. Enables collaboration between different AI agents by passing prompts to Gemini and returning results.
 
@@ -46,3 +46,9 @@ If rate limit error occurs:
 1. Report the error to user
 2. Suggest waiting before retry
 
+## Output
+
+SUCCESS:
+- RESPONSE: Gemini's response text
+
+ERROR: Error message string

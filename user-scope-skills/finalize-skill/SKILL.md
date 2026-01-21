@@ -15,7 +15,7 @@ description: |
     /finalize-skill DRAFT_PATH=.agent/tmp/20260120-skill-draft NAME=my-skill SCOPE=project
 ---
 
-# Finalize Skill
+# Description
 
 Finalizes skill drafts by writing approved content from temporary files to the final skill directory structure. This is the "Phase 3" skill in the edit-skill-workflow pattern (draft-* → *-review → finalize-*).
 
@@ -107,24 +107,12 @@ rm -f "${DRAFT_PATH}-script-"*
 
 ## Output
 
-```
-## Skill Finalized
+SUCCESS:
+- SKILL_NAME: Name of the finalized skill
+- SKILL_DIR: Final skill location path
+- FILES_CREATED: List of files written
 
-**Name**: {NAME}
-**Scope**: {SCOPE}
-**Location**: {TARGET_DIR}
-
-### Files Created
-- SKILL.md
-- README.md
-- [additional files if any]
-
-### Temp Files Cleaned
-- {DRAFT_PATH}
-- [additional temp files if any]
-
-The skill is now available for use.
-```
+ERROR: Error message string
 
 ## Error Handling
 

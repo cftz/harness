@@ -4,7 +4,7 @@ description: "Orchestrates plan creation by combining draft-plan, plan-review, a
 model: claude-opus-4-5
 ---
 
-# Plan Workflow Skill
+# Description
 
 Orchestrates the plan creation process by combining `draft-plan`, `plan-review`, and `finalize-plan` skills. This skill runs automated validation via `plan-review`, auto-fixes any issues, and then presents the approved results to the user for final confirmation before saving to the destination.
 
@@ -282,8 +282,6 @@ SUCCESS:
 - PLAN_TITLE: Title from the plan
 - CYCLES: Number of auto-fix cycles completed
 - CYCLE_HISTORY: Array of cycle results
-
-AWAIT: Not applicable (this workflow skill does not suspend)
 
 ERROR: Error message string (e.g., "MAX_CYCLES exceeded", "finalize-plan failed: ...")
 

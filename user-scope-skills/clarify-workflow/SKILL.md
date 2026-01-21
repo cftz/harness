@@ -25,7 +25,9 @@ description: |
 model: claude-opus-4-5
 ---
 
-# Clarify Workflow Skill
+# Description
+
+**IMPORTANT: Use this workflow when you need to clarify and refine requirements before implementation.**
 
 Orchestrates the requirements clarification process by combining `draft-clarify`, `clarify-review`, and `finalize-clarify` skills. This skill runs automated validation via `clarify-review`, auto-fixes any issues, and then presents the approved results to the user for final confirmation before saving to the destination.
 

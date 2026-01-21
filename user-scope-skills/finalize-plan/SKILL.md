@@ -6,7 +6,7 @@ context: fork
 agent: step-by-step-agent
 ---
 
-# Finalize Plan Skill
+# Description
 
 Converts temporary draft files to final outputs. This skill handles the "finalization" phase of the planning workflow, ensuring that only approved plans are written to persistent storage.
 
@@ -66,29 +66,6 @@ SUCCESS:
 - ISSUE_ID: Updated issue ID (for Linear output, same as input)
 
 ERROR: Error message string describing what failed
-
-### Example Output
-
-**For Artifact Output:**
-```
-STATUS: SUCCESS
-OUTPUT:
-  PLAN_PATH: .agent/artifacts/20260110/02_plan.md
-```
-
-**For Linear Output:**
-```
-STATUS: SUCCESS
-OUTPUT:
-  DOCUMENT_URL: https://linear.app/team/document/xxx
-  ISSUE_ID: TA-123
-```
-
-**For Error:**
-```
-STATUS: ERROR
-OUTPUT: Draft file not found: .agent/tmp/abc123-plan
-```
 
 ## Quality Checklist
 

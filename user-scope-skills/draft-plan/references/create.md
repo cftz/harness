@@ -90,4 +90,10 @@ STATUS: AWAIT
 CONTEXT_PATH: {context_file_path}
 ```
 
+**On Error:**
+```
+STATUS: ERROR
+OUTPUT: {error message}
+```
+
 > Note: The output uses `DRAFT_PATH` (not `OUTPUT_PATH`) to maintain consistency with the `modify` command and dependent skills like `plan-workflow` that expect `DRAFT_PATH`.

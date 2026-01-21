@@ -6,12 +6,12 @@ Use this approach when the problem is **General** - well-known with existing sta
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  ✓ 로그인/인증 구현                                                 │
-│  ✓ 캐싱 전략                                                        │
-│  ✓ API 설계                                                         │
-│  ✓ 에러 핸들링                                                      │
-│  ✓ 데이터베이스 스키마 설계                                         │
-│  ✓ 테스트 전략                                                      │
+│  ✓ Login/Authentication implementation                              │
+│  ✓ Caching strategies                                               │
+│  ✓ API design                                                       │
+│  ✓ Error handling                                                   │
+│  ✓ Database schema design                                           │
+│  ✓ Testing strategies                                               │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 

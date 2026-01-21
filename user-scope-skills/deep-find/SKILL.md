@@ -30,7 +30,7 @@ hooks:
           command: "python3 {baseDir}/scripts/pretooluse-hook.py"
 ---
 
-# deep-find Skill
+# Description
 
 Recursively explores the file system to build a comprehensive cache of file contents and summaries. Enables intelligent searching based on natural language queries.
 
@@ -77,6 +77,7 @@ This skill can ONLY access files through the provided scripts. Direct Read/Write
 | `read.sh PATH [OFFSET] [LIMIT]`       | Read file or directory with cache awareness          |
 | `write.sh FILE "SUMMARY"`             | Save file summary to cache                           |
 | `write-dir.sh DIR "SUMMARY"`          | Save directory summary to cache                      |
+| `get-metadata.sh FILE`                | Get file metadata (size, mtime, hash) - internal use |
 
 ## Process
 
@@ -347,55 +348,26 @@ Cache files are stored in `.agent/cache/deep-find/` with path-based filenames.
 
 ## Output
 
-Follows the standard output format from `.agent/rules/skill/output-format.md`.
-
 ### init Command
 
-**SUCCESS:**
-```
-STATUS: SUCCESS
-OUTPUT:
-  DIR: /path/to/directory
-  FILES_PROCESSED: 12
-  CACHED: 8
-  UPDATED: 4
-  SUBDIRECTORIES: 3
-  SUMMARY: "This directory contains..."
-```
+SUCCESS:
+- DIR: Target directory path
+- FILES_PROCESSED: Total number of files processed
+- CACHED: Number of files with valid cache (no update needed)
+- UPDATED: Number of files with new/updated summaries
+- SUBDIRECTORIES: Number of subdirectories processed
+- SUMMARY: Directory summary string
 
-**ERROR:**
-```
-STATUS: ERROR
-OUTPUT: Directory not found: /invalid/path
-```
+ERROR: Error message string (e.g., "Directory not found: /invalid/path")
 
 ### query Command
 
-**SUCCESS:**
-```
-STATUS: SUCCESS
-OUTPUT:
-  QUERY: "Find files that handle authentication"
-  DIR: /path/to/directory
-  RESULTS:
-    - src/auth/login.ts
-    - src/middleware/auth.ts
-```
+SUCCESS:
+- QUERY: The search query used
+- DIR: Target directory searched
+- RESULTS: Array of matching file paths (empty array if no matches)
 
-**SUCCESS (no matches):**
-```
-STATUS: SUCCESS
-OUTPUT:
-  QUERY: "Find files that handle payments"
-  DIR: /path/to/directory
-  RESULTS: []
-```
-
-**ERROR:**
-```
-STATUS: ERROR
-OUTPUT: Cache not initialized. Run /deep-find init first.
-```
+ERROR: Error message string (e.g., "Cache not initialized. Run /deep-find init first.")
 
 ## Quality Checklist
 

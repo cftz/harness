@@ -114,4 +114,4 @@ Additionally, verify against the Acceptance Criteria from the requirements docum
 
 ## Output
 
-See [Output Format]({baseDir}/SKILL.md#output-format) in main skill documentation.
+See [Output Format]({baseDir}/SKILL.md#output) in main skill documentation.

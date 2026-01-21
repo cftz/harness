@@ -48,7 +48,8 @@ All changes follow project rules correctly.
 - Rules applied: {N}
 
 To save permanently, re-run with output destination:
-  /code-review ISSUE_ID=... ARTIFACT_DIR_PATH=.agent/artifacts/...
+  /code-review ARTIFACT_DIR_PATH=.agent/artifacts/...
+  /code-review ISSUE_ID=TA-123
 ```
 
 **If Changes Required:**

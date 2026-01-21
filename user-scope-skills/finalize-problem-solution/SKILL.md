@@ -22,7 +22,7 @@ context: fork
 agent: step-by-step-agent
 ---
 
-# Finalize Problem Solution Skill
+# Description
 
 Converts temporary draft solution files from draft-problem-solution to final outputs. This is the finalization phase of the problem-solving workflow, called only after user approval.
 

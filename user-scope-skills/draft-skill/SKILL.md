@@ -19,7 +19,7 @@ description: |
 model: claude-opus-4-5
 ---
 
-# Draft Skill
+# Description
 
 Creates new skill drafts or modifies existing ones, outputting to temporary files for review before finalization.
 

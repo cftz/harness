@@ -6,11 +6,11 @@ Use this approach when the problem is **Novel** - unique with no direct solution
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  ✓ 기존 접근법이 모두 실패한 경우                                   │
-│  ✓ 완전히 새로운 제품/서비스 설계                                   │
-│  ✓ 기존 시장을 파괴할 혁신이 필요한 경우                            │
-│  ✓ 근본적으로 다른 관점이 필요한 경우                               │
-│  ✓ 제약 조건이 기존 해결책을 배제하는 경우                          │
+│  ✓ All existing approaches have failed                              │
+│  ✓ Designing completely new products/services                       │
+│  ✓ Market-disrupting innovation is needed                           │
+│  ✓ A fundamentally different perspective is required                │
+│  ✓ Constraints exclude existing solutions                           │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -23,17 +23,17 @@ Remove ALL domain context to find the universal problem:
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Level 1: Original Problem                                          │
-│  "대규모 분산 시스템에서 효율적인 작업 분배"                         │
+│  "Efficient task distribution in large-scale distributed systems"   │
 │                                                                     │
 │                          ▼                                          │
 │                                                                     │
 │  Level 2: Technical Abstraction                                     │
-│  "제한된 리소스를 다수의 요청자에게 공정하게 배분"                   │
+│  "Fair allocation of limited resources to multiple requesters"      │
 │                                                                     │
 │                          ▼                                          │
 │                                                                     │
 │  Level 3: Universal Abstraction                                     │
-│  "희소 자원의 효율적이고 공정한 분배"                               │
+│  "Efficient and fair distribution of scarce resources"              │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -65,18 +65,26 @@ Explore completely different domains for solutions:
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
 │  │   Nature    │  │   Physics   │  │   Society   │                 │
 │  │             │  │             │  │             │                 │
-│  │ • 개미 군집 │  │ • 열역학    │  │ • 시장 경제 │                 │
-│  │ • 면역 체계 │  │ • 양자역학  │  │ • 민주주의  │                 │
-│  │ • 신경망    │  │ • 유체역학  │  │ • 법률 체계 │                 │
-│  │ • 생태계    │  │ • 파동 이론 │  │ • 문화/전통 │                 │
+│  │ • Ant colony│  │ • Thermo-   │  │ • Market    │                 │
+│  │ • Immune    │  │   dynamics  │  │   economics │                 │
+│  │   system    │  │ • Quantum   │  │ • Democracy │                 │
+│  │ • Neural    │  │   mechanics │  │ • Legal     │                 │
+│  │   networks  │  │ • Fluid     │  │   systems   │                 │
+│  │ • Ecosystem │  │   dynamics  │  │ • Culture   │                 │
+│  │             │  │ • Wave      │  │   /tradition│                 │
+│  │             │  │   theory    │  │             │                 │
 │  └─────────────┘  └─────────────┘  └─────────────┘                 │
 │                                                                     │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │
 │  │    Art      │  │   History   │  │  Philosophy │                 │
 │  │             │  │             │  │             │                 │
-│  │ • 음악 이론 │  │ • 고대 문명 │  │ • 논리학    │                 │
-│  │ • 건축 설계 │  │ • 전쟁 전략 │  │ • 윤리학    │                 │
-│  │ • 영화 편집 │  │ • 무역 역사 │  │ • 인식론    │                 │
+│  │ • Music     │  │ • Ancient   │  │ • Logic     │                 │
+│  │   theory    │  │   civiliza- │  │ • Ethics    │                 │
+│  │ • Archi-    │  │   tions     │  │ • Epistemo- │                 │
+│  │   tecture   │  │ • War       │  │   logy      │                 │
+│  │ • Film      │  │   strategy  │  │             │                 │
+│  │   editing   │  │ • Trade     │  │             │                 │
+│  │             │  │   history   │  │             │                 │
 │  └─────────────┘  └─────────────┘  └─────────────┘                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
@@ -158,9 +166,9 @@ These examples show how breakthrough solutions came from unrelated fields:
 
 ## Example
 
-**Problem**: "공정하면서도 효율적인 작업 분배 시스템"
+**Problem**: "A fair yet efficient task distribution system"
 
-**Deep Abstraction**: "희소 자원의 공정하고 효율적인 분배"
+**Deep Abstraction**: "Fair and efficient distribution of scarce resources"
 
 **Core Tension**: Efficiency ↔ Fairness
 
