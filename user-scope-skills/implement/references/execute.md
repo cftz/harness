@@ -14,18 +14,41 @@ Provide one of the following to specify where the plan and requirements come fro
 
 Both must be provided together.
 
-**Option B: Linear Issue**
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
-  - Plan: Retrieved from Document attached to the issue
+**Option B: Issue Tracker**
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
+  - Plan: Retrieved from Document (Linear) or Attachment (Jira)
   - Requirements: Retrieved from issue description
 
+### Options
+
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
+
 ## Process
+
+### 0. Resolve Provider (if ISSUE_ID provided)
+
+If `ISSUE_ID` is provided:
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
 
 ### 1. Read Plan and Requirements
 
 **If `ISSUE_ID` is provided:**
-Read [Linear Task Document]({baseDir}/references/linear-task.md) to fetch both:
-- Plan document from attached Linear Document
+
+Route based on resolved PROVIDER:
+
+| PROVIDER           | Reference Document                     |
+| ------------------ | -------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-task.md`  |
+| `jira`             | `{baseDir}/references/jira-task.md`    |
+
+Fetch both:
+- Plan document from attached Document (Linear) or Attachment (Jira)
 - Requirements from issue description
 
 **If `PLAN_PATH` + `TASK_PATH` are provided:**
@@ -49,11 +72,13 @@ Thoroughly understand:
 
 > Skip this step if `ISSUE_ID` is not provided (i.e., using local files)
 
-Update the Linear issue state to indicate work has started:
+Update the issue state to indicate work has started.
+
+**For Linear (PROVIDER=linear):**
 
 1. Get current issue state:
    ```
-   skill: linear-issue
+   skill: linear:linear-issue
    args: get ID={ISSUE_ID}
    ```
 
@@ -63,14 +88,30 @@ Update the Linear issue state to indicate work has started:
 
 3. Get state ID for "In Progress":
    ```
-   skill: linear-state
+   skill: linear:linear-state
    args: list ISSUE_ID={ISSUE_ID} NAME=In Progress
    ```
 
 4. Update issue state:
    ```
-   skill: linear-issue
+   skill: linear:linear-issue
    args: update ID={ISSUE_ID} STATE_ID={state_id}
+   ```
+
+**For Jira (PROVIDER=jira):**
+
+1. Get current issue state from issue details (fetched in Step 1)
+
+2. If current state is already "In Progress":
+   - Log: "Issue already In Progress, skipping update"
+   - Proceed to next step
+
+3. Transition to "In Progress":
+   ```
+   mcp__jira__jira_transition_issue(
+       issue_key="{ISSUE_ID}",
+       transition_name="In Progress"
+   )
    ```
 
 5. Log: "Updated issue state to In Progress"

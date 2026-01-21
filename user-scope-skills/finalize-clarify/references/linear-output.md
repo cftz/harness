@@ -1,158 +1,70 @@
 # Linear Output Document
 
-This document defines how to create Linear issues from clarified tasks.
+This document defines how to create Linear issues from prepared task data.
 
-## Input
+## Input (from SKILL.md)
 
 - `PROJECT_ID` - Linear Project ID or name
-- `DRAFT_PATHS` - Comma-separated list of temporary file paths from draft-clarify
-- `ASSIGNEE` - (Optional) User to assign issues to (ID, name, email, or "me")
+- `TASK_MAP` - Parsed task data: `{task_name -> {title, description, blockedBy}}`
+- `CREATION_ORDER` - Topologically sorted task names
+- `ASSIGNEE` - Resolved user ID (from project-manage)
 - `PARENT_ISSUE_ID` - (Optional) Parent issue ID for sub-issues
-
-## Draft File Format
-
-Each draft file should contain YAML frontmatter with task metadata:
-
-```yaml
----
-title: "Task Title"
-description: |
-  Task description in Markdown format.
-dependencies:
-  - task-name-1
-  - task-name-2
----
-```
-
-The `dependencies` field lists other task names (not issue IDs) that must be completed first.
 
 ## Process
 
-### Step 1: Resolve Defaults
+### Step 1: Create Issues
 
-Get current user for assignee if not provided:
+For each task in `CREATION_ORDER`:
 
-```
-skill: linear-current
-args: user
-```
-
-### Step 2: Parse and Read Draft Files
-
-1. Split `DRAFT_PATHS` by comma
-2. Read each file and extract frontmatter:
-   - `title` - Issue title
-   - `description` - Issue description
-   - `dependencies` - List of task names this depends on
-
-3. Build a task map: `{task_name -> task_data}`
-
-### Step 3: Determine Creation Order
-
-Build a dependency graph and sort tasks topologically:
-1. Tasks with no dependencies are created first
-2. Tasks are created only after their dependencies
-
-### Step 4: Create Issues
-
-For each task in dependency order:
-
-1. **Resolve blocking issue IDs**: Convert task names in `dependencies` to their created issue IDs
+1. **Resolve blocking issue IDs**: Convert task names in `blockedBy` to their created issue IDs
 2. **Create the issue**:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: create TITLE="{title}" DESCRIPTION="{description}" PROJECT={PROJECT_ID} [PARENT={PARENT_ISSUE_ID}] [BLOCKED_BY="{blocking_ids}"] [ASSIGNEE={ASSIGNEE}]
 ```
 
 3. **Record the created issue ID**: Map task name to issue identifier for dependency resolution
 
-### Step 5: Report Results
+### Step 2: Report Results
 
-List all created issues and their relationships.
+Return:
+- `ISSUE_IDS`: Map of task names to created Linear issue IDs
+- `BLOCKING_RELATIONS`: List of blocking relationships
 
 ## Example
 
 ```
-Input:
+Input (from SKILL.md):
   PROJECT_ID: cops
-  DRAFT_PATHS: .agent/tmp/20260110-auth,.agent/tmp/20260110-api,.agent/tmp/20260110-deploy
+  TASK_MAP:
+    auth -> {title: "Implement authentication", description: "Add JWT-based auth...", blockedBy: []}
+    api -> {title: "Build API endpoints", description: "Create REST endpoints...", blockedBy: ["auth"]}
+    deploy -> {title: "Deploy to staging", description: "Configure deployment...", blockedBy: ["auth", "api"]}
+  CREATION_ORDER: ["auth", "api", "deploy"]
+  ASSIGNEE: user-uuid-123
   PARENT_ISSUE_ID: TA-100
-  ASSIGNEE: me
 
-Draft Files:
-  .agent/tmp/20260110-auth:
-    ---
-    title: "Implement authentication"
-    description: "Add JWT-based auth..."
-    dependencies: []
-    ---
+Step 1 - Create issues:
 
-  .agent/tmp/20260110-api:
-    ---
-    title: "Build API endpoints"
-    description: "Create REST endpoints..."
-    dependencies:
-      - auth
-    ---
-
-  .agent/tmp/20260110-deploy:
-    ---
-    title: "Deploy to staging"
-    description: "Configure deployment..."
-    dependencies:
-      - auth
-      - api
-    ---
-
-Step 1 - Resolve defaults:
-  skill: linear-current
-  args: user
-  -> user_id
-
-Step 2 - Parse files:
-  Task map:
-    auth -> {title: "Implement authentication", deps: []}
-    api -> {title: "Build API endpoints", deps: ["auth"]}
-    deploy -> {title: "Deploy to staging", deps: ["auth", "api"]}
-
-Step 3 - Dependency order:
-  1. auth (no deps)
-  2. api (deps: auth)
-  3. deploy (deps: auth, api)
-
-Step 4 - Create issues:
-
-  Create auth:
-    skill: linear-issue
-    args: create TITLE="Implement authentication" DESCRIPTION="Add JWT-based auth..." PROJECT=cops PARENT=TA-100 ASSIGNEE=me
+  Create auth (no blockedBy):
+    skill: linear:linear-issue
+    args: create TITLE="Implement authentication" DESCRIPTION="Add JWT-based auth..." PROJECT=cops PARENT=TA-100 ASSIGNEE=user-uuid-123
     -> Created TA-101
 
-  Create api:
-    skill: linear-issue
-    args: create TITLE="Build API endpoints" DESCRIPTION="Create REST endpoints..." PROJECT=cops PARENT=TA-100 BLOCKED_BY="TA-101" ASSIGNEE=me
+  Create api (blockedBy: auth -> TA-101):
+    skill: linear:linear-issue
+    args: create TITLE="Build API endpoints" DESCRIPTION="Create REST endpoints..." PROJECT=cops PARENT=TA-100 BLOCKED_BY="TA-101" ASSIGNEE=user-uuid-123
     -> Created TA-102
 
-  Create deploy:
-    skill: linear-issue
-    args: create TITLE="Deploy to staging" DESCRIPTION="Configure deployment..." PROJECT=cops PARENT=TA-100 BLOCKED_BY="TA-101,TA-102" ASSIGNEE=me
+  Create deploy (blockedBy: auth, api -> TA-101, TA-102):
+    skill: linear:linear-issue
+    args: create TITLE="Deploy to staging" DESCRIPTION="Configure deployment..." PROJECT=cops PARENT=TA-100 BLOCKED_BY="TA-101,TA-102" ASSIGNEE=user-uuid-123
     -> Created TA-103
 
-Result:
-  Issue map: {auth: TA-101, api: TA-102, deploy: TA-103}
-```
-
-## Output
-
-```
-Issues created:
-- TA-101: Implement authentication
-- TA-102: Build API endpoints
-- TA-103: Deploy to staging
-
-Blocking relationships:
-- TA-102 blocked by TA-101
-- TA-103 blocked by TA-101, TA-102
-
-Parent issue: TA-100
+Step 2 - Report:
+  ISSUE_IDS: {auth: TA-101, api: TA-102, deploy: TA-103}
+  BLOCKING_RELATIONS:
+    - TA-102 blocked by TA-101
+    - TA-103 blocked by TA-101, TA-102
 ```

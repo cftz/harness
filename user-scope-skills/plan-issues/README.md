@@ -2,7 +2,7 @@
 
 ## Intent
 
-Provide batch planning capability for multiple Linear issues in parallel. This skill automates the process of finding eligible issues, creating plans for each in parallel, running auto-reviews, and registering approved plans back to Linear.
+Provide batch planning capability for project issues (Linear or Jira) in parallel. This skill automates the process of finding eligible issues, creating plans for each in parallel, running auto-reviews, and registering approved plans back to the issue tracker.
 
 ## Motivation
 

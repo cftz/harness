@@ -8,19 +8,21 @@ description: |
   Args:
     Task Source (OneOf, Required):
       REQUEST="<text>" - User's requirement text
-      ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)
+      ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)
     Output Destination (OneOf, Optional):
       ARTIFACT_DIR_PATH=<path> - Save to artifact directory
-      PROJECT_ID=<id> - Save as Linear issues in project
-      (If neither provided, uses linear-current project)
+      PROJECT_ID=<id> - Save as issues in project
+      (If neither provided, uses project-manage to get current project)
     Options:
-      ASSIGNEE=<id|name|email|me> - Issue assignee (default: linear-current user)
+      PROVIDER=linear|jira - Issue tracker provider (default: linear)
+      ASSIGNEE=<id|name|email|me> - Issue assignee (default: current user from project-manage)
       AUTO_ACCEPT=true - Skip user review (default: false)
       MAX_CYCLES=<n> - Maximum auto-fix cycles (default: 10)
 
   Examples:
     /clarify-workflow ISSUE_ID=TA-123
     /clarify-workflow ISSUE_ID=TA-123 PROJECT_ID=cops
+    /clarify-workflow ISSUE_ID=PROJ-123 PROJECT_ID=MYPROJ PROVIDER=jira
     /clarify-workflow REQUEST="Add auth feature" ARTIFACT_DIR_PATH=.agent/artifacts/20260107
 model: claude-opus-4-5
 ---
@@ -38,30 +40,31 @@ Orchestrates the requirements clarification process by combining `draft-clarify`
 Provide one of the following to specify where requirements come from:
 
 - `REQUEST` - User's requirement text (free-form description)
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
 
 ### Output Destination (OneOf, Optional)
 
 Provide one of the following to specify where clarified requirements are saved:
 
 - `ARTIFACT_DIR_PATH` - Artifact directory path (e.g., `.agent/artifacts/20260105-120000`)
-- `PROJECT_ID` - Linear Project ID or name
+- `PROJECT_ID` - Project ID or name
 
-If neither is provided, get the current project:
+If neither is provided, get the current project from project-manage (passing resolved PROVIDER):
 
 ```
-skill: linear-current
-args: project
+skill: project-manage
+args: project PROVIDER=<provider>
 ```
 
 ### Optional
 
-- `ASSIGNEE` - User to assign issues to (ID, name, email, or "me"). If not provided, get the current user:
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with PROJECT_ID output.
+- `ASSIGNEE` - User to assign issues to. For Linear: ID, name, email, or "me". For Jira: email or account ID.
+  If not provided, get the current user from project-manage (passing resolved PROVIDER):
   ```
-  skill: linear-current
-  args: user
+  skill: project-manage
+  args: user PROVIDER=<provider>
   ```
-  (Only applies to Linear output)
 - `AUTO_ACCEPT` - If set to `true`, skip user review at the end. Defaults to `false`.
 - `MAX_CYCLES` - Maximum number of auto-fix cycles for clarify-review loop. Defaults to `10`.
 
@@ -172,14 +175,22 @@ args: project
 ### 1. Validate Parameters
 
 1. Verify that exactly one of `REQUEST` or `ISSUE_ID` is provided
-2. If neither `ARTIFACT_DIR_PATH` nor `PROJECT_ID` is provided:
-   - Invoke linear-current to get the current project:
+2. Resolve `PROVIDER`:
+   - If `PROVIDER` parameter is explicitly provided, use it
+   - If not provided, get from project-manage:
      ```
-     skill: linear-current
-     args: project
+     skill: project-manage
+     args: provider
      ```
-   - Store the resolved project ID for use in Step 5
-3. Initialize `cycle_count = 0` and `cycle_history = []` for tracking
+     Use the returned provider value (or `linear` if project-manage not initialized)
+3. If neither `ARTIFACT_DIR_PATH` nor `PROJECT_ID` is provided:
+   - Get current project from project-manage (pass resolved PROVIDER):
+     ```
+     skill: project-manage
+     args: project PROVIDER=<provider>
+     ```
+   - Store the resolved project for use in Step 5
+4. Initialize `cycle_count = 0` and `cycle_history = []` for tracking
 
 ### 2. Call draft-clarify Skill (with Resume Loop)
 
@@ -188,12 +199,14 @@ Invoke the `draft-clarify` skill with the task source:
 ```
 # For REQUEST input:
 skill: draft-clarify
-args: create REQUEST=<text>
+args: create REQUEST=<text> PROVIDER=<provider>
 
 # For ISSUE_ID input:
 skill: draft-clarify
-args: create ISSUE_ID=<id>
+args: create ISSUE_ID=<id> PROVIDER=<provider>
 ```
+
+> **Note**: Always pass the resolved `PROVIDER` value to draft-clarify to ensure consistent provider handling across the workflow.
 
 #### Handle Return Status
 
@@ -311,8 +324,9 @@ Once the review is approved, invoke the `finalize-clarify` skill:
 - If `PROJECT_ID` is provided (or resolved in Step 1):
   ```
   skill: finalize-clarify
-  args: DRAFT_PATHS=<paths> PROJECT_ID=<project_id> [PARENT_ISSUE_ID=<issue_id>] [ASSIGNEE=<assignee>]
+  args: DRAFT_PATHS=<paths> PROJECT_ID=<project_id> PROVIDER=<provider> [PARENT_ISSUE_ID=<issue_id>] [ASSIGNEE=<assignee>]
   ```
+  - Pass `PROVIDER` parameter to finalize-clarify
   - If original input was `ISSUE_ID`, pass it as `PARENT_ISSUE_ID` to create sub-issues
   - If `ASSIGNEE` was provided, pass it to finalize-clarify
 
@@ -326,7 +340,8 @@ Output the result from the `finalize-clarify` skill, including:
 ## Output
 
 SUCCESS:
-- OUTPUT_LOCATION: Final output location (artifact directory path or Linear project ID)
+- OUTPUT_LOCATION: Final output location (artifact directory path or project ID)
+- PROVIDER: Issue tracker provider used (linear or jira), only for PROJECT_ID output
 - TASKS_CREATED: List of created task paths or issue IDs
 - CYCLE_COUNT: Number of auto-fix cycles
 - CYCLE_HISTORY: Summary of each cycle result
@@ -357,8 +372,13 @@ Tasks saved to artifact directory:
 
 [If Linear]:
 Issues created:
-- ABC-124: Task 1 (blockedBy: none)
-- ABC-125: Task 2 (blockedBy: ABC-124)
+- TA-124: Task 1 (blockedBy: none)
+- TA-125: Task 2 (blockedBy: TA-124)
+
+[If Jira]:
+Issues created:
+- PROJ-124: Task 1 (blockedBy: none)
+- PROJ-125: Task 2 (blockedBy: PROJ-124)
 ```
 
 ## Quality Checklist
@@ -366,7 +386,7 @@ Issues created:
 Before completing, verify:
 
 - [ ] **Task source validated**: Exactly one of REQUEST or ISSUE_ID provided
-- [ ] **Output destination resolved**: Either provided or resolved via linear-current
+- [ ] **Output destination resolved**: Either provided or resolved via project-manage
 - [ ] **Drafts created**: draft-clarify skill completed successfully
 - [ ] **Auto-review passed**: clarify-review returned Approved status
 - [ ] **Cycle limit respected**: Auto-fix loop did not exceed MAX_CYCLES
@@ -389,8 +409,8 @@ This skill performs orchestration only and does not:
 This skill requires the following skills to exist:
 - `draft-clarify` - Creates draft task documents in temporary files
 - `clarify-review` - Validates drafts against rules and original request
-- `finalize-clarify` - Saves approved tasks to final destination
-- `linear-current` - Resolves default project and user
+- `finalize-clarify` - Saves approved tasks to final destination (supports Linear and Jira)
+- `project-manage` - Resolves default project and user (provider-agnostic)
 - `checkpoint` - Manages interruptible checkpoint files for resume support
 
 ### Three-Phase Workflow

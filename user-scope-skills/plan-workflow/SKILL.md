@@ -1,6 +1,6 @@
 ---
 name: plan-workflow
-description: "Orchestrates plan creation by combining draft-plan, plan-review, and finalize-plan skills with automated review loop and user approval.\n\nArgs:\n  Task Source (OneOf, Required):\n    TASK_PATH=<path> - Task document path\n    ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)\n  Output (Optional):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory (If omitted with ISSUE_ID, saves as Linear Document)\n  Options:\n    AUTO_ACCEPT=true - Skip user review (default: false)\n    MAX_CYCLES=<n> - Maximum auto-fix cycles (default: 10)\n\nExamples:\n  /plan-workflow ISSUE_ID=TA-123\n  /plan-workflow ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260107\n  /plan-workflow TASK_PATH=.agent/tmp/task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107"
+description: "Orchestrates plan creation by combining draft-plan, plan-review, and finalize-plan skills with automated review loop and user approval.\n\nArgs:\n  Task Source (OneOf, Required):\n    TASK_PATH=<path> - Task document path\n    ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)\n  Output (Optional):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory (If omitted with ISSUE_ID, saves as Document/Attachment)\n  Options:\n    PROVIDER=linear|jira - Issue tracker provider (default: linear)\n    AUTO_ACCEPT=true - Skip user review (default: false)\n    MAX_CYCLES=<n> - Maximum auto-fix cycles (default: 10)\n\nExamples:\n  /plan-workflow ISSUE_ID=TA-123\n  /plan-workflow ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260107\n  /plan-workflow ISSUE_ID=PROJ-123 PROVIDER=jira\n  /plan-workflow TASK_PATH=.agent/tmp/task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107"
 model: claude-opus-4-5
 ---
 
@@ -15,18 +15,21 @@ Orchestrates the plan creation process by combining `draft-plan`, `plan-review`,
 Provide one of the following to specify where requirements come from:
 
 - `TASK_PATH` - Path to a task document (e.g., `.agent/artifacts/20260105/01_task.md`)
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
 
 ### Output Destination (Optional)
 
 - `ARTIFACT_DIR_PATH` - Artifact directory path (e.g., `.agent/artifacts/20260105-120000`)
 
-If not provided and `ISSUE_ID` is provided, the plan will be saved as a Document attached to the Issue in Linear.
+If not provided and `ISSUE_ID` is provided, the plan will be saved as:
+- **Linear**: Document attached to the Issue
+- **Jira**: Attachment on the Issue
 
 > **Note**: If `TASK_PATH` is used without `ARTIFACT_DIR_PATH`, notify the user that an output destination is required and ask them to provide `ARTIFACT_DIR_PATH`.
 
 ### Optional
 
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
 - `AUTO_ACCEPT` - If set to `true`, skip user review at the end. Defaults to `false`.
 - `MAX_CYCLES` - Maximum number of auto-fix cycles for plan-review loop. Defaults to `10`.
 
@@ -79,7 +82,7 @@ If not provided and `ISSUE_ID` is provided, the plan will be saved as a Document
 │  │ args: PLAN_PATH=<draft_path>                          │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                     │                    │                  │
-│          Revision Needed              Approved             │
+│        Changes Required                Pass                │
 │                     │                    │                  │
 │                     ↓                    │                  │
 │  ┌──────────────────────────────────────────────────────┐  │
@@ -135,10 +138,18 @@ If not provided and `ISSUE_ID` is provided, the plan will be saved as a Document
 ### 1. Validate Parameters
 
 1. Verify that exactly one of `TASK_PATH` or `ISSUE_ID` is provided
-2. If `TASK_PATH` is used without `ARTIFACT_DIR_PATH`:
+2. Resolve `PROVIDER`:
+   - If `PROVIDER` parameter is explicitly provided, use it
+   - If not provided, get from project-manage:
+     ```
+     skill: project-manage
+     args: provider
+     ```
+     Use the returned provider value (or `linear` if project-manage not initialized)
+3. If `TASK_PATH` is used without `ARTIFACT_DIR_PATH`:
    - Notify the user: "Output destination is required when using TASK_PATH"
    - Ask user to provide `ARTIFACT_DIR_PATH`
-3. Initialize `cycle_count = 0` and `cycle_history = []` for tracking
+4. Initialize `cycle_count = 0` and `cycle_history = []` for tracking
 
 ### 2. Call draft-plan Skill (with Resume Loop)
 
@@ -202,13 +213,13 @@ This step runs automatically without user interaction.
    - Store the review result path as `REVIEW_PATH`
 
 4. **Check Review Result**
-   - Parse the review document to determine status
-   - If **Approved**:
-     - Record in cycle_history: `{cycle: N, result: "Approved"}`
+   - Parse the review output to determine status (`RESULT: PASS` or `RESULT: CHANGES_REQUIRED`)
+   - If **PASS**:
+     - Record in cycle_history: `{cycle: N, result: "Pass"}`
      - Proceed to Step 4 (User Review Loop)
-   - If **Revision Needed**:
+   - If **CHANGES_REQUIRED**:
      - Extract violation count from review document
-     - Record in cycle_history: `{cycle: N, result: "Revision Needed", violations: count}`
+     - Record in cycle_history: `{cycle: N, result: "Changes Required", violations: count}`
      - Call draft-plan modify:
        ```
        skill: draft-plan
@@ -265,8 +276,9 @@ Once the plan is approved, invoke the `finalize-plan` skill:
 - Else if `ISSUE_ID` is provided:
   ```
   skill: finalize-plan
-  args: DRAFT_PATH=<draft_path> ISSUE_ID=<issue_id>
+  args: DRAFT_PATH=<draft_path> ISSUE_ID=<issue_id> PROVIDER=<provider>
   ```
+  Pass `PROVIDER` parameter to finalize-plan for correct output handling.
 
 ### 6. Report Result
 
@@ -278,7 +290,8 @@ Output the result from the `finalize-plan` skill, including:
 ## Output
 
 SUCCESS:
-- OUTPUT_LOCATION: Final output path (artifact file or Linear Document ID)
+- OUTPUT_LOCATION: Final output path (artifact file, Linear Document ID, or Jira Attachment name)
+- PROVIDER: Issue tracker provider used (linear or jira), only for ISSUE_ID output
 - PLAN_TITLE: Title from the plan
 - CYCLES: Number of auto-fix cycles completed
 - CYCLE_HISTORY: Array of cycle results
@@ -313,6 +326,7 @@ OUTPUT:
 
 [If artifact]: File saved to: .agent/artifacts/YYYYMMDD-HHMMSS/NN_plan.md
 [If Linear]: Document attached to issue: [ISSUE_ID]
+[If Jira]: Attachment added to issue: [ISSUE_KEY]
 ```
 
 ### Error Report Format
@@ -351,7 +365,7 @@ This skill performs orchestration only and does not:
 This skill requires the following skills to exist:
 - `draft-plan` - Creates draft plan in temporary file
 - `plan-review` - Validates drafts against rules
-- `finalize-plan` - Saves approved plan to final destination
+- `finalize-plan` - Saves approved plan to final destination (supports Linear and Jira)
 - `checkpoint` - Manages interruptible checkpoint files for resume support (global rule)
 
 ### Three-Phase Workflow

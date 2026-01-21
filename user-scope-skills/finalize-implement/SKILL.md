@@ -1,28 +1,31 @@
 ---
 name: finalize-implement
 description: |
-  Use this skill to finalize implementation by committing, pushing, creating PR, and updating Linear issue state.
+  Use this skill to finalize implementation by committing, pushing, creating PR, and updating issue state.
 
   Args:
-    ISSUE_ID=<id> (Optional) - Linear Issue ID to update state (skip Linear update if omitted)
+    ISSUE_ID=<id> (Optional) - Issue ID to update state (skip issue update if omitted)
     Options:
+      PROVIDER=linear|jira - Issue tracker provider (default: linear)
       BRANCH=<name> - Base branch for PR target (default: main)
 
   Examples:
     /finalize-implement ISSUE_ID=TA-123
     /finalize-implement ISSUE_ID=TA-123 BRANCH=develop
+    /finalize-implement ISSUE_ID=PROJ-123 PROVIDER=jira
 model: claude-sonnet-4-5
 ---
 
 # Description
 
-Atomic skill for finalizing implementation after code review passes. Performs git operations (commit, push, PR creation) and updates Linear issue state. All operations are idempotent - safe to re-run without side effects.
+Atomic skill for finalizing implementation after code review passes. Performs git operations (commit, push, PR creation) and updates issue state. All operations are idempotent - safe to re-run without side effects.
 
 ## Parameters
 
 ### Optional
 
-- `ISSUE_ID` - Linear Issue ID to update state (e.g., `TA-123`). If omitted, skips Linear state update.
+- `ISSUE_ID` - Issue ID to update state (e.g., `PROJ-123`). If omitted, skips issue state update.
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used when ISSUE_ID is provided.
 - `BRANCH` - Base branch for determining branch type and PR target. Defaults to `main`.
 
 ## Workflow Overview
@@ -31,7 +34,7 @@ Atomic skill for finalizing implementation after code review passes. Performs gi
 ┌─────────────────────────────────────────────────────────────┐
 │  Step 1: Validate Parameters                                │
 │  - Set defaults for optional params                         │
-│  - Note: ISSUE_ID is optional (skips Linear if omitted)     │
+│  - Note: ISSUE_ID is optional (skips issue update if omit)  │
 └─────────────────────────────────────────────────────────────┘
                                │
                                ▼
@@ -62,7 +65,7 @@ Atomic skill for finalizing implementation after code review passes. Performs gi
                                │
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  Step 4: Update Linear Issue State (skip if no ISSUE_ID)    │
+│  Step 4: Update Issue State (skip if no ISSUE_ID)           │
 │  - Feature branch → "In Review"                             │
 │  - Default branch → "Done"                                  │
 │  (Skip if already in target state)                          │
@@ -98,9 +101,17 @@ If current branch is `main` and BRANCH is `main`, simply push to main. Do not cr
 
 1. Set defaults:
    - `BRANCH` defaults to `main`
+2. Resolve `PROVIDER`:
+   - If `PROVIDER` parameter is explicitly provided, use it
+   - If not provided, get from project-manage:
+     ```
+     skill: project-manage
+     args: provider
+     ```
+     Use the returned provider value (or `linear` if project-manage not initialized)
 2. Note `ISSUE_ID` presence for later steps:
-   - If provided: Full flow including Linear state update
-   - If omitted: Git operations only, skip Linear integration
+   - If provided: Full flow including issue state update
+   - If omitted: Git operations only, skip issue tracker integration
 
 ### 2. Detect Branch Type
 
@@ -132,11 +143,16 @@ Execute each sub-step with idempotency checks:
 
 3. If changes exist:
    - **If ISSUE_ID provided**:
-     - Get issue title from Linear for commit message:
-       ```
-       skill: linear-issue
-       args: get ID={ISSUE_ID}
-       ```
+     - Get issue title for commit message:
+       - **Linear (PROVIDER=linear)**:
+         ```
+         skill: linear:linear-issue
+         args: get ID={ISSUE_ID}
+         ```
+       - **Jira (PROVIDER=jira)**:
+         ```
+         mcp__jira__jira_get_issue(issue_key="{ISSUE_ID}")
+         ```
      - Create commit with issue reference:
        ```bash
        git commit -m "{ISSUE_ID}: {issue_title}"
@@ -195,20 +211,25 @@ Execute each sub-step with idempotency checks:
 
 3. If no PR exists:
    - **If ISSUE_ID provided**:
-     - Get issue details for PR description:
-       ```
-       skill: linear-issue
-       args: get ID={ISSUE_ID}
-       ```
-     - Create PR with Linear reference:
+     - Get issue details for PR description (if not already fetched):
+       - **Linear (PROVIDER=linear)**:
+         ```
+         skill: linear:linear-issue
+         args: get ID={ISSUE_ID}
+         ```
+       - **Jira (PROVIDER=jira)**:
+         ```
+         mcp__jira__jira_get_issue(issue_key="{ISSUE_ID}")
+         ```
+     - Create PR with issue reference:
        ```bash
        gh pr create --base {BRANCH} --title "{ISSUE_ID}: {issue_title}" --body "Resolves {ISSUE_ID}
 
        ## Summary
        {issue_description_summary}
 
-       ## Linear Issue
-       {linear_issue_url}"
+       ## Issue
+       {issue_url}"
        ```
    - **If ISSUE_ID not provided**:
      - Create PR with branch-based title:
@@ -219,7 +240,7 @@ Execute each sub-step with idempotency checks:
        ```
    - Log: "Created PR: {pr_url}"
 
-### 4. Update Linear Issue State
+### 4. Update Issue State
 
 > Skip this step if `ISSUE_ID` is not provided
 
@@ -227,29 +248,16 @@ Execute each sub-step with idempotency checks:
    - **Feature branch**: Target state = "In Review"
    - **Default branch**: Target state = "Done"
 
-2. Get current issue state:
-   ```
-   skill: linear-issue
-   args: get ID={ISSUE_ID}
-   ```
+2. Route based on PROVIDER parameter:
 
-3. If current state == target state:
-   - Log: "Issue already in {target_state}, skipping update"
-   - Continue to report
+   | PROVIDER           | Reference Document                       |
+   | ------------------ | ---------------------------------------- |
+   | `linear` (default) | `{baseDir}/references/linear-output.md`  |
+   | `jira`             | `{baseDir}/references/jira-output.md`    |
 
-4. Get state ID for target state:
-   ```
-   skill: linear-state
-   args: list ISSUE_ID={ISSUE_ID} NAME={target_state}
-   ```
+3. Follow the reference document to update the issue state to `{target_state}`
 
-5. Update issue state:
-   ```
-   skill: linear-issue
-   args: update ID={ISSUE_ID} STATE_ID={state_id}
-   ```
-
-6. Log: "Updated issue state to {target_state}"
+4. Log: "Updated issue state to {target_state}"
 
 ### 5. Report Result
 
@@ -259,7 +267,7 @@ Output the final result to user.
 
 SUCCESS:
 - PR_URL: Pull request URL (if feature branch)
-- LINEAR_STATE: Updated issue state (if ISSUE_ID provided)
+- ISSUE_STATE: Updated issue state (if ISSUE_ID provided)
 
 ERROR: Error message string
 
@@ -279,12 +287,12 @@ ERROR: Error message string
 | Commit       | {Created/Skipped}     | {commit_hash or "No changes"}     |
 | Push         | {Pushed/Skipped}      | {branch_name or "Already synced"} |
 | Pull Request | {Created/Skipped/N/A} | {pr_url or reason}                |
-| Linear State | {Updated/Skipped/N/A} | {new_state or "No ISSUE_ID"}      |
+| Issue State  | {Updated/Skipped/N/A} | {new_state or "No ISSUE_ID"}      |
 
 ### Result
 
 - **PR URL**: {pr_url} (if feature branch)
-- **Linear Issue**: {linear_url} (if ISSUE_ID provided)
+- **Issue URL**: {issue_url} (if ISSUE_ID provided)
 - **Final State**: {state_name} (if ISSUE_ID provided)
 ```
 
@@ -316,7 +324,7 @@ No changes were made.
 | Commit       | {status}          |
 | Push         | {status}          |
 | Pull Request | {status}          |
-| Linear State | {status or "N/A"} |
+| Issue State  | {status or "N/A"} |
 
 ### Suggestion
 
@@ -327,12 +335,12 @@ No changes were made.
 
 This skill is designed to be safely re-run:
 
-| Operation    | Idempotency Check                              | Behavior if Already Done                      |
-| ------------ | ---------------------------------------------- | --------------------------------------------- |
-| Commit       | `git status --porcelain` empty                 | Skip, log "No uncommitted changes"            |
-| Push         | No `[ahead N]` in status                       | Skip, log "Already synced"                    |
-| PR Creation  | `gh pr list --head` returns PR                 | Skip, log existing PR URL                     |
-| State Update | Current state == target state (or no ISSUE_ID) | Skip, log "Already in state" or "No ISSUE_ID" |
+| Operation    | Idempotency Check                              | Behavior if Already Done                       |
+| ------------ | ---------------------------------------------- | ---------------------------------------------- |
+| Commit       | `git status --porcelain` empty                 | Skip, log "No uncommitted changes"             |
+| Push         | No `[ahead N]` in status                       | Skip, log "Already synced"                     |
+| PR Creation  | `gh pr list --head` returns PR                 | Skip, log existing PR URL                      |
+| State Update | Current state == target state (or no ISSUE_ID) | Skip, log "Already in state" or "No ISSUE_ID"  |
 
 ## Constraints
 
@@ -354,7 +362,7 @@ Before completing, verify:
 - [ ] **Parameters validated**: Defaults set, ISSUE_ID presence noted
 - [ ] **Branch type detected**: Correctly identified as feature or default branch
 - [ ] **Git operations idempotent**: Each step checked state before acting
-- [ ] **Linear state updated**: Issue moved to correct state (if ISSUE_ID provided)
+- [ ] **Issue state updated**: Issue moved to correct state (if ISSUE_ID provided)
 - [ ] **Result reported**: Summary of all operations provided to user
 
 ## Notice
@@ -362,8 +370,13 @@ Before completing, verify:
 ### Dependent Skills
 
 This skill requires the following skills (only when ISSUE_ID is provided):
-- `linear-issue` - Get/update Linear issue details
-- `linear-state` - Get workflow state IDs
+
+**For Linear (PROVIDER=linear):**
+- `linear:linear-issue` - Get/update Linear issue details
+- `linear:linear-state` - Get workflow state IDs
+
+**For Jira (PROVIDER=jira):**
+- Jira MCP server must be configured
 
 ### Git Requirements
 

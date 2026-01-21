@@ -10,12 +10,12 @@ This document defines how to gather requirements from a Linear issue.
 
 1. Use the `linear-issue` skill to fetch ticket details:
    ```
-   skill: linear-issue
+   skill: linear:linear-issue
    args: get ID={ISSUE_ID}
    ```
 2. Use the `linear-comment` skill to get additional context:
    ```
-   skill: linear-comment
+   skill: linear:linear-comment
    args: list ISSUE_ID={ISSUE_ID}
    ```
 3. Extract the following information:

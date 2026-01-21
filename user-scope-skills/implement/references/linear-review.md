@@ -9,7 +9,7 @@ Instructions for fetching a Review Document from Linear when using `ISSUE_ID` wi
 Use the `linear-document` skill to list all documents attached to the issue:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: list ISSUE_ID={ISSUE_ID}
 ```
 
@@ -27,7 +27,7 @@ If multiple Review Documents exist, select the **most recently updated** one.
 Once identified, fetch the full content:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: get ID={DOCUMENT_ID}
 ```
 

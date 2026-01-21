@@ -66,9 +66,16 @@ Map feedback items to specific actions:
 
 If feedback is ambiguous or requires decisions:
 
-1. Use `AskUserQuestion` to clarify intent
-2. **MUST resolve all ambiguities** - do not leave "A or B" options
-3. Document decisions in the "Questions Resolved" section
+1. Save context and return AWAIT (since this skill runs in fork context):
+   ```
+   skill: checkpoint
+   args: save
+   ```
+   Return with STATUS: AWAIT and CONTEXT_PATH
+2. The orchestrating workflow will handle the question via AskUserQuestion
+3. When resumed, use the answers to resolve ambiguities
+4. **MUST resolve all ambiguities** - do not leave "A or B" options
+5. Document decisions in the "Questions Resolved" section
 
 > **CRITICAL**: Continue to focus on **what** and **why**, not **how**. Do not introduce implementation details during revision.
 

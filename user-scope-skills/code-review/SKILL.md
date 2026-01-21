@@ -6,15 +6,18 @@ description: |
   Args:
     Task Source (OneOf, Required):
       ARTIFACT_DIR_PATH=<path> - Artifact directory (e.g., .agent/artifacts/20260105-120000)
-      ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)
+      ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)
     Output Destination (Optional, OneOf):
       USE_TEMP=true - Save to temp file (default)
       ARTIFACT_DIR_PATH=<path> - Save review to artifact directory
-      ISSUE_ID=<id> - Save as Linear Document attached to issue
+      ISSUE_ID=<id> - Save as Document/Attachment attached to issue
+    Options:
+      PROVIDER=linear|jira - Issue tracker provider (default: linear)
 
   Examples:
     /code-review ARTIFACT_DIR_PATH=.agent/artifacts/20260105-120000
     /code-review ISSUE_ID=TA-123
+    /code-review ISSUE_ID=PROJ-123 PROVIDER=jira
 model: claude-opus-4-5
 context: fork
 agent: step-by-step-agent
@@ -31,28 +34,47 @@ Validates that implementations follow all applicable project rules. Reviews chan
 Provide one of the following to specify the review context:
 
 - `ARTIFACT_DIR_PATH` - Artifact directory path (e.g., `.agent/artifacts/20260105-120000`)
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
 
 ### Output Destination (Optional, OneOf)
 
 - `USE_TEMP=true` - Save to temp file (default behavior)
 - `ARTIFACT_DIR_PATH` - Artifact directory path to save the review result (when provided as Task Source, it automatically becomes the Output Destination)
-- `ISSUE_ID` - Save as Linear Document attached to the issue (when provided as Task Source, it automatically becomes the Output Destination)
+- `ISSUE_ID` - Save as Document/Attachment attached to the issue (when provided as Task Source, it automatically becomes the Output Destination)
+
+### Options
+
+- `PROVIDER` - Issue tracker provider when using `ISSUE_ID` (default: `linear`)
+  - `linear` - Linear Issue ID (e.g., `TA-123`)
+  - `jira` - Jira Issue key (e.g., `PROJ-123`)
 
 **Output Priority**:
 1. `USE_TEMP=true` - Temp file
 2. `ARTIFACT_DIR_PATH` - Artifact
-3. `ISSUE_ID` - Linear Document
+3. `ISSUE_ID` - Linear Document or Jira Attachment (based on PROVIDER)
 4. Default (no option) - Temp file
 
 ## Process
+
+### 0. Resolve Provider (if ISSUE_ID provided)
+
+If `ISSUE_ID` is provided:
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
 
 ### 1. Load Context
 
 Load prior planning documents to understand what was supposed to be implemented:
 
 - If `ARTIFACT_DIR_PATH` is provided - Read [Artifact Task Document]({baseDir}/references/artifact-task.md)
-- If `ISSUE_ID` is provided - Read [Linear Task Document]({baseDir}/references/linear-task.md)
+- If `ISSUE_ID` is provided - Route based on resolved PROVIDER:
+  - `linear` - Read [Linear Task Document]({baseDir}/references/linear-task.md)
+  - `jira` - Read [Jira Task Document]({baseDir}/references/jira-task.md)
 
 Understand:
 - What was originally requested
@@ -123,7 +145,13 @@ Determine output destination based on parameters:
 
 1. If `USE_TEMP=true` - Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
 2. Else if `ARTIFACT_DIR_PATH` is provided - Read [Artifact Output]({baseDir}/references/artifact-output.md) and follow its instructions
-3. Else if `ISSUE_ID` is provided - Read [Linear Output]({baseDir}/references/linear-output.md) and follow its instructions
+3. Else if `ISSUE_ID` is provided - Route based on PROVIDER:
+
+   | PROVIDER           | Reference Document                      |
+   | ------------------ | --------------------------------------- |
+   | `linear` (default) | `{baseDir}/references/linear-output.md` |
+   | `jira`             | `{baseDir}/references/jira-output.md`   |
+
 4. Else (default) - Read [Temp Output]({baseDir}/references/temp-output.md) and follow its instructions
 
 ## Review Document Format

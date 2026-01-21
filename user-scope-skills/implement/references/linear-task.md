@@ -14,7 +14,7 @@ This document defines how to retrieve plan and requirements from a Linear issue.
 
 1. Use the `linear-issue` skill to fetch issue details:
    ```
-   skill: linear-issue
+   skill: linear:linear-issue
    args: get ID={ISSUE_ID}
    ```
 2. Extract the issue description as the requirements document
@@ -28,13 +28,13 @@ This document defines how to retrieve plan and requirements from a Linear issue.
 
 1. Use the `linear-document` skill to find documents attached to the issue:
    ```
-   skill: linear-document
+   skill: linear:linear-document
    args: list ISSUE_ID={ISSUE_ID}
    ```
 2. Select the plan document (typically the most recent or titled "Plan: ...")
 3. Use `linear-document get` to retrieve the full content:
    ```
-   skill: linear-document
+   skill: linear:linear-document
    args: get ID={DOCUMENT_ID}
    ```
 4. Parse the plan structure:

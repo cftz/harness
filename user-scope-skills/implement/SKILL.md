@@ -9,16 +9,22 @@ description: |
     execute - Execute implementation from plan (default)
       Source (OneOf, Required):
         PLAN_PATH=<path> + TASK_PATH=<path> - Local plan and requirements files
-        ISSUE_ID=<id> - Linear Issue ID (plan from Document, requirements from description)
+        ISSUE_ID=<id> - Issue ID (e.g., PROJ-123). Plan from Document/Attachment, requirements from description
+      Options:
+        PROVIDER=linear|jira - Issue tracker provider (default: linear)
     fix - Fix code based on review feedback
       Source (OneOf, Required):
         PLAN_PATH=<path> + REVIEW_PATH=<path> - Local plan and review files
-        ISSUE_ID=<id> [REVIEW_PATH=<path>] - Linear Issue (auto-finds Review Document if REVIEW_PATH omitted)
+        ISSUE_ID=<id> [REVIEW_PATH=<path>] - Issue ID (e.g., PROJ-123). Auto-finds Review Document/Attachment if REVIEW_PATH omitted
+      Options:
+        PROVIDER=linear|jira - Issue tracker provider (default: linear)
 
   Examples:
     /implement execute ISSUE_ID=TA-123
+    /implement execute ISSUE_ID=PROJ-123 PROVIDER=jira
     /implement execute PLAN_PATH=.agent/artifacts/20260107/02_plan.md TASK_PATH=.agent/artifacts/20260107/01_task.md
     /implement fix ISSUE_ID=TA-123
+    /implement fix ISSUE_ID=PROJ-123 PROVIDER=jira
     /implement fix PLAN_PATH=.agent/artifacts/20260107/02_plan.md REVIEW_PATH=.agent/artifacts/20260107/03_review.md
 model: claude-opus-4-5
 context: fork

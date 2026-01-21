@@ -9,7 +9,11 @@ Creates a new draft execution plan from requirements.
 Provide one of the following to specify where requirements come from:
 
 - `TASK_PATH` - Path to a task document (e.g., `.agent/artifacts/20260105/01_task.md`)
-- `ISSUE_ID` - Linear Issue ID (e.g., `ABC-123`)
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
+
+### Options
+
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
 
 ### Output (Optional)
 
@@ -17,10 +21,26 @@ Provide one of the following to specify where requirements come from:
 
 ## Process
 
+### 0. Resolve Provider (if ISSUE_ID provided)
+
+If `ISSUE_ID` is provided:
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
+
 ### 1. Read Requirements
 
 - If `TASK_PATH` is provided -> Read the file directly
-- If `ISSUE_ID` is provided -> Read [Linear Task Document]({baseDir}/references/linear-task.md)
+- If `ISSUE_ID` is provided -> Route based on resolved PROVIDER:
+
+| PROVIDER           | Reference Document                     |
+| ------------------ | -------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-task.md`  |
+| `jira`             | `{baseDir}/references/jira-task.md`    |
 
 Thoroughly understand:
 - What needs to be implemented

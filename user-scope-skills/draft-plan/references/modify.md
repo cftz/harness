@@ -53,7 +53,13 @@ If feedback requires new information:
 3. Read relevant rules from `.agent/rules/`
 
 If multiple approaches exist for addressing feedback:
-- Use `AskUserQuestion` to get user selection
+- Save context and return AWAIT (since this skill runs in fork context):
+  ```
+  skill: checkpoint
+  args: save
+  ```
+  Return with STATUS: AWAIT and CONTEXT_PATH for the orchestrating workflow to handle
+- When resumed, use the answer to select exactly one approach
 - **MUST select exactly one approach** - do not leave as "A or B"
 
 ### 5. Update Draft

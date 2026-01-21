@@ -25,7 +25,7 @@ Store the returned path in `temp_file_path`.
 Use the `linear-document` skill to create a new document attached to the issue:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: create TITLE="Code Review - {ISSUE_ID}" ISSUE_ID={ISSUE_ID} CONTENT_FILE={temp_file_path}
 ```
 
@@ -41,7 +41,7 @@ If the review status is "Changes Required":
 
 1. Add a comment to the issue summarizing the violations:
    ```
-   skill: linear-comment
+   skill: linear:linear-comment
    args: create ISSUE_ID={ISSUE_ID} BODY="Code review completed with violations found. See attached document for details."
    ```
 
@@ -65,11 +65,11 @@ Execution:
      args: review
      -> Returns: .agent/tmp/20260110-143052-review
 
-  1. skill: linear-document
+  1. skill: linear:linear-document
      args: create TITLE="Code Review - TA-123" ISSUE_ID=TA-123 CONTENT_FILE=.agent/tmp/20260110-143052-review
      -> Creates document with review content
 
-  2. skill: linear-comment
+  2. skill: linear:linear-comment
      args: create ISSUE_ID=TA-123 BODY="Code review completed..."
      -> Adds comment to TA-123
 

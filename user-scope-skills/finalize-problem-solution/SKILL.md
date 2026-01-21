@@ -7,16 +7,19 @@ description: |
     DRAFT_PATH=<path> (Required) - Path to temporary draft file from draft-problem-solution
     Output Destination (OneOf, Required):
       ARTIFACT_DIR_PATH=<path> - Save to artifact directory
-      ISSUE_ID=<id> - Save as Linear Document attached to issue
-      PROJECT_ID=<id> - Save to Linear project
-    Options (PROJECT_ID only):
-      NEW_ISSUE=<bool> - true=Create Issue (default), false=Create Document
+      ISSUE_ID=<id> - Save as Document/Attachment attached to issue
+      PROJECT_ID=<id> - Save to project (Linear or Jira)
+    Options:
+      PROVIDER=linear|jira - Issue tracker provider (default: linear)
+      NEW_ISSUE=<bool> - true=Create Issue (default), false=Create Document (PROJECT_ID only)
 
   Examples:
     /finalize-problem-solution DRAFT_PATH=.agent/tmp/xxx-solution ARTIFACT_DIR_PATH=.agent/artifacts/20260120
     /finalize-problem-solution DRAFT_PATH=.agent/tmp/xxx-solution ISSUE_ID=TA-123
     /finalize-problem-solution DRAFT_PATH=.agent/tmp/xxx-solution PROJECT_ID=cops
     /finalize-problem-solution DRAFT_PATH=.agent/tmp/xxx-solution PROJECT_ID=cops NEW_ISSUE=false
+    /finalize-problem-solution DRAFT_PATH=.agent/tmp/xxx-solution ISSUE_ID=PROJ-456 PROVIDER=jira
+    /finalize-problem-solution DRAFT_PATH=.agent/tmp/xxx-solution PROJECT_ID=MYPROJ PROVIDER=jira
 model: claude-sonnet-4-5
 context: fork
 agent: step-by-step-agent
@@ -42,14 +45,28 @@ Supports three output destinations:
 Provide exactly one:
 
 - `ARTIFACT_DIR_PATH` - Artifact directory path to save the final output
-- `ISSUE_ID` - Linear Issue ID to attach document to
-- `PROJECT_ID` - Linear Project ID or name to create issue/document in
+- `ISSUE_ID` - Issue ID to attach document/attachment to (e.g., `PROJ-123`)
+- `PROJECT_ID` - Project ID or name to create issue/document in
 
-### Options (PROJECT_ID only)
+### Options
 
-- `NEW_ISSUE` - When using PROJECT_ID: `true` creates an Issue (default), `false` creates a Document
+- `PROVIDER` - Issue tracker provider when using `ISSUE_ID` or `PROJECT_ID` (default: `linear`)
+  - `linear` - Linear (e.g., `TA-123`, `cops`)
+  - `jira` - Jira (e.g., `PROJ-456`, `MYPROJ`)
+- `NEW_ISSUE` - When using PROJECT_ID: `true` creates an Issue (default), `false` creates a Document/Attachment
 
 ## Process
+
+### 0. Resolve Provider (if ISSUE_ID or PROJECT_ID provided)
+
+If `ISSUE_ID` or `PROJECT_ID` is provided:
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
 
 ### If ARTIFACT_DIR_PATH is provided
 
@@ -57,25 +74,44 @@ Follow `{baseDir}/references/artifact-output.md`
 
 ### If ISSUE_ID is provided
 
-Follow `{baseDir}/references/linear-document-output.md`
+Route based on resolved PROVIDER:
+
+| PROVIDER           | Reference Document                               |
+| ------------------ | ------------------------------------------------ |
+| `linear` (default) | `{baseDir}/references/linear-document-output.md` |
+| `jira`             | `{baseDir}/references/jira-document-output.md`   |
 
 ### If PROJECT_ID is provided
 
-Follow `{baseDir}/references/linear-issue-output.md`
+Route based on resolved PROVIDER:
+
+| PROVIDER           | Reference Document                            |
+| ------------------ | --------------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-issue-output.md` |
+| `jira`             | `{baseDir}/references/jira-issue-output.md`   |
 
 ## Output
 
 SUCCESS:
 - For Artifact Output:
   - ARTIFACT_PATH: Created artifact file path (e.g., `.agent/artifacts/20260120-120000/02_solution.md`)
-- For Linear Document Output (ISSUE_ID):
+- For Linear Document Output (ISSUE_ID, PROVIDER=linear):
   - DOCUMENT_URL: Created document URL
   - ISSUE_ID: Issue the document was attached to
-- For Linear Issue Output (PROJECT_ID with NEW_ISSUE=true):
+- For Jira Attachment Output (ISSUE_ID, PROVIDER=jira):
+  - ATTACHMENT_NAME: Attached filename
+  - ISSUE_KEY: Jira issue key
+- For Linear Issue Output (PROJECT_ID, PROVIDER=linear, NEW_ISSUE=true):
   - ISSUE_ID: Created issue identifier (e.g., `COPS-456`)
   - TITLE: Issue title
-- For Linear Document Output (PROJECT_ID with NEW_ISSUE=false):
+- For Linear Document Output (PROJECT_ID, PROVIDER=linear, NEW_ISSUE=false):
   - ISSUE_ID: Created placeholder issue identifier
   - DOCUMENT_URL: Attached document URL
+- For Jira Issue Output (PROJECT_ID, PROVIDER=jira, NEW_ISSUE=true):
+  - ISSUE_KEY: Created Jira issue key (e.g., `MYPROJ-456`)
+  - TITLE: Issue summary
+- For Jira Attachment Output (PROJECT_ID, PROVIDER=jira, NEW_ISSUE=false):
+  - ISSUE_KEY: Created placeholder Jira issue key
+  - ATTACHMENT_NAME: Attached filename
 
 ERROR: Error message string describing the failure

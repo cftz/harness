@@ -14,26 +14,53 @@ Provide one of the following combinations:
 
 Both must be provided together.
 
-**Option B: Linear Issue with explicit review**
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
+**Option B: Issue with explicit review**
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
 - `REVIEW_PATH` - Path to the review document
 
-**Option C: Linear Issue with auto-discovery**
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
-  - Plan: Retrieved from Document attached to the issue
-  - Review: Auto-discovered from attached Documents (see [Linear Review Document]({baseDir}/references/linear-review.md))
+**Option C: Issue with auto-discovery**
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
+  - Plan: Retrieved from Document (Linear) or Attachment (Jira)
+  - Review: Auto-discovered from attached Documents/Attachments
+
+### Options
+
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
 
 ## Process
+
+### 0. Resolve Provider (if ISSUE_ID provided)
+
+If `ISSUE_ID` is provided:
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
 
 ### 1. Read Plan and Review
 
 **If `ISSUE_ID` is provided without `REVIEW_PATH`:**
-- Read [Linear Task Document]({baseDir}/references/linear-task.md) to fetch the plan
-- Read [Linear Review Document]({baseDir}/references/linear-review.md) to fetch the review
+
+Route based on resolved PROVIDER:
+
+| PROVIDER           | Task Document                          | Review Document                          |
+| ------------------ | -------------------------------------- | ---------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-task.md`  | `{baseDir}/references/linear-review.md`  |
+| `jira`             | `{baseDir}/references/jira-task.md`    | `{baseDir}/references/jira-review.md`    |
 
 **If `ISSUE_ID` is provided with `REVIEW_PATH`:**
-- Read [Linear Task Document]({baseDir}/references/linear-task.md) to fetch the plan
-- Read the review file from `REVIEW_PATH`
+
+Route based on PROVIDER for task document only:
+
+| PROVIDER           | Task Document                          |
+| ------------------ | -------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-task.md`  |
+| `jira`             | `{baseDir}/references/jira-task.md`    |
+
+Read the review file from `REVIEW_PATH`.
 
 **If `PLAN_PATH` + `REVIEW_PATH` are provided:**
 - Read the plan file from `PLAN_PATH`

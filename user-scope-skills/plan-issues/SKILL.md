@@ -1,6 +1,6 @@
 ---
 name: plan-issues
-description: "Batch planning for project issues. Finds eligible issues, plans in parallel, auto-reviews, and registers to Linear.\n\nArgs:\n  STATE=<state> (Optional) - Issue state filter (default: Todo,Backlog)\n  LIMIT=<n> (Optional) - Max issues to process in parallel (default: 4)\n\nExamples:\n  /plan-issues\n  /plan-issues STATE=Todo\n  /plan-issues LIMIT=6"
+description: "Use this skill for batch planning of project issues. Finds eligible issues, plans in parallel, auto-reviews, and registers to issue tracker.\n\nArgs:\n  PROVIDER=linear|jira (Optional) - Issue tracker provider (default: linear)\n  STATE=<state> (Optional) - Issue state filter (default: Todo,Backlog)\n  LIMIT=<n> (Optional) - Max issues to process in parallel (default: 4)\n\nExamples:\n  /plan-issues\n  /plan-issues STATE=Todo\n  /plan-issues LIMIT=6\n  /plan-issues PROVIDER=jira STATE=To Do"
 model: claude-opus-4-5
 ---
 
@@ -13,10 +13,33 @@ model: claude-opus-4-5
 
 Batch processes project issues by finding eligible ones, creating plans in parallel, and auto-reviewing before user approval.
 
+## Subagent Selection
+
+| Task | Subagent Type | Reason |
+|------|---------------|--------|
+| Planning each issue | `step-by-step-agent` | Executes plan-workflow skill with proper progress tracking |
+| Reviewing each plan | `step-by-step-agent` | Executes plan-review skill with proper progress tracking |
+
+## Behavior Rules
+
+**MUST DO:**
+- Delegate planning work to `plan-workflow` via Task tool
+- Delegate review work to `plan-review` via Task tool
+- Coordinate parallel execution of multiple issues
+- Handle the review-fix loop between planning and review
+- Present aggregated results for user approval
+
+**MUST NOT:**
+- Create plans directly (delegate to plan-workflow)
+- Review plans directly (delegate to plan-review)
+- Write to issue tracker directly (plan-workflow handles finalization)
+- Skip the user approval step before registration
+
 ## Parameters
 
 ### Optional
 
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`.
 - `STATE` - Issue state filter. Defaults to `Todo,Backlog`. Comma-separated values supported.
 - `LIMIT` - Maximum number of issues to process in parallel. Defaults to `4`.
 
@@ -32,16 +55,32 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 ### Step 1: Find Eligible Issues
 
-1. Use linear-issue skill to list issues:
+1. List issues based on PROVIDER:
+
+   **For Linear:**
+   ```
+   skill: project-manage
+   args: project PROVIDER=linear
+   ```
+   → Get PROJECT_ID from result
+
    ```
    skill: linear:linear-issue
-   args: list STATE=$STATE
+   args: list PROJECT_ID=$PROJECT_ID STATE=$STATE FIRST=$LIMIT
+   ```
+
+   **For Jira:**
+   ```
+   mcp__jira__jira_search(
+       jql="status in ($STATE) ORDER BY created DESC",
+       limit=$LIMIT
+   )
    ```
 
 2. Filter results to find eligible issues:
-   - **Leaf Task**: No sub-issues (children)
+   - **Leaf Task**: No sub-issues (children/subtasks)
    - **No Dependencies**: No blocking issues, or all blocking issues are Done
-   - **No Plan Document**: No Document attached to the issue
+   - **No Plan Document/Attachment**: No Document (Linear) or plan attachment (Jira) attached
 
 3. Select up to `LIMIT` issues for processing
 
@@ -49,9 +88,12 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 ### Step 2: Parallel Planning (Temporary Files)
 
-1. For each selected issue, launch step-by-step in parallel using Task tool with `subagent_type: step-by-step-agent`:
+1. For each selected issue, launch in parallel using Task tool:
    ```
-   /plan-workflow ISSUE_ID=$ISSUE_ID
+   Task tool:
+     subagent_type: step-by-step-agent
+     prompt: /plan-workflow ISSUE_ID=$ISSUE_ID PROVIDER=$PROVIDER
+     description: "Plan for $ISSUE_ID"
    ```
 
    > **Note**: The plan skill writes to a temporary file (via mktemp) first,
@@ -64,11 +106,12 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 ### Step 3: Parallel Review (Auto-Review)
 
-1. For each temporary plan file, launch step-by-step in parallel:
+1. For each temporary plan file, launch in parallel:
    ```
-   Use Task tool:
-   - subagent_type: step-by-step-agent
-   - prompt: /plan-review PLAN_PATH=$TMP_PLAN_PATH ARTIFACT_DIR_PATH=.agent/tmp
+   Task tool:
+     subagent_type: step-by-step-agent
+     prompt: /plan-review PLAN_PATH=$TMP_PLAN_PATH ARTIFACT_DIR_PATH=.agent/tmp
+     description: "Review plan for $ISSUE_ID"
    ```
 
    > **Note**: plan-review performs automated review instead of human review.
@@ -104,11 +147,11 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 3. Request final approval:
    ```
    Use AskUserQuestion:
-   - Question: "The following issues have passed plan-review. Would you like to register them to Linear?"
+   - Question: "The following issues have passed plan-review. Would you like to register them?"
    - Header: "Final Approval"
    - Options:
-     - label: "Approve - Register to Linear"
-       description: "Register all plans as Linear Documents"
+     - label: "Approve - Register"
+       description: "Register all plans as Documents (Linear) or Attachments (Jira)"
      - label: "Revision Needed"
        description: "Revise specific plans"
      - label: "Cancel"
@@ -124,7 +167,7 @@ Find Issues → Parallel Plan (tmp) → Parallel Review (tmp) → Fix → User A
 
 1. For each plan skill waiting for approval:
    - Respond with "Approve" to trigger Phase B
-   - The plan skill will automatically create the Linear Document and attach to the issue
+   - The plan skill will automatically create the Document (Linear) or Attachment (Jira) and attach to the issue
 
 2. Report completion:
    - List all registered plans
@@ -139,13 +182,13 @@ An issue is eligible for planning if ALL of the following are true:
 | State matches filter     | Issue state matches any value in `STATE` parameter (comma-separated) |
 | Is a Leaf Task           | `children` array is empty                                            |
 | No blocking dependencies | `relations` with type "blocks" are all Done                          |
-| No existing plan         | `attachments` has no Document                                        |
+| No existing plan         | No Document (Linear) or plan attachment (Jira) attached              |
 
 ## Error Handling
 
 - If step-by-step fails during planning: Report error, continue with other issues
 - If plan-review fails: Report error, ask user whether to skip or retry
-- If Linear API fails: Report error, suggest manual registration
+- If issue tracker API fails: Report error, suggest manual registration
 
 ## Output
 

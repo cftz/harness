@@ -9,13 +9,28 @@ Creates new draft task documents from requirements.
 Provide one of the following to specify where requirements come from:
 
 - `REQUEST` - User's requirement text (free-form description)
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`)
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`)
+
+### Options
+
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
 
 ### Output (Optional)
 
 - `OUTPUT_DIR` - Directory path for temporary files. If not provided, uses `mktemp` skill to create files in `.agent/tmp/`.
 
 ## Process
+
+### 0. Resolve Provider (if ISSUE_ID provided)
+
+If `ISSUE_ID` is provided:
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
 
 ### 1. Load Task Source
 
@@ -24,23 +39,18 @@ Provide one of the following to specify where requirements come from:
 
 **If ISSUE_ID provided:**
 
-1. Fetch issue details:
-   ```
-   skill: linear:linear-issue
-   args: get ID={ISSUE_ID}
-   ```
+Route based on resolved PROVIDER:
 
-2. (Optional) Fetch comments for additional context:
-   ```
-   skill: linear:linear-comment
-   args: list ISSUE_ID={ISSUE_ID}
-   ```
+| PROVIDER           | Reference Document                     |
+| ------------------ | -------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-task.md`  |
+| `jira`             | `{baseDir}/references/jira-task.md`    |
 
-3. Extract from response:
-   - Title: Use as task context
-   - Description: Use as initial requirements text
-   - Labels: Note any relevant categorization
-   - Acceptance criteria (if defined in description)
+Extract from issue:
+- Title: Use as task context
+- Description: Use as initial requirements text
+- Labels: Note any relevant categorization
+- Acceptance criteria (if defined in description)
 
 ### 2. Analyze Request Completeness
 

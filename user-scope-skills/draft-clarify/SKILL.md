@@ -9,8 +9,9 @@ description: |
     create - Create new task documents
       Task Source (OneOf, Required):
         REQUEST="<text>" - Free-form user requirement text
-        ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)
-      Output (Optional):
+        ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)
+      Options:
+        PROVIDER=linear|jira - Issue tracker provider (default: linear)
         OUTPUT_DIR=<path> - Directory for temporary files (uses mktemp if omitted)
     modify - Revise existing task documents
       DRAFT_PATHS=<paths> (Required) - Comma-separated paths to existing drafts
@@ -22,6 +23,7 @@ description: |
 
   Examples:
     /draft-clarify create ISSUE_ID=TA-123
+    /draft-clarify create ISSUE_ID=PROJ-123 PROVIDER=jira
     /draft-clarify create REQUEST="Add user authentication feature"
     /draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md,.agent/tmp/task2.md FEEDBACK="Split auth into separate tasks"
     /draft-clarify modify DRAFT_PATHS=.agent/tmp/task1.md FEEDBACK_PATH=.agent/tmp/review.md PROMPT_PATH=.agent/tmp/prompt
@@ -235,5 +237,6 @@ This skill only creates/modifies draft task documents in temporary files. User r
 SUCCESS:
 - PROMPT_PATH: Path to the generated prompt file (create command only)
 - DRAFT_PATHS: Comma-separated list of task document paths
+- REMOVED_PATHS: Comma-separated list of removed file paths (modify command only, if tasks were merged/deleted)
 
 ERROR: Error message string

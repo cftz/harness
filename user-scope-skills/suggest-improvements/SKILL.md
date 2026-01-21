@@ -10,13 +10,17 @@ description: |
     Output Destination (OneOf, Optional):
       USE_TEMP=true - Save to temp file (default)
       ARTIFACT_DIR_PATH=<path> - Save to artifact directory
-      ISSUE_ID=<id> - Save as Linear Document attached to issue
-      PROJECT_ID=<id> - Create Linear issues in project
+      ISSUE_ID=<id> - Save as Document/Attachment attached to issue
+      PROJECT_ID=<id> - Create issues in project
+    Options:
+      PROVIDER=linear|jira - Issue tracker provider (default: linear)
 
   Examples:
     /suggest-improvements repository
     /suggest-improvements repository ISSUE_ID=TA-123
     /suggest-improvements all ARTIFACT_DIR_PATH=.agent/artifacts/20260117
+    /suggest-improvements repository ISSUE_ID=PROJ-123 PROVIDER=jira
+    /suggest-improvements repository PROJECT_ID=MYPROJ PROVIDER=jira
 model: claude-opus-4-5
 context: fork
 agent: step-by-step-agent
@@ -40,14 +44,20 @@ Provide one to specify where output is saved:
 
 - `USE_TEMP=true` - Save to temp file (default behavior)
 - `ARTIFACT_DIR_PATH` - Artifact directory path (e.g., `.agent/artifacts/20260117`)
-- `ISSUE_ID` - Linear Issue ID to attach document (e.g., `TA-123`)
-- `PROJECT_ID` - Linear Project ID to create issues (e.g., `cops`)
+- `ISSUE_ID` - Issue ID to attach document/attachment (e.g., `PROJ-123`)
+- `PROJECT_ID` - Project ID to create issues (e.g., `cops` for Linear, `MYPROJ` for Jira)
+
+## Options
+
+- `PROVIDER` - Issue tracker provider when using `ISSUE_ID` or `PROJECT_ID` (default: `linear`)
+  - `linear` - Linear (e.g., `TA-123`, `cops`)
+  - `jira` - Jira (e.g., `PROJ-123`, `MYPROJ`)
 
 **Output Priority**:
 1. `USE_TEMP=true` -> Temp file
 2. `ARTIFACT_DIR_PATH` -> Artifact
-3. `ISSUE_ID` -> Linear Document
-4. `PROJECT_ID` -> Linear Issues
+3. `ISSUE_ID` -> Linear Document or Jira Attachment (based on PROVIDER)
+4. `PROJECT_ID` -> Linear Issues or Jira Issues (based on PROVIDER)
 5. Default (no option) -> Temp file
 
 # Available Checklists
@@ -137,12 +147,33 @@ For each check item in the checklist:
 
 ## 5. Write Output
 
+**Resolve Provider** (if `ISSUE_ID` or `PROJECT_ID` provided):
+- If `PROVIDER` parameter is explicitly provided, use it
+- If not provided, get from project-manage:
+  ```
+  skill: project-manage
+  args: provider
+  ```
+  Use the returned provider value (or `linear` if project-manage not initialized)
+
 Determine output destination and save:
 
 1. If `USE_TEMP=true` -> Read `{baseDir}/references/temp-output.md` and follow instructions
 2. Else if `ARTIFACT_DIR_PATH` -> Read `{baseDir}/references/artifact-output.md` and follow instructions
-3. Else if `ISSUE_ID` -> Read `{baseDir}/references/linear-document-output.md` and follow instructions
-4. Else if `PROJECT_ID` -> Read `{baseDir}/references/linear-issues-output.md` and follow instructions
+3. Else if `ISSUE_ID` -> Route based on resolved PROVIDER:
+
+   | PROVIDER           | Reference Document                               |
+   | ------------------ | ------------------------------------------------ |
+   | `linear` (default) | `{baseDir}/references/linear-document-output.md` |
+   | `jira`             | `{baseDir}/references/jira-document-output.md`   |
+
+4. Else if `PROJECT_ID` -> Route based on resolved PROVIDER:
+
+   | PROVIDER           | Reference Document                             |
+   | ------------------ | ---------------------------------------------- |
+   | `linear` (default) | `{baseDir}/references/linear-issues-output.md` |
+   | `jira`             | `{baseDir}/references/jira-issues-output.md`   |
+
 5. Else (default) -> Read `{baseDir}/references/temp-output.md` and follow instructions
 
 # Severity Definitions

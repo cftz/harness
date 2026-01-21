@@ -1,6 +1,6 @@
 ---
 name: finalize-plan
-description: "Use this skill to finalize approved plans by converting temporary draft files to final outputs (Artifact or Linear Document).\n\nArgs:\n  DRAFT_PATH=<path> (Required) - Path to temporary draft file\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    ISSUE_ID=<id> - Save as Linear Document and update issue state\n\nExamples:\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123"
+description: "Use this skill to finalize approved plans by converting temporary draft files to final outputs (Artifact or Linear Document).\n\nArgs:\n  DRAFT_PATH=<path> (Required) - Path to temporary draft file\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    ISSUE_ID=<id> - Save as Document/Attachment and update issue state\n  Options:\n    PROVIDER=linear|jira - Issue tracker provider (default: linear)\n\nExamples:\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=PROJ-456 PROVIDER=jira"
 model: claude-sonnet-4-5
 context: fork
 agent: step-by-step-agent
@@ -25,7 +25,13 @@ Supports two output destinations:
 Provide exactly one:
 
 - `ARTIFACT_DIR_PATH` - Artifact directory path to save the final output
-- `ISSUE_ID` - Linear Issue ID to attach document and update state
+- `ISSUE_ID` - Issue ID to attach document/attachment and update state
+
+### Options
+
+- `PROVIDER` - Issue tracker provider when using `ISSUE_ID` (default: `linear`)
+  - `linear` - Linear Issue ID (e.g., `TA-123`)
+  - `jira` - Jira Issue key (e.g., `PROJ-456`)
 
 ## Process
 
@@ -34,6 +40,14 @@ Provide exactly one:
 1. Verify `DRAFT_PATH` exists and is readable
 2. Verify exactly one output destination is provided (`ARTIFACT_DIR_PATH` or `ISSUE_ID`)
 3. Read the draft file content and extract YAML frontmatter (title, issueId if present)
+4. Resolve `PROVIDER` (if `ISSUE_ID` provided):
+   - If `PROVIDER` parameter is explicitly provided, use it
+   - If not provided, get from project-manage:
+     ```
+     skill: project-manage
+     args: provider
+     ```
+     Use the returned provider value (or `linear` if project-manage not initialized)
 
 ### 2. Execute Output
 
@@ -48,11 +62,22 @@ Follow `{baseDir}/references/artifact-output.md`:
 
 #### If ISSUE_ID is provided
 
-Follow `{baseDir}/references/linear-output.md`:
+Route based on resolved PROVIDER:
 
+| PROVIDER           | Reference Document                      |
+| ------------------ | --------------------------------------- |
+| `linear` (default) | `{baseDir}/references/linear-output.md` |
+| `jira`             | `{baseDir}/references/jira-output.md`   |
+
+**For Linear (default):**
 1. Create Document using `linear-document` skill with title from frontmatter
 2. Get Todo state ID using `linear-state` skill
 3. Update issue status to Todo using `linear-issue` skill
+
+**For Jira:**
+1. Attach plan file to Jira issue
+2. Update issue status (optional)
+3. Add comment summarizing the plan
 
 ### 3. Report Result
 
@@ -61,9 +86,14 @@ Report the final output path or URL to the user.
 ## Output
 
 SUCCESS:
-- PLAN_PATH: Final plan file path (for Artifact output)
-- DOCUMENT_URL: Linear document URL (for Linear output)
-- ISSUE_ID: Updated issue ID (for Linear output, same as input)
+- For Artifact output:
+  - PLAN_PATH: Final plan file path (e.g., `.agent/artifacts/20260110/02_plan.md`)
+- For Linear output (PROVIDER=linear):
+  - DOCUMENT_URL: Linear document URL
+  - ISSUE_ID: Updated issue ID (same as input)
+- For Jira output (PROVIDER=jira):
+  - ATTACHMENT_NAME: Attached filename
+  - ISSUE_KEY: Jira issue key
 
 ERROR: Error message string describing what failed
 

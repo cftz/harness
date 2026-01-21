@@ -7,7 +7,7 @@ description: |
 user-invocable: false
 ---
 
-# Linear Guide
+# Description
 
 Behavioral guidelines to follow when performing Linear-related tasks.
 
@@ -36,7 +36,7 @@ When working with Linear, **you must use Skills over MCP**.
 When fetching issue lists, **you must specify the following parameters**:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: list PROJECT_ID=<project_id> STATE=<state> FIRST=<limit>
 ```
 
@@ -48,13 +48,13 @@ args: list PROJECT_ID=<project_id> STATE=<state> FIRST=<limit>
 
 **Incorrect example:**
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: list
 ```
 
 **Correct example:**
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: list PROJECT_ID=cops STATE=Todo FIRST=10
 ```
 
@@ -79,3 +79,9 @@ Before performing Linear tasks, verify:
 - [ ] Is there a Skill that performs this task?
 - [ ] When listing issues, are PROJECT_ID, STATE, and FIRST all specified?
 - [ ] Is MCP usage unavoidable? (feature not supported by Skills)
+
+## Output
+
+SUCCESS: (no output fields)
+
+ERROR: Error message string

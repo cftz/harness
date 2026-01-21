@@ -7,8 +7,9 @@ description: |
     create - Create new draft plan
       Task Source (OneOf, Required):
         TASK_PATH=<path> - Task document path
-        ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)
-      Output (Optional):
+        ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)
+      Options:
+        PROVIDER=linear|jira - Issue tracker provider (default: linear)
         OUTPUT_PATH=<path> - Output file path (uses mktemp if omitted)
     modify - Revise existing draft plan
       DRAFT_PATH=<path> (Required) - Existing draft to revise
@@ -18,6 +19,7 @@ description: |
 
   Examples:
     /draft-plan create ISSUE_ID=TA-123
+    /draft-plan create ISSUE_ID=PROJ-123 PROVIDER=jira
     /draft-plan create TASK_PATH=.agent/tmp/task.md
     /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK="Add error handling"
     /draft-plan modify DRAFT_PATH=.agent/tmp/plan.md FEEDBACK_PATH=.agent/tmp/review.md

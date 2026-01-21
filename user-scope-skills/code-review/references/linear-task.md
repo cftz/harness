@@ -13,7 +13,7 @@ This document defines how to load review context from a Linear issue.
 Use the `linear-issue` skill to get the issue information:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: get ID={ISSUE_ID}
 ```
 
@@ -31,7 +31,7 @@ Look for attached documents that contain task or plan information:
 2. Use the `linear-document` skill to find documents associated with the issue:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: list ISSUE_ID={ISSUE_ID}
 ```
 
@@ -44,7 +44,7 @@ Look for documents with titles containing:
 For each relevant document found, use the `linear-document` skill:
 
 ```
-skill: linear-document
+skill: linear:linear-document
 args: get ID={document_id}
 ```
 

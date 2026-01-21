@@ -7,11 +7,12 @@ description: |
 
   Args:
     Task Source (OneOf, Required):
-      ISSUE_ID=<id> - Linear Issue ID (e.g., TA-123)
+      ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)
       PLAN_PATH=<path> + TASK_PATH=<path> - Local plan and requirements files
     Output (Optional):
       ARTIFACT_DIR_PATH=<path> - Save review documents to artifact directory
     Options:
+      PROVIDER=linear|jira - Issue tracker provider (default: linear)
       AUTO_ACCEPT=true - Skip user approval on Pass (default: false)
       BRANCH=<name> - Base branch for PR target in finalize-implement (default: main)
       MAX_CYCLES=<n> - Maximum fix cycles (default: 10)
@@ -19,6 +20,7 @@ description: |
   Examples:
     /implement-workflow ISSUE_ID=TA-123
     /implement-workflow ISSUE_ID=TA-123 AUTO_ACCEPT=true
+    /implement-workflow ISSUE_ID=PROJ-123 PROVIDER=jira
     /implement-workflow PLAN_PATH=.agent/artifacts/20260107/02_plan.md TASK_PATH=.agent/artifacts/20260107/01_task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107
 model: claude-opus-4-5
 
@@ -47,7 +49,7 @@ Orchestrates a complete implementation cycle from plan execution through code re
 
 Provide one of the following to specify the implementation source:
 
-- `ISSUE_ID` - Linear Issue ID (e.g., `TA-123`). Plan from attached Document, requirements from description.
+- `ISSUE_ID` - Issue ID (e.g., `PROJ-123`). Plan from attached Document/Attachment, requirements from description.
 - `PLAN_PATH` + `TASK_PATH` - Local plan and task files for artifact-based workflows.
 
 ### Output Destination (Optional)
@@ -55,11 +57,13 @@ Provide one of the following to specify the implementation source:
 - `ARTIFACT_DIR_PATH` - Artifact directory path for saving review documents (e.g., `.agent/artifacts/20260105-120000`)
 
 If not provided:
-- With `ISSUE_ID`: Review documents are saved as Linear Documents attached to the issue
+- With `ISSUE_ID` and `PROVIDER=linear`: Review documents are saved as Linear Documents attached to the issue
+- With `ISSUE_ID` and `PROVIDER=jira`: Review documents are saved as Jira Attachments on the issue
 - With `PLAN_PATH + TASK_PATH`: **Required** - must provide `ARTIFACT_DIR_PATH`
 
 ### Options
 
+- `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
 - `AUTO_ACCEPT` - If set to `true`, skip user approval on final Pass. Defaults to `false`.
 - `BRANCH` - Base branch for PR target in finalize-implement. Defaults to `main`.
 - `MAX_CYCLES` - Maximum number of fix cycles before aborting. Defaults to `10`.
@@ -142,11 +146,20 @@ If not provided:
    - `ISSUE_ID` is provided, OR
    - `PLAN_PATH` AND `TASK_PATH` are both provided
 
-2. If `PLAN_PATH + TASK_PATH` are used without `ARTIFACT_DIR_PATH`:
+2. Resolve `PROVIDER`:
+   - If `PROVIDER` parameter is explicitly provided, use it
+   - If not provided, get from project-manage:
+     ```
+     skill: project-manage
+     args: provider
+     ```
+     Use the returned provider value (or `linear` if project-manage not initialized)
+
+3. If `PLAN_PATH + TASK_PATH` are used without `ARTIFACT_DIR_PATH`:
    - Notify user: "Output destination is required when using PLAN_PATH + TASK_PATH"
    - Ask user to provide `ARTIFACT_DIR_PATH`
 
-3. Initialize tracking variables:
+4. Initialize tracking variables:
    - `cycle_count = 0`
    - `cycle_history = []` (to track violations per cycle)
 
@@ -179,13 +192,17 @@ LOOP:
        - Abort workflow
 
   3. Run code-review:
-     # For ISSUE_ID:
+     # For ISSUE_ID (uses ISSUE_ID as Task Source, USE_TEMP for Output):
      skill: code-review
-     args: ISSUE_ID=<id> USE_TEMP=true
+     args: ISSUE_ID=<id> PROVIDER=<provider> USE_TEMP=true
 
-     # For ARTIFACT_DIR_PATH:
+     # For local files (uses ARTIFACT_DIR_PATH as Task Source, USE_TEMP for Output):
      skill: code-review
      args: ARTIFACT_DIR_PATH=<path> USE_TEMP=true
+
+     > Note: When ARTIFACT_DIR_PATH is provided as Task Source, USE_TEMP=true overrides
+     > the default behavior (which would save review to the same artifact directory)
+     > and instead saves the review to a temp file for the fix loop.
 
   4. Check result:
      If status == "Pass":
@@ -198,11 +215,11 @@ LOOP:
        - Extract REVIEW_PATH from code-review output
 
   5. Run implement fix:
-     # For ISSUE_ID:
+     # For ISSUE_ID (PROVIDER not needed - implement reads from issue tracker):
      skill: implement
-     args: fix ISSUE_ID=<id>
+     args: fix ISSUE_ID=<id> PROVIDER=<provider>
 
-     # For local files with explicit REVIEW_PATH:
+     # For local files (PROVIDER not needed - uses local files):
      skill: implement
      args: fix PLAN_PATH=<path> REVIEW_PATH=<review_path>
 
@@ -255,9 +272,9 @@ Once code-review returns Pass:
 Invoke the `finalize-implement` skill:
 
 ```
-# For ISSUE_ID input (full flow with Linear):
+# For ISSUE_ID input (full flow with issue tracker):
 skill: finalize-implement
-args: ISSUE_ID=<id> BRANCH=<branch>
+args: ISSUE_ID=<id> PROVIDER=<provider> BRANCH=<branch>
 
 # For local files (PLAN_PATH + TASK_PATH) - Git ops only:
 skill: finalize-implement
@@ -266,7 +283,8 @@ args: BRANCH=<branch>
 
 **Key points:**
 - `BRANCH` specifies the PR target branch (default: main)
-- For local file workflows: Git ops only, Linear update skipped
+- `PROVIDER` specifies the issue tracker (linear or jira)
+- For local file workflows: Git ops only, issue tracker update skipped
 
 **On failure:**
 - Report the error with git operation that failed
@@ -320,15 +338,16 @@ ERROR: Error message string
 | Commit       | {Created/Skipped}     | {commit_hash} |
 | Push         | {Pushed/Skipped}      | {branch_name} |
 | Pull Request | {Created/Skipped/N/A} | {pr_url}      |
-| Linear State | {Updated/Skipped/N/A} | {state_name}  |
+| Issue State  | {Updated/Skipped/N/A} | {state_name}  |
 
 - **PR URL**: {pr_url} (if feature branch)
-- **Linear Issue**: {linear_url} → {final_state} (if ISSUE_ID provided)
+- **Issue**: {issue_url} → {final_state} (if ISSUE_ID provided)
 
 ### Output Location
 
 [If Artifact]: Review document: .agent/artifacts/20260107/03_review.md
 [If Linear]: Review document attached to: TA-123
+[If Jira]: Review attachment added to: PROJ-123
 ```
 
 ### Failure Output
@@ -369,7 +388,7 @@ Before completing, verify:
 - [ ] **Implementation executed**: implement skill completed successfully
 - [ ] **Code review passed**: Loop exited with Pass status
 - [ ] **User approval obtained**: User explicitly approved (or AUTO_ACCEPT=true)
-- [ ] **Finalization completed**: Git operations and Linear update done (if ISSUE_ID provided)
+- [ ] **Finalization completed**: Git operations and issue tracker update done (if ISSUE_ID provided)
 - [ ] **Result reported**: Final status, PR URL, and output location communicated to user
 
 ## Notice
@@ -384,9 +403,9 @@ This skill performs orchestration only and does not:
 ### Dependent Skills
 
 This skill requires the following skills to exist:
-- `implement` - Executes implementation and fixes code
-- `code-review` - Validates implementations against project rules
-- `finalize-implement` - Commits, pushes, creates PR, updates Linear state
+- `implement` - Executes implementation and fixes code (supports Linear and Jira)
+- `code-review` - Validates implementations against project rules (supports Linear and Jira)
+- `finalize-implement` - Commits, pushes, creates PR, updates issue state (supports Linear and Jira)
 
 ### Automated Review Loop
 

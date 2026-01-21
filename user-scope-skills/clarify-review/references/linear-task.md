@@ -13,7 +13,7 @@ Use this reference when `ISSUE_ID` parameter is provided.
 Fetch the parent issue to get the original prompt:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: get ID={ISSUE_ID}
 ```
 
@@ -28,7 +28,7 @@ Extract:
 List sub-issues under the parent issue:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: list PARENT_ID={ISSUE_ID}
 ```
 
@@ -39,7 +39,7 @@ Each sub-issue represents a clarified task document.
 For each sub-issue, get the full details:
 
 ```
-skill: linear-issue
+skill: linear:linear-issue
 args: get ID={sub_issue_id}
 ```
 
@@ -53,7 +53,7 @@ Extract for each:
 Optionally get comments on the parent issue for additional context:
 
 ```
-skill: linear-comment
+skill: linear:linear-comment
 args: list ISSUE_ID={ISSUE_ID}
 ```
 
