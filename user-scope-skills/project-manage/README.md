@@ -4,7 +4,7 @@
 
 **Provide the single abstraction layer for all PMS (Project Management System) operations.**
 
-Workflows and skills should call `project-manage` instead of `linear-current` or `jira-current` directly. This allows workflows to be completely provider-agnostic - they don't need to know whether Linear or Jira is being used.
+Workflows and skills should call `project-manage` instead of provider-specific APIs directly. This allows workflows to be completely provider-agnostic - they don't need to know whether Linear or Jira is being used.
 
 ## Motivation
 
@@ -15,11 +15,11 @@ Without abstraction, every workflow needs provider-specific branching:
 ```python
 # Every workflow repeats this pattern
 if provider == "linear":
-    result = skill("linear:linear-current", "project")
-    project_id = result.id
+    # Call Linear API directly
+    project_id = linear_api.get_project().id
 elif provider == "jira":
-    result = skill("jira:jira-current", "project")
-    project_id = result.id
+    # Call Jira MCP tools directly
+    project_id = jira_mcp.get_project().id
 # ... more provider-specific handling
 ```
 
@@ -78,7 +78,7 @@ args: project
 # Internally:
 # 1. Check cache → hit? return immediately
 # 2. Check provider cache → "jira"
-# 3. Call jira:jira-current project
+# 3. Call provider-specific API (via MCP or skill)
 # 4. Normalize response
 # 5. Cache and return
 ```
@@ -87,5 +87,5 @@ args: project
 
 - This skill should NOT create or modify issues/projects
 - This skill should NOT bypass the cache (except `init` which refreshes it)
-- Workflows should NOT call linear-current or jira-current directly
+- Workflows should NOT call provider-specific APIs directly
 - Cache invalidation requires re-running `init` or deleting cache file

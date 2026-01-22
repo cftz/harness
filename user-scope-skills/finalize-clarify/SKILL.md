@@ -49,7 +49,7 @@ Provide exactly one:
 ### Optional
 
 - `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with PROJECT_ID.
-- `ASSIGNEE` - User to assign issues to. For Linear: ID, name, email, or "me". For Jira: email or account ID only.
+- `ASSIGNEE` - User to assign issues to. For Linear: ID, name, email, or "me". For Jira: account ID only (email matching is unreliable).
 - `PARENT_ISSUE_ID` - Parent issue ID to create as sub-issues under (e.g., `PROJ-123`)
 
 ## Process
@@ -76,7 +76,9 @@ Follow `{baseDir}/references/artifact-output.md`
    skill: project-manage
    args: user PROVIDER=<provider>
    ```
-   Use the returned user ID/email for issue assignment.
+   Use the returned `user.id` for issue assignment (Jira: accountId, Linear: UUID).
+
+   **IMPORTANT**: Always use the `id` field, NOT email. Email matching is unreliable.
 
 #### Step 2: Parse Draft Files
 
@@ -114,6 +116,22 @@ Build a dependency graph and sort tasks topologically:
 1. Tasks with no dependencies (`blockedBy: []`) are created first
 2. Tasks are created only after all their dependencies
 
+#### Step 3.5: Get Metadata (Jira Only)
+
+For Jira provider, fetch metadata to get issue types and components:
+
+```
+skill: project-manage
+args: metadata PROVIDER=<provider>
+```
+
+Returns:
+- `issueTypes`: Available issue types (with `subtask` flag)
+- `components`: Available components
+- `defaultComponent`: Pre-selected default component
+
+This data is passed to the provider-specific reference for correct issue creation.
+
 #### Step 4: Create Issues (Provider-Specific)
 
 Route to provider-specific reference with prepared data:
@@ -127,8 +145,9 @@ Route to provider-specific reference with prepared data:
 - `PROJECT_ID` - Target project
 - `TASK_MAP` - Parsed task data (name, title, description, blockedBy)
 - `CREATION_ORDER` - Topologically sorted task names
-- `ASSIGNEE` - Resolved assignee (user ID or email)
+- `ASSIGNEE` - Resolved assignee (user ID, NOT email)
 - `PARENT_ISSUE_ID` - Parent issue (optional)
+- `METADATA` - (Jira only) Issue types, components, defaultComponent from Step 3.5
 
 #### Step 5: Report Results
 

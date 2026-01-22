@@ -4,30 +4,52 @@ Instructions for creating Jira issues from improvement suggestions.
 
 ## Prerequisites
 
-This document requires the `jira` MCP server to be configured. Verify with:
-
-```
-ListMcpResourcesTool(server="jira")
-```
-
-If not configured, return error:
-```
-STATUS: ERROR
-OUTPUT: Jira MCP server is not configured. Add jira server to .mcp.json first.
-```
+This document requires the `jira-issue` skill and Jira environment variables to be configured:
+- `JIRA_API_TOKEN`
+- `JIRA_EMAIL`
+- `JIRA_URL`
 
 ## When to Use
 
 Use this reference when `PROJECT_ID` is provided with `PROVIDER=jira`.
 
-## MCP Tools Used
+## Input
+
+- `PROJECT_ID` - Jira Project key (e.g., `MYPROJ`)
+- `TARGET` - Analysis target (e.g., `repository`)
+- `METADATA` - Project metadata from `project-manage metadata`:
+  - `issueTypes`: Array of `{id, name, subtask}` - available issue types
+  - `components`: Array of `{id, name}` - available components
+  - `defaultComponent`: Pre-selected default component name (may be null)
+
+## Skills Used
+
+| Skill | Purpose |
+|-------|---------|
+| `jira-issue` | Create new issues using issueType ID |
+
+## MCP Tools Used (for comments only)
 
 | Tool | Purpose |
 |------|---------|
-| `mcp__jira__jira_create_issue` | Create new issues |
 | `mcp__jira__jira_add_comment` | Add comment to parent issue |
 
 ## Process
+
+### 0. Determine Issue Type IDs
+
+Select appropriate issue type **IDs** from `METADATA.issueTypes`:
+
+1. **Parent issue type ID**: Find type where `subtask: false`
+   - Prefer types named: "Task", "기타", "Story" (in that order)
+   - Get its `id` (e.g., `"10001"`)
+
+2. **Child issue type ID**: Find type where `subtask: true`
+   - Common names: "Sub-task", "하위 작업", "Subtask"
+   - Get its `id` (e.g., `"10003"`)
+   - If no subtask type found, create as regular issues without parent
+
+**Important**: Use the issue type **ID**, not name. This ensures issue creation works regardless of localized names.
 
 ### 1. Prioritize Suggestions
 
@@ -39,31 +61,22 @@ Group related items to avoid creating too many issues.
 
 ### 2. Create Parent Issue (Optional)
 
-If there are multiple suggestions, consider creating a parent issue:
+If there are multiple suggestions, consider creating a parent issue using jira-issue skill:
 
 ```
-mcp__jira__jira_create_issue(
-    project_key="{PROJECT_ID}",
-    summary="Improvement Suggestions - {TARGET}",
-    issue_type="Task",
-    description="Analysis identified {N} improvement opportunities."
-)
+skill: jira-issue
+args: create PROJECT={PROJECT_ID} ISSUE_TYPE_ID={parentIssueTypeId} TITLE="Improvement Suggestions - {TARGET}" DESCRIPTION="Analysis identified {N} improvement opportunities." COMPONENT="{METADATA.defaultComponent}"
 ```
 
 Store the returned issue key in `parent_issue_key`.
 
 ### 3. Create Child Issues
 
-For each prioritized suggestion, create a sub-task under the parent:
+For each prioritized suggestion, create a sub-task under the parent using jira-issue skill:
 
 ```
-mcp__jira__jira_create_issue(
-    project_key="{PROJECT_ID}",
-    summary="{Issue title}",
-    issue_type="Sub-task",
-    description="{Detailed description with context and suggested fix}",
-    additional_fields={"parent": {"key": "{parent_issue_key}"}}
-)
+skill: jira-issue
+args: create PROJECT={PROJECT_ID} ISSUE_TYPE_ID={childIssueTypeId} TITLE="{Issue title}" DESCRIPTION="{Detailed description with context and suggested fix}" COMPONENT="{METADATA.defaultComponent}" PARENT={parent_issue_key}
 ```
 
 **Issue Title Format**:
@@ -122,37 +135,34 @@ Input:
   TARGET: repository
   PROJECT_ID: MYPROJ
   PROVIDER: jira
+  METADATA:
+    issueTypes:
+      - {id: "10001", name: "기타", subtask: false}
+      - {id: "10002", name: "하위 작업", subtask: true}
+    components:
+      - {id: "10001", name: "합성 패널"}
+    defaultComponent: "합성 패널"
 
 Execution:
-  1. Create parent issue:
-     mcp__jira__jira_create_issue(
-         project_key="MYPROJ",
-         summary="Improvement Suggestions - repository",
-         issue_type="Task",
-         description="Analysis identified 5 improvement opportunities."
-     )
+  Step 0 - Determine issue type IDs:
+    Parent type: id="10001" (name="기타", subtask: false)
+    Child type: id="10002" (name="하위 작업", subtask: true)
+
+  1. Create parent issue using jira-issue skill:
+     skill: jira-issue
+     args: create PROJECT=MYPROJ ISSUE_TYPE_ID=10001 TITLE="Improvement Suggestions - repository" DESCRIPTION="Analysis identified 5 improvement opportunities." COMPONENT="합성 패널"
      -> Created MYPROJ-100
 
-  2. Create child issues:
-     mcp__jira__jira_create_issue(
-         project_key="MYPROJ",
-         summary="[Critical] Repository: SQL injection vulnerability",
-         issue_type="Sub-task",
-         description="...",
-         additional_fields={"parent": {"key": "MYPROJ-100"}}
-     )
+  2. Create child issues using jira-issue skill:
+     skill: jira-issue
+     args: create PROJECT=MYPROJ ISSUE_TYPE_ID=10002 TITLE="[Critical] Repository: SQL injection vulnerability" DESCRIPTION="..." COMPONENT="합성 패널" PARENT=MYPROJ-100
      -> Created MYPROJ-101
 
-     mcp__jira__jira_create_issue(
-         project_key="MYPROJ",
-         summary="[High] Repository: N+1 query in GetUsers",
-         issue_type="Sub-task",
-         description="...",
-         additional_fields={"parent": {"key": "MYPROJ-100"}}
-     )
+     skill: jira-issue
+     args: create PROJECT=MYPROJ ISSUE_TYPE_ID=10002 TITLE="[High] Repository: N+1 query in GetUsers" DESCRIPTION="..." COMPONENT="합성 패널" PARENT=MYPROJ-100
      -> Created MYPROJ-102
 
-  3. Add summary comment:
+  3. Add summary comment using MCP:
      mcp__jira__jira_add_comment(
          issue_key="MYPROJ-100",
          comment="Created 2 sub-tasks from improvement analysis..."

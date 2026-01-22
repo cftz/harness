@@ -14,17 +14,20 @@ args: metadata
 ```json
 {
   "issueTypes": [
-    {"id": "10001", "name": "Task"},
-    {"id": "10002", "name": "Bug"},
-    {"id": "10003", "name": "Story"}
+    {"id": "10001", "name": "Task", "subtask": false},
+    {"id": "10002", "name": "Bug", "subtask": false},
+    {"id": "10003", "name": "Sub-task", "subtask": true}
   ],
   "labels": ["frontend", "backend", "urgent"],
   "components": [
     {"id": "10001", "name": "API"},
     {"id": "10002", "name": "Web"}
-  ]
+  ],
+  "defaultComponent": "API"
 }
 ```
+
+Note: `issueTypes[].subtask` and `defaultComponent` are Jira-specific fields.
 
 ## Process
 
@@ -55,39 +58,17 @@ Execute `{baseDir}/scripts/read_cache.sh provider`:
 
 ### Step 4: Fetch Metadata from Provider
 
-Based on the provider value:
+Based on the provider value, follow the respective provider documentation:
 
-**If Linear:**
+**If Linear:** See `{baseDir}/references/linear-provider.md` - Metadata section
+- Labels: from `linear:linear-issue-label list`
+- Issue types: empty array (Linear doesn't have per-project issue types)
+- Components: empty array (Linear doesn't have components)
 
-1. Get labels:
-   ```
-   skill: linear:linear-issue-label
-   args: list
-   ```
-
-2. Issue types in Linear are simpler (Issue, Project, etc.) - typically not configurable per project
-
-3. No components concept in Linear
-
-**If Jira:**
-
-1. Get issue types for project:
-   ```
-   mcp__jira__jira_search_fields()
-   ```
-   Filter for `issuetype` field to get available types.
-
-2. Get labels from existing issues:
-   ```
-   mcp__jira__jira_search(
-     jql="project = {project_key}",
-     fields="labels",
-     limit=50
-   )
-   ```
-   Extract unique labels from results.
-
-3. Get project details with components (may need additional API call)
+**If Jira:** See `{baseDir}/references/jira-provider.md` - Metadata section
+- Issue types: from `getVisibleJiraProjects(expandIssueTypes=true)`
+- Components: from `getJiraIssueTypeMetaWithFields()`
+- Labels: from searching existing issues
 
 ### Step 5: Normalize and Cache
 
@@ -95,13 +76,20 @@ Normalize the metadata to common format:
 
 ```json
 {
-  "issueTypes": [{"id": "...", "name": "..."}],
+  "issueTypes": [
+    {"id": "...", "name": "...", "subtask": false},
+    {"id": "...", "name": "...", "subtask": true}
+  ],
   "labels": ["label1", "label2"],
-  "components": [{"id": "...", "name": "..."}]
+  "components": [{"id": "...", "name": "..."}],
+  "defaultComponent": "Component Name"
 }
 ```
 
-For Linear, `components` will be empty array.
+**Field details:**
+- `issueTypes[].subtask`: `true` for sub-task types (Jira only), used when creating sub-issues
+- `defaultComponent`: Selected default component name (Jira only, from init step)
+- For Linear, `components` will be empty array and `defaultComponent` will be `null`
 
 Save to cache:
 ```bash
@@ -112,16 +100,28 @@ Save to cache:
 
 Return the normalized metadata:
 
+**For Jira:**
 ```json
 {
   "issueTypes": [
-    {"id": "10001", "name": "Task"},
-    {"id": "10002", "name": "Bug"}
+    {"id": "10001", "name": "기타", "subtask": false},
+    {"id": "10002", "name": "하위 작업", "subtask": true}
   ],
   "labels": ["frontend", "backend"],
   "components": [
-    {"id": "10001", "name": "API"}
-  ]
+    {"id": "10001", "name": "합성 패널"}
+  ],
+  "defaultComponent": "합성 패널"
+}
+```
+
+**For Linear:**
+```json
+{
+  "issueTypes": [],
+  "labels": ["feature", "bug", "enhancement"],
+  "components": [],
+  "defaultComponent": null
 }
 ```
 

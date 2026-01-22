@@ -15,9 +15,12 @@ args: init
 {
   "provider": "jira",
   "project": {"id": "10001", "key": "PROJ", "name": "Project Name"},
-  "user": {"id": "xxx", "name": "User Name", "email": "user@example.com"}
+  "user": {"id": "xxx", "name": "User Name", "email": "user@example.com"},
+  "defaultComponent": "Component Name"
 }
 ```
+
+Note: `defaultComponent` is only present for Jira provider when components exist in the project.
 
 ## Process
 
@@ -53,67 +56,68 @@ Save selection:
 {baseDir}/scripts/write_cache.sh provider '"jira"'
 ```
 
-### Step 3: Get Project from Provider-Specific Skill
+### Step 3: Get Project and User from Provider
 
-Based on the provider value:
+Based on the provider value, follow the respective provider documentation:
 
-**If Linear:**
-```
-skill: linear:linear-current
-args: project
-```
+**If Linear:** See `{baseDir}/references/linear-provider.md`
+**If Jira:** See `{baseDir}/references/jira-provider.md`
 
-**If Jira:**
-```
-skill: jira:jira-current
-args: project
-```
+Each provider document details:
+- How to get user info (with normalization)
+- How to get project info (with selection if multiple)
+- How to get metadata (issueTypes, components, labels)
 
-Normalize the returned project data:
+### Step 4: Cache Results
 
-| Field  | Linear Source | Jira Source |
-| ------ | ------------- | ----------- |
-| `id`   | `id`          | `id`        |
-| `key`  | `name`        | `key`       |
-| `name` | `name`        | `name`      |
+After getting data from the provider:
 
-Save to cache:
+**Project:**
 ```bash
 {baseDir}/scripts/write_cache.sh project '{"id":"...","key":"...","name":"..."}'
 ```
 
-### Step 4: Get User from Provider-Specific Skill
-
-Based on the provider value:
-
-**If Linear:**
-```
-skill: linear:linear-current
-args: user
-```
-
-**If Jira:**
-```
-skill: jira:jira-current
-args: user
-```
-
-Normalize the returned user data:
-
-| Field   | Linear Source | Jira Source      |
-| ------- | ------------- | ---------------- |
-| `id`    | `id`          | `accountId`      |
-| `name`  | `name`        | `displayName`    |
-| `email` | `email`       | `emailAddress`   |
-
-Save to cache:
+**User:**
 ```bash
 {baseDir}/scripts/write_cache.sh user '{"id":"...","name":"...","email":"..."}'
 ```
 
-### Step 5: Fetch Metadata (Optional)
+### Step 5: Fetch Metadata
 
-Fetch and cache project metadata if available. See `{baseDir}/references/metadata.md`.
+Fetch and cache project metadata. See `{baseDir}/references/metadata.md`.
+
+Provider-specific metadata handling is documented in:
+- `{baseDir}/references/jira-provider.md` - issueTypes, components, labels
+- `{baseDir}/references/linear-provider.md` - labels only
+
+### Step 5.1: Select Default Component (Jira Only)
+
+If provider is Jira and metadata contains components:
+
+1. Check how many components exist:
+   - **0 components**: Skip (no default needed)
+   - **1 component**: Auto-select as default
+   - **2+ components**: Ask user to select
+
+2. For multiple components, use `AskUserQuestion`:
+   ```json
+   {
+     "questions": [{
+       "question": "Which component should be used as default for new issues?",
+       "header": "Component",
+       "options": [
+         {"label": "{component1.name}", "description": "Component ID: {component1.id}"},
+         {"label": "{component2.name}", "description": "Component ID: {component2.id}"}
+       ],
+       "multiSelect": false
+     }]
+   }
+   ```
+
+3. Save selection to cache:
+   ```bash
+   {baseDir}/scripts/write_cache.sh defaultComponent '"{selected_component_name}"'
+   ```
 
 ### Step 6: Return Result
 

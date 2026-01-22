@@ -49,25 +49,16 @@ Execute `{baseDir}/scripts/read_cache.sh project`:
 - If result is not `null`: Return the cached value and stop
 - If result is `null`: Continue to Step 2
 
-### Step 2: Fetch from Provider-Specific Skill
+### Step 2: Fetch from Provider
 
-Based on the resolved provider value:
+Based on the resolved provider value, follow the respective provider documentation:
 
-**If Linear:**
-```
-skill: linear:linear-current
-args: project
-```
-
-**If Jira:**
-```
-skill: jira:jira-current
-args: project
-```
+**If Linear:** See `{baseDir}/references/linear-provider.md` - Project section
+**If Jira:** See `{baseDir}/references/jira-provider.md` - Project section
 
 ### Step 3: Normalize and Cache
 
-Normalize the returned data:
+Normalize the returned data according to the provider:
 
 | Field  | Linear Source | Jira Source |
 | ------ | ------------- | ----------- |

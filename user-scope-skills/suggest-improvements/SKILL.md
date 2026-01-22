@@ -169,10 +169,17 @@ Determine output destination and save:
 
 4. Else if `PROJECT_ID` -> Route based on resolved PROVIDER:
 
-   | PROVIDER           | Reference Document                             |
-   | ------------------ | ---------------------------------------------- |
-   | `linear` (default) | `{baseDir}/references/linear-issues-output.md` |
-   | `jira`             | `{baseDir}/references/jira-issues-output.md`   |
+   **For Jira provider only**, get metadata first:
+   ```
+   skill: project-manage
+   args: metadata PROVIDER=jira
+   ```
+   This returns `issueTypes`, `components`, and `defaultComponent` needed for issue creation.
+
+   | PROVIDER           | Reference Document                             | Additional Data |
+   | ------------------ | ---------------------------------------------- | --------------- |
+   | `linear` (default) | `{baseDir}/references/linear-issues-output.md` | (none)          |
+   | `jira`             | `{baseDir}/references/jira-issues-output.md`   | METADATA        |
 
 5. Else (default) -> Read `{baseDir}/references/temp-output.md` and follow instructions
 

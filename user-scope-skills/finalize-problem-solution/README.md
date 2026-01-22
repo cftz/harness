@@ -2,19 +2,20 @@
 
 ## Intent
 
-Convert approved temporary draft solution files to final outputs (Artifact files, Linear Documents, or Linear Issues). This skill handles the "finalization" phase of the problem-solving workflow, ensuring that only approved solutions are written to persistent storage.
+Convert approved temporary draft solution files to final outputs (Artifact files, Documents, or Issues). This skill handles the "finalization" phase of the problem-solving workflow, ensuring that only approved solutions are written to persistent storage. Supports both Linear and Jira as issue trackers.
 
 ## Motivation
 
 The problem-solving workflow separates draft creation from finalization to enable:
 1. Safe iteration on drafts in temporary storage
 2. Review and approval gates before writing final content
-3. Consistent output format across different destinations (artifact vs Linear)
+3. Consistent output format across different destinations (artifact vs issue tracker)
 4. Flexibility in how solutions are recorded (as documents or actionable issues)
 
 ## Design Decisions
 
-- **Three output modes**: Supports artifact directory (file-based), Linear Document (attached to issue), and Linear Issue/Document (in project)
+- **Three output modes**: Supports artifact directory (file-based), Document (attached to issue), and Issue/Document (in project)
+- **Multi-provider support**: Abstracts issue tracker operations behind PROVIDER parameter to support Linear and Jira
 - **NEW_ISSUE flag**: When using PROJECT_ID, allows creating either an actionable Issue or a reference Document
 - **Single file operation**: Operates on one draft file at a time for clarity
 

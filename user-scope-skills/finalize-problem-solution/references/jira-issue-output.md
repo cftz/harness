@@ -4,29 +4,31 @@ This document defines how to save problem solutions to a Jira project as either 
 
 ## Prerequisites
 
-This document requires the `jira` MCP server to be configured. Verify with:
-
-```
-ListMcpResourcesTool(server="jira")
-```
-
-If not configured, return error:
-```
-STATUS: ERROR
-OUTPUT: Jira MCP server is not configured. Add jira server to .mcp.json first.
-```
+This document requires the `jira-issue` skill and Jira environment variables to be configured:
+- `JIRA_API_TOKEN`
+- `JIRA_EMAIL`
+- `JIRA_URL`
 
 ## Input
 
 - `PROJECT_ID` - Jira Project key (e.g., `MYPROJ`)
 - `DRAFT_PATH` - Temporary file from draft-problem-solution
 - `NEW_ISSUE` - (Optional) `true` to create Issue (default), `false` to create placeholder issue with attachment
+- `METADATA` - Project metadata from `project-manage metadata`:
+  - `issueTypes`: Array of `{id, name, subtask}` - available issue types
+  - `components`: Array of `{id, name}` - available components
+  - `defaultComponent`: Pre-selected default component name (may be null)
 
-## MCP Tools Used
+## Skills Used
+
+| Skill | Purpose |
+|-------|---------|
+| `jira-issue` | Create new issues using issueType ID |
+
+## MCP Tools Used (for attachments only)
 
 | Tool | Purpose |
 |------|---------|
-| `mcp__jira__jira_create_issue` | Create new issue |
 | `mcp__jira__jira_update_issue` | Attach file to issue |
 | `mcp__jira__jira_add_comment` | Add comment |
 
@@ -49,19 +51,25 @@ For **Attachment** creation (NEW_ISSUE=false):
 - First create a placeholder issue
 - Then attach the full solution document
 
+### 2.5. Determine Issue Type ID
+
+Select the appropriate issue type **ID** from `METADATA.issueTypes`:
+
+1. Find issue type where `subtask: false` (we're creating standalone issues, not sub-tasks)
+2. Prefer types named: "Task", "기타", "Story" (in that order)
+3. Get its `id` (e.g., `"10001"`)
+
+**Important**: Use the issue type **ID**, not name. This ensures issue creation works regardless of localized names.
+
 ### 3. Create Issue or Attachment
 
 **If NEW_ISSUE=true (default):**
 
-Create an actionable issue for implementing the solution:
+Create an actionable issue for implementing the solution using jira-issue skill:
 
 ```
-mcp__jira__jira_create_issue(
-    project_key="{PROJECT_ID}",
-    summary="[Ideation] {title from frontmatter}",
-    issue_type="Task",
-    description="{problem statement}\n\n## Top Recommendations\n{recommendations}"
-)
+skill: jira-issue
+args: create PROJECT={PROJECT_ID} ISSUE_TYPE_ID={issueTypeId} TITLE="[Ideation] {title from frontmatter}" DESCRIPTION="{problem statement}\n\n## Top Recommendations\n{recommendations}" COMPONENT="{METADATA.defaultComponent}"
 ```
 
 **If NEW_ISSUE=false:**
@@ -70,15 +78,11 @@ First create a placeholder issue, then attach the document:
 
 1. Create placeholder issue:
 ```
-mcp__jira__jira_create_issue(
-    project_key="{PROJECT_ID}",
-    summary="[Solution] {title from frontmatter}",
-    issue_type="Task",
-    description="Solution document for: {problem statement}"
-)
+skill: jira-issue
+args: create PROJECT={PROJECT_ID} ISSUE_TYPE_ID={issueTypeId} TITLE="[Solution] {title from frontmatter}" DESCRIPTION="Solution document for: {problem statement}" COMPONENT="{METADATA.defaultComponent}"
 ```
 
-2. Attach document to the created issue:
+2. Attach document to the created issue using MCP:
 ```
 mcp__jira__jira_update_issue(
     issue_key="{created_issue_key}",
@@ -94,6 +98,13 @@ Input:
   PROJECT_ID: MYPROJ
   DRAFT_PATH: .agent/tmp/xxxxxxxx-solution
   NEW_ISSUE: true (default)
+  METADATA:
+    issueTypes:
+      - {id: "10001", name: "기타", subtask: false}
+      - {id: "10002", name: "하위 작업", subtask: true}
+    components:
+      - {id: "10001", name: "합성 패널"}
+    defaultComponent: "합성 패널"
 
 Draft frontmatter:
   ---
@@ -102,13 +113,12 @@ Draft frontmatter:
   approach: analogous
   ---
 
-Create Issue:
-  mcp__jira__jira_create_issue(
-      project_key="MYPROJ",
-      summary="[Ideation] State Synchronization Solutions",
-      issue_type="Task",
-      description="Problem: How to synchronize state across microservices\n\n## Top Recommendations\n1. Event Sourcing with Kafka\n2. CRDT-based approach"
-  )
+Step 2.5 - Determine issue type ID:
+  Found non-subtask type: id="10001" (name="기타")
+
+Create Issue using jira-issue skill:
+  skill: jira-issue
+  args: create PROJECT=MYPROJ ISSUE_TYPE_ID=10001 TITLE="[Ideation] State Synchronization Solutions" DESCRIPTION="Problem: How to synchronize state across microservices\n\n## Top Recommendations\n1. Event Sourcing with Kafka\n2. CRDT-based approach" COMPONENT="합성 패널"
   -> Created MYPROJ-456
 
 Result:
@@ -122,17 +132,17 @@ Input:
   PROJECT_ID: MYPROJ
   DRAFT_PATH: .agent/tmp/xxxxxxxx-solution
   NEW_ISSUE: false
+  METADATA:
+    issueTypes:
+      - {id: "10001", name: "기타", subtask: false}
+    defaultComponent: "합성 패널"
 
-Step 1 - Create placeholder issue:
-  mcp__jira__jira_create_issue(
-      project_key="MYPROJ",
-      summary="[Solution] State Synchronization Solutions",
-      issue_type="Task",
-      description="Solution document for: How to synchronize state across microservices"
-  )
+Step 1 - Create placeholder issue using jira-issue skill:
+  skill: jira-issue
+  args: create PROJECT=MYPROJ ISSUE_TYPE_ID=10001 TITLE="[Solution] State Synchronization Solutions" DESCRIPTION="Solution document for: How to synchronize state across microservices" COMPONENT="합성 패널"
   -> Created MYPROJ-457
 
-Step 2 - Attach document:
+Step 2 - Attach document using MCP:
   mcp__jira__jira_update_issue(
       issue_key="MYPROJ-457",
       fields={},

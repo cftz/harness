@@ -10,7 +10,7 @@ Manual code reviews are time-consuming and often inconsistent. Teams need a syst
 - Check code against predefined quality criteria for specific layers/areas
 - Ensure consistent review standards across the team
 - Prioritize issues based on severity
-- Generate actionable reports that can be tracked in existing tools (Linear)
+- Generate actionable reports that can be tracked in existing tools (Linear, Jira)
 
 ## Design Decisions
 

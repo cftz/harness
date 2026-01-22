@@ -83,12 +83,20 @@ Route based on resolved PROVIDER:
 
 ### If PROJECT_ID is provided
 
+**For Jira provider only**, get metadata first:
+```
+skill: project-manage
+args: metadata PROVIDER=jira
+```
+
+This returns `issueTypes`, `components`, and `defaultComponent` needed for issue creation.
+
 Route based on resolved PROVIDER:
 
-| PROVIDER           | Reference Document                            |
-| ------------------ | --------------------------------------------- |
-| `linear` (default) | `{baseDir}/references/linear-issue-output.md` |
-| `jira`             | `{baseDir}/references/jira-issue-output.md`   |
+| PROVIDER           | Reference Document                            | Additional Data |
+| ------------------ | --------------------------------------------- | --------------- |
+| `linear` (default) | `{baseDir}/references/linear-issue-output.md` | (none)          |
+| `jira`             | `{baseDir}/references/jira-issue-output.md`   | METADATA        |
 
 ## Output
 

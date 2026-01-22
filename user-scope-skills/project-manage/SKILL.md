@@ -92,19 +92,26 @@ args: project  # project-manage resolves via cache or inference
     "name": "User Name",
     "email": "user@example.com"
   },
+  "defaultComponent": "API",
   "metadata": {
     "issueTypes": [
-      {"id": "10001", "name": "Task"},
-      {"id": "10002", "name": "Bug"}
+      {"id": "10001", "name": "Task", "subtask": false},
+      {"id": "10002", "name": "Bug", "subtask": false},
+      {"id": "10003", "name": "Sub-task", "subtask": true}
     ],
     "labels": ["frontend", "backend", "urgent"],
     "components": [
       {"id": "10001", "name": "API"},
       {"id": "10002", "name": "Web"}
-    ]
+    ],
+    "defaultComponent": "API"
   }
 }
 ```
+
+**Jira-specific fields:**
+- `defaultComponent`: Pre-selected component for new issues (set during init)
+- `issueTypes[].subtask`: Indicates if this type is for sub-tasks
 
 ## Integration with Other Skills
 
@@ -112,13 +119,11 @@ args: project  # project-manage resolves via cache or inference
 
 ### Before (provider-aware workflow)
 ```python
-# Workflow has to know about providers
+# Workflow has to know about providers and their specific APIs
 if provider == "linear":
-    skill: linear:linear-current
-    args: project
+    # Call Linear API directly
 elif provider == "jira":
-    skill: jira:jira-current
-    args: project
+    # Call Jira MCP tools directly
 ```
 
 ### After (provider-agnostic workflow)
