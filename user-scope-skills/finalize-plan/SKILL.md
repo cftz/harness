@@ -70,16 +70,46 @@ Route based on resolved PROVIDER:
 | `jira`             | `{baseDir}/references/jira-output.md`   |
 
 **For Linear (default):**
-1. Create Document using `linear-document` skill with title from frontmatter
-2. Get Todo state ID using `linear-state` skill
-3. Update issue status to Todo using `linear-issue` skill
+Follow `{baseDir}/references/linear-output.md`:
+1. Create Document using `linear-document` skill
 
 **For Jira:**
+Follow `{baseDir}/references/jira-output.md`:
 1. Attach plan file to Jira issue
-2. Update issue status (optional)
-3. Add comment summarizing the plan
+2. Add comment summarizing the plan
 
-### 3. Report Result
+### 3. Update Issue Status (Common)
+
+Plan 저장 후 Issue를 "진행 중(In Progress)" 직전 상태로 변경합니다.
+
+| Provider | 목표 상태 | 처리 방법 |
+|----------|----------|----------|
+| Linear | Todo | `linear-state`로 ID 조회 후 `linear-issue`로 업데이트 |
+| Jira | To Do | `jira-issue update ID={ISSUE_ID} STATE="To Do"` |
+
+**Linear:**
+1. Todo state ID 조회:
+   ```
+   skill: linear:linear-state
+   args: list ISSUE_ID={ISSUE_ID} NAME=Todo
+   ```
+2. Issue 상태 업데이트:
+   ```
+   skill: linear:linear-issue
+   args: update ID={ISSUE_ID} STATE_ID={todo_state_id}
+   ```
+
+**Jira:**
+```
+skill: jira-issue
+args: update ID={ISSUE_ID} STATE="To Do"
+```
+
+Notes:
+- Jira workflow는 프로젝트마다 다를 수 있음 ("To Do", "Open", "Backlog" 등)
+- jira-issue 스킬이 내부적으로 transition ID 매칭 처리
+
+### 4. Report Result
 
 Report the final output path or URL to the user.
 
@@ -104,7 +134,7 @@ Before completing, verify:
 - [ ] Draft file exists and content was read successfully
 - [ ] YAML frontmatter was parsed correctly (title extracted)
 - [ ] Output destination was created successfully
-- [ ] For Linear output: Issue state was updated to Todo
+- [ ] For Issue output: Issue state was updated to "ready for implementation" state (Todo/To Do)
 - [ ] Final output path/URL is reported to user
 
 ## Constraints

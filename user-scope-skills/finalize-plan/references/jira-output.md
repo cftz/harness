@@ -36,19 +36,35 @@ Read the draft plan file and extract:
 - Title from YAML frontmatter
 - Full content for the attachment
 
-### 2. Attach Plan File
+### 2. Prepare Attachment File
 
-Use the Jira MCP tool to attach the plan file to the issue:
+**IMPORTANT**: Do NOT attach the temporary file directly. Create a properly named file with `.md` extension.
+
+1. Sanitize the title for filename use (replace spaces with hyphens, remove special characters)
+2. Create attachment filename: `plan-{sanitized_title}.md`
+3. Copy the draft file content to the new file path
+
+```
+# Example: title = "API Implementation"
+# Sanitized: "api-implementation"
+# Attachment filename: "plan-api-implementation.md"
+
+cp {DRAFT_PATH} /tmp/plan-{sanitized_title}.md
+```
+
+### 3. Attach Plan File
+
+Use the Jira MCP tool to attach the properly named plan file to the issue:
 
 ```
 mcp__jira__jira_update_issue(
     issue_key="{ISSUE_ID}",
     fields={},
-    attachments="{DRAFT_PATH}"
+    attachments="/tmp/plan-{sanitized_title}.md"
 )
 ```
 
-### 3. Add Comment (Optional)
+### 4. Add Comment (Optional)
 
 Add a comment summarizing that the plan has been attached:
 
@@ -72,22 +88,32 @@ Draft frontmatter:
   issueId: PROJ-123
   ---
 
-Step 1 - Attach file:
+Step 1 - Read draft file:
+  Extract title from frontmatter: "API Implementation"
+
+Step 2 - Prepare attachment file:
+  Title: "API Implementation"
+  Sanitized: "api-implementation"
+  Attachment path: /tmp/plan-api-implementation.md
+
+  cp .agent/tmp/xxxxxxxx-plan /tmp/plan-api-implementation.md
+
+Step 3 - Attach file:
   mcp__jira__jira_update_issue(
       issue_key="PROJ-123",
       fields={},
-      attachments=".agent/tmp/xxxxxxxx-plan"
+      attachments="/tmp/plan-api-implementation.md"
   )
-  -> File attached as "xxxxxxxx-plan"
+  -> File attached as "plan-api-implementation.md"
 
-Step 2 - Add comment:
+Step 4 - Add comment:
   mcp__jira__jira_add_comment(
       issue_key="PROJ-123",
       comment="[Plan] API Implementation\n\nExecution plan has been attached to this issue."
   )
 
 Result:
-  Plan file attached to PROJ-123
+  Plan file "plan-api-implementation.md" attached to PROJ-123
   Comment added with plan title
 ```
 
@@ -106,7 +132,7 @@ Example:
 ```
 STATUS: SUCCESS
 OUTPUT:
-  ATTACHMENT_NAME: xxxxxxxx-plan
+  ATTACHMENT_NAME: plan-api-implementation.md
   ISSUE_KEY: PROJ-123
 ```
 

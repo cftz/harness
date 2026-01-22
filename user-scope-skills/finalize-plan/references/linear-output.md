@@ -18,26 +18,6 @@ skill: linear:linear-document
 args: create TITLE="[Plan] {title from frontmatter}" CONTENT_FILE={temp_file_path} ISSUE_ID={ISSUE_ID}
 ```
 
-### 2. Get Todo State ID
-
-Query the team's workflow states to find the "Todo" state ID:
-
-```
-skill: linear:linear-state
-args: list ISSUE_ID={ISSUE_ID} NAME=Todo
-```
-
-Extract the `id` from the first element of the output array.
-
-### 3. Update Issue Status
-
-After obtaining the state ID, update the Issue status to "Todo":
-
-```
-skill: linear:linear-issue
-args: update ID={ISSUE_ID} STATE_ID={todo_state_id}
-```
-
 ## Example
 
 ```
@@ -49,20 +29,8 @@ Step 1 - Create Document:
   skill: linear:linear-document
   args: create TITLE="[Plan] API Implementation" CONTENT_FILE=.agent/tmp/xxxxxxxx-plan ISSUE_ID=TA-123
 
-Step 2 - Get Todo State ID:
-  skill: linear:linear-state
-  args: list ISSUE_ID=TA-123 NAME=Todo
-
-  Output: [{ "id": "state-002", "name": "Todo", "type": "unstarted", "position": 1 }]
-  Extract: todo_state_id = "state-002"
-
-Step 3 - Update Issue Status:
-  skill: linear:linear-issue
-  args: update ID=TA-123 STATE_ID=state-002
-
 Result:
   Document "[Plan] API Implementation" attached to TA-123
-  Issue TA-123 status updated to "Todo"
 ```
 
 ## Output
@@ -92,4 +60,4 @@ OUTPUT: {error message describing what failed}
 
 Notes:
 - Document URL is visible in the Issue's Resources section
-- Issue status is updated to "Todo"
+- Issue status update is handled by the common logic in SKILL.md
