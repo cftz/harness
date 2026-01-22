@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "servers": {
+    "atlassian-mcp-server@1.0.0": {
+      "tools": {
+        "atlassianUserInfo": true,
+        "getAccessibleAtlassianResources": true,
+        "getJiraIssue": true,
+        "editJiraIssue": true,
+        "createJiraIssue": false,
+        "getTransitionsForJiraIssue": true,
+        "getJiraIssueRemoteIssueLinks": true,
+        "getVisibleJiraProjects": true,
+        "getJiraProjectIssueTypesMetadata": true,
+        "getJiraIssueTypeMetaWithFields": true,
+        "addCommentToJiraIssue": true,
+        "transitionJiraIssue": true,
+        "searchJiraIssuesUsingJql": true,
+        "lookupJiraAccountId": true,
+        "addWorklogToJiraIssue": true,
+        "search": true,
+        "fetch": true
+      }
+    },
+    "Atlassian MCP@2.14.3": {
+      "tools": {
+        "jira_get_user_profile": true,
+        "jira_get_issue": true,
+        "jira_search": true,
+        "jira_search_fields": true,
+        "jira_get_project_issues": true,
+        "jira_get_transitions": true,
+        "jira_get_worklog": true,
+        "jira_download_attachments": true,
+        "jira_get_agile_boards": true,
+        "jira_get_board_issues": true,
+        "jira_get_sprints_from_board": true,
+        "jira_get_sprint_issues": true,
+        "jira_get_link_types": true,
+        "jira_create_issue": false,
+        "jira_batch_create_issues": true,
+        "jira_batch_get_changelogs": true,
+        "jira_update_issue": true,
+        "jira_delete_issue": true,
+        "jira_add_comment": true,
+        "jira_edit_comment": true,
+        "jira_add_worklog": true,
+        "jira_link_to_epic": true,
+        "jira_create_issue_link": true,
+        "jira_create_remote_issue_link": true,
+        "jira_remove_issue_link": true,
+        "jira_transition_issue": true,
+        "jira_create_sprint": true,
+        "jira_update_sprint": true,
+        "jira_get_project_versions": true,
+        "jira_get_all_projects": true,
+        "jira_create_version": true,
+        "jira_batch_create_versions": true
+      }
+    }
+  }
+}

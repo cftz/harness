@@ -1,2 +1,3 @@
 # Temporary files
 .agent/tmp/
+.agent/cache/
