@@ -400,6 +400,39 @@ Skills should be invoked using `skill:` + `args:` format, not by directly callin
 2. Check if the script path belongs to a different skill
 3. Flag as High severity and suggest replacing with `skill:` + `args:` format
 
+### 4.3 Reference Cross-Reference Detection
+
+Verify references/*.md files do not reference other reference documents.
+
+**Why This Matters:**
+Reference documents should be self-contained. When references point to other references, it creates:
+- Difficult-to-trace document chains
+- Unclear execution flow
+- Maintenance burden when updating dependent documents
+
+**What to Flag:**
+
+| Pattern                                        | Issue                                      |
+| ---------------------------------------------- | ------------------------------------------ |
+| `{baseDir}/references/other-doc.md`            | Reference pointing to another reference    |
+| `See {baseDir}/references/...`                 | Delegation to another reference document   |
+| `Follow {baseDir}/references/...`              | Delegation to another reference document   |
+| `Read {baseDir}/references/...` in references/ | Reference loading another reference        |
+
+**Correct Pattern:**
+- SKILL.md should directly route to the appropriate reference document
+- Each reference document should be self-contained with all necessary information
+
+**Severity:**
+- Reference document pointing to another reference → **High**
+
+**How to Verify:**
+1. For each file in `references/*.md`:
+   - Search for patterns: `{baseDir}/references/`, `./references/`
+   - Search for phrases: "See `{baseDir}/references/", "Follow `{baseDir}/references/", "Read `{baseDir}/references/"
+2. Flag any matches as High severity
+3. Suggest restructuring: move routing logic to SKILL.md, make reference self-contained
+
 ## Phase 5: Accuracy & Maintenance
 
 ### 5.1 Example Accuracy Check
@@ -619,20 +652,20 @@ Verify skill output follows the standard format defined in `.agent/rules/skill/o
 **Valid Output Section Examples:**
 
 ```markdown
-# OUTPUT 필드가 있는 경우
+# When OUTPUT fields exist
 ## Output
 
 SUCCESS:
-- DRAFT_PATH: 생성된 드래프트 경로
+- DRAFT_PATH: Path to generated draft
 
-ERROR: 에러 메시지 문자열
+ERROR: Error message string
 
-# OUTPUT 필드가 없는 경우
+# When no OUTPUT fields
 ## Output
 
 SUCCESS: (no output fields)
 
-ERROR: 에러 메시지 문자열
+ERROR: Error message string
 ```
 
 **Severity:**

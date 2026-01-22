@@ -58,17 +58,33 @@ Execute `{baseDir}/scripts/read_cache.sh provider`:
 
 ### Step 4: Fetch Metadata from Provider
 
-Based on the provider value, follow the respective provider documentation:
+Based on the provider value:
 
-**If Linear:** See `{baseDir}/references/linear-provider.md` - Metadata section
-- Labels: from `linear:linear-issue-label list`
-- Issue types: empty array (Linear doesn't have per-project issue types)
-- Components: empty array (Linear doesn't have components)
+**If Linear:**
 
-**If Jira:** See `{baseDir}/references/jira-provider.md` - Metadata section
-- Issue types: from `getVisibleJiraProjects(expandIssueTypes=true)`
-- Components: from `getJiraIssueTypeMetaWithFields()`
-- Labels: from searching existing issues
+Labels:
+```
+skill: linear:linear-issue-label
+args: list
+```
+
+Issue types and components: Linear doesn't have these concepts, return empty arrays.
+
+**If Jira:**
+
+Issue types: Already cached during project selection from `getVisibleJiraProjects(expandIssueTypes=true)`.
+
+Components (using first non-subtask issue type ID):
+```
+mcp__jira2__getJiraIssueTypeMetaWithFields(cloudId, projectKey, issueTypeId)
+```
+
+Find `fields` entry where `key = "components"`, extract `allowedValues`.
+
+Labels (optional): Search existing issues to extract unique labels.
+```
+mcp__jira2__searchJiraIssuesUsingJql(cloudId, "project = {projectKey}", fields=["labels"], limit=50)
+```
 
 ### Step 5: Normalize and Cache
 
@@ -104,14 +120,14 @@ Return the normalized metadata:
 ```json
 {
   "issueTypes": [
-    {"id": "10001", "name": "기타", "subtask": false},
-    {"id": "10002", "name": "하위 작업", "subtask": true}
+    {"id": "10001", "name": "Task", "subtask": false},
+    {"id": "10002", "name": "Sub-task", "subtask": true}
   ],
   "labels": ["frontend", "backend"],
   "components": [
-    {"id": "10001", "name": "합성 패널"}
+    {"id": "10001", "name": "API"}
   ],
-  "defaultComponent": "합성 패널"
+  "defaultComponent": "API"
 }
 ```
 

@@ -51,10 +51,34 @@ Execute `{baseDir}/scripts/read_cache.sh user`:
 
 ### Step 2: Fetch from Provider
 
-Based on the resolved provider value, follow the respective provider documentation:
+Based on the resolved provider value:
 
-**If Linear:** See `{baseDir}/references/linear-provider.md` - User section
-**If Jira:** See `{baseDir}/references/jira-provider.md` - User section
+**If Linear:**
+
+Run the get_viewer script:
+```bash
+{baseDir}/scripts/linear_get_viewer.sh
+```
+
+Returns (already normalized):
+```json
+{"id": "user-uuid", "name": "User Name", "email": "user@example.com"}
+```
+
+**If Jira:**
+
+```
+mcp__jira2__atlassianUserInfo()
+```
+
+Returns:
+```json
+{
+  "account_id": "5c74dcae24a84d130780201b",
+  "email": "user@example.com",
+  "name": "User Name"
+}
+```
 
 ### Step 3: Normalize and Cache
 

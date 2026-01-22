@@ -8,7 +8,10 @@
 set -euo pipefail
 
 KEY="$1"
-CACHE_DIR="$PWD/.agent/cache"
+
+# Find project root (git repository root)
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+CACHE_DIR="$PROJECT_ROOT/.agent/cache"
 CACHE_FILE="$CACHE_DIR/project-manage.json"
 
 if [[ ! -f "$CACHE_FILE" ]]; then

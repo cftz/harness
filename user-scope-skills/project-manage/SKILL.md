@@ -36,11 +36,51 @@ Unified interface for managing project management system (PMS) context. Abstract
 
 | Command    | Description                                  | Docs                              |
 | ---------- | -------------------------------------------- | --------------------------------- |
-| `init`     | Initialize PMS selection and project context | `{baseDir}/references/init.md`    |
+| `init`     | Initialize PMS selection and project context | See below                         |
 | `provider` | Get current PMS provider (linear/jira)       | `{baseDir}/references/provider.md`|
 | `project`  | Get current project info                     | `{baseDir}/references/project.md` |
 | `user`     | Get current user info                        | `{baseDir}/references/user.md`    |
 | `metadata` | Get project metadata                         | `{baseDir}/references/metadata.md`|
+
+### init Command
+
+Initialize PMS selection and project context.
+
+**Step 1: Resolve Provider**
+
+Check cache for provider:
+```bash
+{baseDir}/scripts/read_cache.sh provider
+```
+
+- If result is not `null`: Use cached provider, go to Step 2
+- If result is `null`: Ask user to select PMS using AskUserQuestion:
+  ```json
+  {
+    "questions": [{
+      "question": "Which project management system do you use?",
+      "header": "PMS",
+      "options": [
+        {"label": "Linear", "description": "Linear issue tracker"},
+        {"label": "Jira", "description": "Atlassian Jira"}
+      ],
+      "multiSelect": false
+    }]
+  }
+  ```
+  Cache selection:
+  ```bash
+  {baseDir}/scripts/write_cache.sh provider '"linear"'  # or '"jira"'
+  ```
+
+**Step 2: Execute Provider-Specific Init**
+
+Based on provider, read the appropriate init document:
+
+- **If Linear:** Read `{baseDir}/references/linear-init.md`
+- **If Jira:** Read `{baseDir}/references/jira-init.md`
+
+Each document is self-contained with all steps needed for that provider.
 
 ## PROVIDER Parameter
 

@@ -44,13 +44,7 @@ CONTEXT_PATH: .agent/tmp/xxx-context.md
 
 ### 3. Load Template
 
-Load the appropriate template based on skill type:
-
-- `workflow` -> Read `{baseDir}/references/workflow-template.md`
-- `orchestrator` -> Read `{baseDir}/references/orchestrator-template.md`
-- `utility` -> Read `{baseDir}/references/utility-template.md`
-- `integration` -> Read `{baseDir}/references/integration-template.md`
-- `validation` -> Read `{baseDir}/references/validation-template.md`
+Load the appropriate template based on skill type. See the template mapping in SKILL.md Process section.
 
 ### 4. Design Skill Structure
 

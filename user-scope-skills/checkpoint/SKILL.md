@@ -22,6 +22,7 @@ description: |
     /checkpoint load CONTEXT_PATH=.agent/tmp/xxx-context.md
     /checkpoint update CONTEXT_PATH=.agent/tmp/xxx-context.md
 user-invocable: false
+context: fork
 ---
 
 # Description

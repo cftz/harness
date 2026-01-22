@@ -51,10 +51,27 @@ Execute `{baseDir}/scripts/read_cache.sh project`:
 
 ### Step 2: Fetch from Provider
 
-Based on the resolved provider value, follow the respective provider documentation:
+Based on the resolved provider value:
 
-**If Linear:** See `{baseDir}/references/linear-provider.md` - Project section
-**If Jira:** See `{baseDir}/references/jira-provider.md` - Project section
+**If Linear:**
+
+```
+skill: linear:linear-project
+args: list
+```
+
+Returns list of projects. If multiple projects, use AskUserQuestion to let user select.
+
+**If Jira:**
+
+First, get cloudId from cache or `mcp__jira2__getAccessibleAtlassianResources()`.
+
+Then:
+```
+mcp__jira2__getVisibleJiraProjects(cloudId, expandIssueTypes=true)
+```
+
+Returns list of projects. If multiple projects, use AskUserQuestion to let user select.
 
 ### Step 3: Normalize and Cache
 

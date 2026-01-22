@@ -98,39 +98,6 @@ skill: linear:linear-issue
 args: create TITLE="..." DESCRIPTION="..." ASSIGNEE=me LABELS="label1,label2"
 ```
 
-## Full Init Flow
-
-1. **Get User**
-   ```bash
-   {baseDir}/scripts/linear_get_viewer.sh
-   ```
-   - Cache user
-
-2. **Get Projects**
-   ```
-   skill: linear:linear-project
-   args: list
-   ```
-   - If multiple: AskUserQuestion
-   - Cache project
-
-3. **Get Labels**
-   ```
-   skill: linear:linear-issue-label
-   args: list
-   ```
-   - Cache in metadata
-
-4. **Return Complete Context**
-   ```json
-   {
-     "provider": "linear",
-     "project": {"id": "uuid", "key": "Project Name", "name": "Project Name"},
-     "user": {"id": "uuid", "name": "User Name", "email": "user@example.com"},
-     "defaultComponent": null
-   }
-   ```
-
 ## Differences from Jira
 
 | Feature | Linear | Jira |
