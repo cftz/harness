@@ -1,6 +1,6 @@
 ---
 name: plan-workflow
-description: "Orchestrates plan creation by combining draft-plan, plan-review, and finalize-plan skills with automated review loop and user approval.\n\nArgs:\n  Task Source (OneOf, Required):\n    TASK_PATH=<path> - Task document path\n    ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)\n  Output (Optional):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory (If omitted with ISSUE_ID, saves as Document/Attachment)\n  Options:\n    PROVIDER=linear|jira - Issue tracker provider (default: linear)\n    AUTO_ACCEPT=true - Skip user review (default: false)\n    MAX_CYCLES=<n> - Maximum auto-fix cycles (default: 10)\n\nExamples:\n  /plan-workflow ISSUE_ID=TA-123\n  /plan-workflow ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260107\n  /plan-workflow ISSUE_ID=PROJ-123 PROVIDER=jira\n  /plan-workflow TASK_PATH=.agent/tmp/task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107"
+description: "Orchestrates plan creation by combining draft-plan, plan-review, and finalize-plan skills with automated review loop and user approval.\n\nArgs:\n  Task Source (OneOf, Required):\n    TASK_PATH=<path> - Task document path\n    ISSUE_ID=<id> - Issue ID (e.g., PROJ-123)\n  Output (Optional):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory (If omitted with ISSUE_ID, saves as Document/Attachment)\n  Options:\n    PROVIDER=linear|jira - Issue tracker provider (default: linear)\n    AUTO_ACCEPT=true - Skip user review (default: false)\n    MAX_CYCLES=<n> - Maximum auto-fix cycles (default: 10)\n    ASSIGNEE=<id> - Assignee for the issue (optional, uses current user if not provided)\n\nExamples:\n  /plan-workflow ISSUE_ID=TA-123\n  /plan-workflow ISSUE_ID=TA-123 ARTIFACT_DIR_PATH=.agent/artifacts/20260107\n  /plan-workflow ISSUE_ID=PROJ-123 PROVIDER=jira\n  /plan-workflow TASK_PATH=.agent/tmp/task.md ARTIFACT_DIR_PATH=.agent/artifacts/20260107\n  /plan-workflow ISSUE_ID=TA-123 ASSIGNEE=user-uuid"
 model: claude-opus-4-5
 ---
 
@@ -32,6 +32,10 @@ If not provided and `ISSUE_ID` is provided, the plan will be saved as:
 - `PROVIDER` - Issue tracker provider: `linear` (default) or `jira`. Only used with ISSUE_ID.
 - `AUTO_ACCEPT` - If set to `true`, skip user review at the end. Defaults to `false`.
 - `MAX_CYCLES` - Maximum number of auto-fix cycles for plan-review loop. Defaults to `10`.
+- `ASSIGNEE` - Assignee for the issue when using ISSUE_ID output (optional)
+  - If not provided: finalize-plan will use current user
+  - Linear: User ID (UUID)
+  - Jira: Account ID
 
 ## Workflow Overview
 
@@ -276,9 +280,11 @@ Once the plan is approved, invoke the `finalize-plan` skill:
 - Else if `ISSUE_ID` is provided:
   ```
   skill: finalize-plan
-  args: DRAFT_PATH=<draft_path> ISSUE_ID=<issue_id> PROVIDER=<provider>
+  args: DRAFT_PATH=<draft_path> ISSUE_ID=<issue_id> PROVIDER=<provider> [ASSIGNEE=<assignee>]
   ```
-  Pass `PROVIDER` parameter to finalize-plan for correct output handling.
+  Pass `PROVIDER` and optionally `ASSIGNEE` parameters to finalize-plan.
+
+  Note: `ASSIGNEE` is optional. If not provided, finalize-plan will resolve to current user via `project-manage user`.
 
 ### 6. Report Result
 

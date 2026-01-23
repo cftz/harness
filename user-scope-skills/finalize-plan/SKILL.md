@@ -1,6 +1,6 @@
 ---
 name: finalize-plan
-description: "Use this skill to finalize approved plans by converting temporary draft files to final outputs (Artifact or Linear Document).\n\nArgs:\n  DRAFT_PATH=<path> (Required) - Path to temporary draft file\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    ISSUE_ID=<id> - Save as Document/Attachment and update issue state\n  Options:\n    PROVIDER=linear|jira - Issue tracker provider (default: linear)\n\nExamples:\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=PROJ-456 PROVIDER=jira"
+description: "Use this skill to finalize approved plans by converting temporary draft files to final outputs (Artifact or Linear Document).\n\nArgs:\n  DRAFT_PATH=<path> (Required) - Path to temporary draft file\n  Output (OneOf, Required):\n    ARTIFACT_DIR_PATH=<path> - Save to artifact directory\n    ISSUE_ID=<id> - Save as Document/Attachment and update issue state\n  Options:\n    PROVIDER=linear|jira - Issue tracker provider (default: linear)\n    ASSIGNEE=<id> - Assignee for the issue (optional, uses current user if not provided)\n\nExamples:\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ARTIFACT_DIR_PATH=.agent/artifacts/20260110\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=PROJ-456 PROVIDER=jira\n  /finalize-plan DRAFT_PATH=.agent/tmp/abc123-plan ISSUE_ID=TA-123 ASSIGNEE=user-uuid"
 model: claude-sonnet-4-5
 context: fork
 agent: step-by-step-agent
@@ -32,6 +32,10 @@ Provide exactly one:
 - `PROVIDER` - Issue tracker provider when using `ISSUE_ID` (default: `linear`)
   - `linear` - Linear Issue ID (e.g., `TA-123`)
   - `jira` - Jira Issue key (e.g., `PROJ-456`)
+- `ASSIGNEE` - Assignee for the issue (optional, only used with `ISSUE_ID`)
+  - If not provided: Uses current user from `project-manage user`
+  - Linear: User UUID
+  - Jira: Account ID
 
 ## Process
 
@@ -80,20 +84,20 @@ Follow `{baseDir}/references/jira-output.md`:
 
 ### 3. Update Issue Status (Common)
 
-Plan 저장 후 Issue를 "진행 중(In Progress)" 직전 상태로 변경합니다.
+After saving the plan, update the issue status to "ready for implementation" state (just before "In Progress").
 
-| Provider | 목표 상태 | 처리 방법 |
-|----------|----------|----------|
-| Linear | Todo | `linear-state`로 ID 조회 후 `linear-issue`로 업데이트 |
+| Provider | Target State | Method |
+|----------|-------------|--------|
+| Linear | Todo | Query state ID via `linear-state`, then update via `linear-issue` |
 | Jira | To Do | `jira-issue update ID={ISSUE_ID} STATE="To Do"` |
 
 **Linear:**
-1. Todo state ID 조회:
+1. Query Todo state ID:
    ```
    skill: linear:linear-state
    args: list ISSUE_ID={ISSUE_ID} NAME=Todo
    ```
-2. Issue 상태 업데이트:
+2. Update issue state:
    ```
    skill: linear:linear-issue
    args: update ID={ISSUE_ID} STATE_ID={todo_state_id}
@@ -106,10 +110,57 @@ args: update ID={ISSUE_ID} STATE="To Do"
 ```
 
 Notes:
-- Jira workflow는 프로젝트마다 다를 수 있음 ("To Do", "Open", "Backlog" 등)
-- jira-issue 스킬이 내부적으로 transition ID 매칭 처리
+- Jira workflows may vary per project ("To Do", "Open", "Backlog", etc.)
+- The jira-issue skill handles transition ID matching internally
 
-### 4. Report Result
+### 4. Assign Issue (ISSUE_ID output only)
+
+Assign the issue to the specified user.
+
+**Resolve Assignee:**
+
+1. If `ASSIGNEE` parameter is not provided:
+   ```
+   skill: project-manage
+   args: user
+   ```
+   Use the returned `id` field as assignee
+
+2. If `ASSIGNEE` parameter is provided, use the value directly
+
+**Execute Assignment:**
+
+| Provider | Command |
+|----------|---------|
+| Linear | `skill: linear:linear-issue`<br>`args: update ID={ISSUE_ID} ASSIGNEE_ID={assignee_id}` |
+| Jira | `skill: jira-issue`<br>`args: update ID={ISSUE_ID} ASSIGNEE={assignee_id}` |
+
+### 5. Add to Active Sprint/Cycle (ISSUE_ID output only)
+
+Attempt to add issue to active sprint/cycle. If none exists, skip silently.
+
+Route based on provider:
+
+| Provider | Reference Document |
+|----------|-------------------|
+| Linear | `{baseDir}/references/linear-cycle.md` |
+| Jira | `{baseDir}/references/jira-sprint.md` |
+
+**For Linear:**
+1. Get issue's team ID
+2. Query active cycle for the team
+3. If active cycle exists, add issue to it
+
+**For Jira:**
+1. Get agile boards for the project
+2. Query active sprint from the board
+3. If active sprint exists, add issue to it
+
+Notes:
+- If no active sprint/cycle exists, skip silently (not an error)
+- This step is informational - failure should not block the workflow
+
+### 6. Report Result
 
 Report the final output path or URL to the user.
 
@@ -135,6 +186,8 @@ Before completing, verify:
 - [ ] YAML frontmatter was parsed correctly (title extracted)
 - [ ] Output destination was created successfully
 - [ ] For Issue output: Issue state was updated to "ready for implementation" state (Todo/To Do)
+- [ ] For Issue output: Issue was assigned to user (ASSIGNEE or current user)
+- [ ] For Issue output: Sprint/Cycle assignment was attempted (skip silently if none active)
 - [ ] Final output path/URL is reported to user
 
 ## Constraints

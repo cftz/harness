@@ -13,8 +13,10 @@ The planning workflow separates draft creation from finalization to enable:
 
 ## Design Decisions
 
-- **Two output modes**: Supports both artifact directory (file-based) and Linear Document (API-based) outputs
-- **State update**: When saving to Linear, automatically updates issue state to "Todo" to indicate planning is complete
+- **Two output modes**: Supports both artifact directory (file-based) and Linear Document/Jira Attachment (API-based) outputs
+- **State update**: When saving to issue tracker, automatically updates issue state to "Todo"/"To Do" to indicate planning is complete
+- **Assignee assignment**: When using ISSUE_ID output, assigns issue to specified user (or current user if not provided)
+- **Sprint/Cycle assignment**: Automatically adds issue to active sprint (Jira) or cycle (Linear) if one exists
 - **Single file operation**: Operates on one draft file at a time for clarity
 
 ## Constraints
