@@ -35,7 +35,7 @@ This skill includes hook scripts that improve subagent behavior:
 | Script | Hook Type | Purpose |
 |--------|-----------|---------|
 | `subagent-start.py` | SubagentStart | Injects resume command guidance |
-| `subagent-stop.py` | SubagentStop | Verifies task completion before stopping |
+| `agent-stop.py` | SubagentStop | Verifies task completion before stopping |
 | `session-end.py` | SessionEnd | Same verification at session end |
 | `install-hooks.py` | Setup | Auto-installs hooks during `claude --init` |
 
@@ -90,7 +90,7 @@ If you prefer manual setup, add these hooks directly to `.claude/settings.local.
     "SubagentStop": [{
       "hooks": [{
         "type": "command",
-        "command": "python3 /path/to/checkpoint/scripts/subagent-stop.py"
+        "command": "python3 /path/to/checkpoint/scripts/agent-stop.py"
       }]
     }],
     "SessionEnd": [{
