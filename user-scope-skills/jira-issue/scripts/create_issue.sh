@@ -1,6 +1,6 @@
 #!/bin/bash
 # Create a Jira issue using issueType ID (not name)
-# Usage: create_issue.sh PROJECT ISSUE_TYPE_ID TITLE [DESCRIPTION] [ASSIGNEE] [COMPONENT] [PARENT] [LABELS]
+# Usage: create_issue.sh PROJECT ISSUE_TYPE_ID TITLE [DESCRIPTION] [ASSIGNEE] [COMPONENT] [PARENT] [LABELS] [CUSTOM_FIELDS]
 #
 # Required:
 #   PROJECT       - Project key (e.g., PROJ)
@@ -8,11 +8,12 @@
 #   TITLE         - Issue summary
 #
 # Optional:
-#   DESCRIPTION - Issue description (markdown)
-#   ASSIGNEE    - Assignee account ID (NOT email)
-#   COMPONENT   - Component name
-#   PARENT      - Parent issue key for sub-tasks
-#   LABELS      - Comma-separated label names
+#   DESCRIPTION   - Issue description (markdown)
+#   ASSIGNEE      - Assignee account ID (NOT email)
+#   COMPONENT     - Component name
+#   PARENT        - Parent issue key for sub-tasks
+#   LABELS        - Comma-separated label names
+#   CUSTOM_FIELDS - JSON string for custom fields (e.g., '{"customfield_10378": [{"value": "미정"}]}')
 #
 # Environment:
 #   JIRA_API_TOKEN - Required. Jira API token for authentication.
@@ -33,6 +34,7 @@ ASSIGNEE="${5:-}"
 COMPONENT="${6:-}"
 PARENT="${7:-}"
 LABELS="${8:-}"
+CUSTOM_FIELDS="${9:-}"
 
 if [[ -z "$PROJECT" ]]; then
   echo "Error: PROJECT is required" >&2
@@ -113,6 +115,21 @@ build_fields() {
 }
 
 FIELDS=$(build_fields)
+
+# Merge custom fields if provided
+if [[ -n "$CUSTOM_FIELDS" ]]; then
+  # Use Python to merge JSON objects safely
+  FIELDS=$(python3 -c "
+import json
+import sys
+
+base = json.loads(sys.argv[1])
+custom = json.loads(sys.argv[2])
+base.update(custom)
+print(json.dumps(base))
+" "$FIELDS" "$CUSTOM_FIELDS")
+fi
+
 REQUEST_BODY="{\"fields\": $FIELDS}"
 
 # Make API request

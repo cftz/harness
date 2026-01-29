@@ -122,3 +122,7 @@ ERROR: Error message string
 | Invalid skill name | Report error, show valid name format |
 | Target exists (no overwrite) | Exit cleanly with message |
 | Write permission denied | Report error, suggest checking permissions |
+
+## Constraints
+
+- When moving temp files to final location, prefer Bash `mv` or `cp` commands over Read + Write tools to reduce token usage and avoid content copying errors

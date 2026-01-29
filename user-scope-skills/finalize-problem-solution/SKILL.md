@@ -123,3 +123,7 @@ SUCCESS:
   - ATTACHMENT_NAME: Attached filename
 
 ERROR: Error message string describing the failure
+
+## Constraints
+
+- When moving temp files to final location, prefer Bash `mv` or `cp` commands over Read + Write tools to reduce token usage and avoid content copying errors

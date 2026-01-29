@@ -148,6 +148,30 @@ Before completing any skill operation, verify:
 - [ ] **Dependent skills exist**: Any referenced skills (e.g., `mktemp`, `linear`) exist
 - [ ] **References are self-contained**: No reference document points to another reference
 
+### Skill Writing Philosophy
+
+Skills should be written with these principles:
+
+1. **Intent over Instructions**
+   - Define WHAT to achieve, not HOW to do each micro-step
+   - Trust that the AI has general knowledge to fill in details
+   - Focus on: Input, Goal, Success Criteria, Retry/Error Strategy
+
+2. **Concise Workflow**
+   - Process steps exist but each step is brief (1-3 sentences)
+   - Avoid over-specification that limits flexibility
+   - Use reference documents for complex details, not inline expansion
+
+3. **Guardrails over Guidance**
+   - Constraints section is critical - document common mistakes
+   - This section should be continuously updated based on observed failures
+   - Format: "Should NOT..." or "Must NOT..." statements
+
+4. **Success Criteria**
+   - Every skill should have clear success/failure indicators
+   - Include Quality Checklist when verification is needed
+   - Define what "done" looks like
+
 ## Process
 
 Execute the appropriate process based on command:

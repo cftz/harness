@@ -1,3 +1,6 @@
 # Temporary files
 .agent/tmp/
 .agent/cache/
+
+# Python
+__pycache__/

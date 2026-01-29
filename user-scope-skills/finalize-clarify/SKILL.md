@@ -167,3 +167,7 @@ SUCCESS:
   - BLOCKING_RELATIONS: List of blocking relationships created
 
 ERROR: Error message string (e.g., "Draft file not found: {path}", "API error: {message}", "Unknown provider: {value}")
+
+## Constraints
+
+- When moving temp files to final location, prefer Bash `mv` or `cp` commands over Read + Write tools to reduce token usage and avoid content copying errors

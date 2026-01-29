@@ -1,5 +1,12 @@
 # Orchestrator Skill Template
 
+<!--
+PHILOSOPHY REMINDER:
+- Keep process steps brief (1-3 sentences each)
+- Focus on WHAT, not HOW
+- Constraints section is critical for guardrails
+-->
+
 Use this template for skills that coordinate SubAgents/Skills in parallel.
 
 ## Characteristics

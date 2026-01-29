@@ -48,6 +48,53 @@ Thoroughly understand:
 - Scope boundaries
 - Constraints
 
+### 1.1 Resolve Blocking Task Context (TASK_PATH only)
+
+If `TASK_PATH` is provided (artifact path), check for blocking task dependencies:
+
+1. **Parse YAML frontmatter** from the task file to extract `blockedBy` array:
+   ```yaml
+   ---
+   name: Task B
+   blockedBy:
+     - Task A
+   ---
+   ```
+
+2. **For each blocking task name**, search the same artifact directory:
+   - Find the task file with matching `name` in frontmatter
+   - Look for corresponding plan file (e.g., if blocking task is `01_task.md`, look for `02_plan.md`)
+
+3. **Read blocking context:**
+   - Read the blocking task's description
+   - Read the blocking task's plan document (if exists)
+   - Extract relevant interfaces, APIs, or dependencies that this task needs
+
+**Artifact Directory Structure Example:**
+```
+.agent/artifacts/20260105-120000/
+├── 01_task.md      # Task A
+├── 02_plan.md      # Plan for A
+├── 03_task.md      # Task B (blockedBy: [Task A])
+└── 04_plan.md      # Plan for B - should reference A's plan
+```
+
+**Edge Case Handling:**
+- Process up to 5 blocking tasks
+- If no plan file exists for a blocking task, include task description only with note "No plan document found"
+- Detect circular dependencies and skip with warning
+- Only resolve direct blockers (depth=1), not transitive
+
+**Include blocking context in understanding:**
+```markdown
+## Blocking Task Context
+
+### {blocking_task_name}
+- **Task File**: {path}
+- **Description**: {description summary}
+- **Plan Document**: {extracted interfaces/APIs if available, or "No plan document found"}
+```
+
 ### 2. Research Packages
 
 If external libraries are needed rather than building from scratch:

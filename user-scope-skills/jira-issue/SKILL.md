@@ -7,13 +7,14 @@ description: |
     get ID=<key> - Get issue details
     list PROJECT=<key> [JQL="..."] [LIMIT=<n>] - List issues
     update ID=<key> [STATE=<name>] [ASSIGNEE=<id>] [SUMMARY="..."] [DESCRIPTION="..."] - Update an issue
-    create PROJECT=<key> ISSUE_TYPE_ID=<id> TITLE="..." [ASSIGNEE=<id>] [COMPONENT=<name>] [PARENT=<key>] [DESCRIPTION="..."] [LABELS=<names>] - Create issue
+    create PROJECT=<key> ISSUE_TYPE_ID=<id> TITLE="..." [ASSIGNEE=<id>] [COMPONENT=<name>] [PARENT=<key>] [DESCRIPTION="..."] [LABELS=<names>] [CUSTOM_FIELDS='{"field": "value"}'] - Create issue
 
   Examples:
     /jira-issue get ID=PROJ-123
     /jira-issue list PROJECT=PROJ JQL="status = 'To Do'"
     /jira-issue update ID=PROJ-123 STATE="In Progress"
     /jira-issue create PROJECT=PROJ ISSUE_TYPE_ID=10002 TITLE="Fix bug" ASSIGNEE=5c74dcae24a84d130780201b
+    /jira-issue create PROJECT=PROJ ISSUE_TYPE_ID=10002 TITLE="Task" CUSTOM_FIELDS='{"customfield_10378": [{"value": "미정"}]}'
 user-invocable: false
 ---
 

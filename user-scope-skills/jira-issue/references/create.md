@@ -19,6 +19,26 @@ This is the key difference from MCP tools - using ID ensures issue creation work
 - `COMPONENT` - Component name to assign
 - `PARENT` - Parent issue key for sub-tasks (e.g., `PROJ-100`)
 - `LABELS` - Comma-separated label names
+- `CUSTOM_FIELDS` - JSON string for custom fields. Format: `'{"customfield_XXXXX": value}'`
+
+## Custom Fields
+
+Use `CUSTOM_FIELDS` to set Jira custom fields that are not supported by standard parameters.
+
+**Format:** JSON string with field IDs as keys.
+
+**Common value formats:**
+- Text field: `{"customfield_10001": "text value"}`
+- Select field: `{"customfield_10002": {"value": "Option A"}}`
+- Multi-select field: `{"customfield_10003": [{"value": "Option A"}, {"value": "Option B"}]}`
+- User field: `{"customfield_10004": {"accountId": "user-account-id"}}`
+- Number field: `{"customfield_10005": 42}`
+
+**Example:** Setting a required multi-select custom field:
+```bash
+skill: jira-issue
+args: create PROJECT=SP ISSUE_TYPE_ID=10002 TITLE="Task" CUSTOM_FIELDS='{"customfield_10378": [{"value": "미정"}]}'
+```
 
 ## Usage Examples
 
@@ -35,9 +55,13 @@ args: create PROJECT=PROJ ISSUE_TYPE_ID=10002 TITLE="Fix bug" ASSIGNEE=5c74dcae2
 skill: jira-issue
 args: create PROJECT=PROJ ISSUE_TYPE_ID=10003 TITLE="Sub-task" PARENT=PROJ-100
 
-# Full example
+# With custom fields
 skill: jira-issue
-args: create PROJECT=PROJ ISSUE_TYPE_ID=10002 TITLE="Implement feature" DESCRIPTION="Add new functionality" ASSIGNEE=5c74dcae24a84d130780201b COMPONENT="Web" LABELS="enhancement,frontend"
+args: create PROJECT=SP ISSUE_TYPE_ID=10002 TITLE="New task" CUSTOM_FIELDS='{"customfield_10378": [{"value": "미정"}]}'
+
+# Full example with custom fields
+skill: jira-issue
+args: create PROJECT=PROJ ISSUE_TYPE_ID=10002 TITLE="Implement feature" DESCRIPTION="Add new functionality" ASSIGNEE=5c74dcae24a84d130780201b COMPONENT="Web" LABELS="enhancement,frontend" CUSTOM_FIELDS='{"customfield_10001": "extra info"}'
 ```
 
 ## Process
@@ -83,9 +107,10 @@ Run `{baseDir}/scripts/create_issue.sh` with positional arguments:
 6. `COMPONENT` - Component name (optional, empty string if not provided)
 7. `PARENT` - Parent issue key (optional, empty string if not provided)
 8. `LABELS` - Comma-separated labels (optional, empty string if not provided)
+9. `CUSTOM_FIELDS` - JSON string for custom fields (optional, empty string if not provided)
 
 ```bash
-{baseDir}/scripts/create_issue.sh "PROJ" "10002" "Fix bug" "Description here" "5c74dcae24a84d130780201b" "API" "" "bug,backend"
+{baseDir}/scripts/create_issue.sh "PROJ" "10002" "Fix bug" "Description here" "5c74dcae24a84d130780201b" "API" "" "bug,backend" '{"customfield_10378": [{"value": "미정"}]}'
 ```
 
 ### Step 4: Report Result

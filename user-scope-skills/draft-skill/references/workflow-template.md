@@ -1,5 +1,12 @@
 # Workflow Skill Template
 
+<!--
+PHILOSOPHY REMINDER:
+- Keep process steps brief (1-3 sentences each)
+- Focus on WHAT, not HOW
+- Constraints section is critical for guardrails
+-->
+
 Use this template for complex multi-step processes with user interaction.
 
 ## Characteristics

@@ -19,6 +19,7 @@ Skill creation/modification should follow the workflow pattern used by other ski
 3. **Type-based templates**: Five skill types (workflow, orchestrator, utility, integration, validation) with specific templates
 4. **Intent preservation in modify**: Checks README.md to understand original intent before making changes
 5. **Returns DRAFT_PATH**: Standardized output for workflow integration
+6. **Philosophy-driven writing**: Templates guide toward intent-focused, concise specifications with guardrails emphasis
 
 ## Constraints
 

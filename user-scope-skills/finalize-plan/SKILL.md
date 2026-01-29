@@ -196,3 +196,4 @@ Before completing, verify:
 - Should NOT validate plans (that is `plan-review`'s responsibility)
 - Should NOT be called without user approval (except when `AUTO_ACCEPT=true` in workflow)
 - Expects draft files in the format produced by `draft-plan`
+- When moving temp files to final location, prefer Bash `mv` or `cp` commands over Read + Write tools to reduce token usage and avoid content copying errors

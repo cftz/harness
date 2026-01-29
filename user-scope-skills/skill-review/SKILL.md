@@ -250,13 +250,13 @@ Verify the document has a clear, consistent header hierarchy.
 
 **Checks:**
 
-| Check | Severity | Description |
-| :---- | :------- | :---------- |
-| Redundant top-level heading | **High** | `# Skill Name` that duplicates frontmatter `name` field |
-| Inconsistent hierarchy | **High** | Sibling sections that should be nested (e.g., steps scattered across same-level headers) |
-| Non-sequential numbering | **Medium** | Decimal numbers like `2.5`, `7.1` instead of proper sequential numbering |
-| Unnecessary dividers | **Medium** | `---` horizontal rules between sections (headers provide sufficient structure) |
-| Inappropriate heading depth | **Medium** | Starting with `#` when `# Description` pattern is recommended |
+| Check                       | Severity   | Description                                                                              |
+| :-------------------------- | :--------- | :--------------------------------------------------------------------------------------- |
+| Redundant top-level heading | **High**   | `# Skill Name` that duplicates frontmatter `name` field                                  |
+| Inconsistent hierarchy      | **High**   | Sibling sections that should be nested (e.g., steps scattered across same-level headers) |
+| Non-sequential numbering    | **Medium** | Decimal numbers like `2.5`, `7.1` instead of proper sequential numbering                 |
+| Unnecessary dividers        | **Medium** | `---` horizontal rules between sections (headers provide sufficient structure)           |
+| Inappropriate heading depth | **Medium** | Starting with `#` when `# Description` pattern is recommended                            |
 
 **Valid Structure Pattern:**
 
@@ -275,12 +275,12 @@ Verify the document has a clear, consistent header hierarchy.
 
 **Invalid Patterns:**
 
-| Pattern | Issue |
-| :------ | :---- |
-| `# Skill Name` matching frontmatter name | Redundant - use `# Description` instead |
-| `## Process` → `### Step 1` → `## Category A` → `### Step 2` | Steps 2+ should be under Process, not separate `##` |
-| `### 2.5 New Check` | Should renumber to `### 3` or use proper sub-numbering |
-| `---` between `## Phase 1` and `## Phase 2` | Headers already provide visual separation |
+| Pattern                                                      | Issue                                                  |
+| :----------------------------------------------------------- | :----------------------------------------------------- |
+| `# Skill Name` matching frontmatter name                     | Redundant - use `# Description` instead                |
+| `## Process` → `### Step 1` → `## Category A` → `### Step 2` | Steps 2+ should be under Process, not separate `##`    |
+| `### 2.5 New Check`                                          | Should renumber to `### 3` or use proper sub-numbering |
+| `---` between `## Phase 1` and `## Phase 2`                  | Headers already provide visual separation              |
 
 **How to Verify:**
 
@@ -297,13 +297,13 @@ Verify all agent-referenced documentation files are written in English.
 
 **Scope:**
 
-| File Type | Check Required | Reason |
-| :-------- | :------------- | :----- |
-| `SKILL.md` | **Yes** | Core skill definition loaded into agent context |
-| `README.md` | **Yes** | Intent documentation referenced by agent |
-| `references/*.md` | **Yes** | Supporting docs loaded into agent context |
-| `scripts/*` | No | Execution artifacts, not agent context |
-| `assets/*` | No | Output artifacts, not agent context |
+| File Type         | Check Required | Reason                                          |
+| :---------------- | :------------- | :---------------------------------------------- |
+| `SKILL.md`        | **Yes**        | Core skill definition loaded into agent context |
+| `README.md`       | **Yes**        | Intent documentation referenced by agent        |
+| `references/*.md` | **Yes**        | Supporting docs loaded into agent context       |
+| `scripts/*`       | No             | Execution artifacts, not agent context          |
+| `assets/*`        | No             | Output artifacts, not agent context             |
 
 **Why English:**
 
@@ -313,12 +313,12 @@ Verify all agent-referenced documentation files are written in English.
 
 **Checks:**
 
-| Check | Severity | Description |
-| :---- | :------- | :---------- |
-| Non-English SKILL.md | **High** | Core skill definition must be in English |
-| Non-English README.md | **High** | Intent documentation must be in English |
-| Non-English references/*.md | **High** | Reference docs must be in English |
-| Mixed language content | **Medium** | Inconsistent language within a single file |
+| Check                       | Severity   | Description                                |
+| :-------------------------- | :--------- | :----------------------------------------- |
+| Non-English SKILL.md        | **High**   | Core skill definition must be in English   |
+| Non-English README.md       | **High**   | Intent documentation must be in English    |
+| Non-English references/*.md | **High**   | Reference docs must be in English          |
+| Mixed language content      | **Medium** | Inconsistent language within a single file |
 
 **Detection Patterns:**
 
@@ -329,11 +329,11 @@ Look for non-ASCII character blocks that indicate non-English text:
 
 **Exceptions:**
 
-| Pattern | Acceptable |
-| :------ | :--------- |
+| Pattern                         | Acceptable                               |
+| :------------------------------ | :--------------------------------------- |
 | Code examples with i18n strings | Yes - code may contain localized strings |
-| File paths or identifiers | Yes - may include non-ASCII characters |
-| Quoted user input examples | Yes - demonstrating input handling |
+| File paths or identifiers       | Yes - may include non-ASCII characters   |
+| Quoted user input examples      | Yes - demonstrating input handling       |
 
 **How to Verify:**
 
@@ -341,6 +341,23 @@ Look for non-ASCII character blocks that indicate non-English text:
 2. For each file, detect significant non-English text blocks (>10 consecutive non-ASCII chars outside code blocks)
 3. Flag files with non-English prose as High severity
 4. Exclude content within code fences (``` blocks) from language check
+
+### 3.5 Philosophy Compliance Check
+
+Verify skill follows writing philosophy principles:
+
+| Check                     | Severity   | Description                                                   |
+| :------------------------ | :--------- | :------------------------------------------------------------ |
+| Over-specified process    | **Medium** | Process steps with >5 sub-steps or >10 lines each             |
+| Missing Constraints       | **High**   | No Constraints section or empty constraints                   |
+| Missing success criteria  | **Medium** | No Output section or Quality Checklist                        |
+| Micro-management patterns | **Medium** | Phrases like "then do X, then do Y, then do Z" in single step |
+
+**How to Verify:**
+1. Check Process section step length and complexity
+2. Verify Constraints section exists and has content
+3. Check for Output section with success/error format
+4. Flag overly detailed step-by-step instructions
 
 ## Phase 4: Interface Validation
 
@@ -412,12 +429,12 @@ Reference documents should be self-contained. When references point to other ref
 
 **What to Flag:**
 
-| Pattern                                        | Issue                                      |
-| ---------------------------------------------- | ------------------------------------------ |
-| `{baseDir}/references/other-doc.md`            | Reference pointing to another reference    |
-| `See {baseDir}/references/...`                 | Delegation to another reference document   |
-| `Follow {baseDir}/references/...`              | Delegation to another reference document   |
-| `Read {baseDir}/references/...` in references/ | Reference loading another reference        |
+| Pattern                                        | Issue                                    |
+| ---------------------------------------------- | ---------------------------------------- |
+| `{baseDir}/references/other-doc.md`            | Reference pointing to another reference  |
+| `See {baseDir}/references/...`                 | Delegation to another reference document |
+| `Follow {baseDir}/references/...`              | Delegation to another reference document |
+| `Read {baseDir}/references/...` in references/ | Reference loading another reference      |
 
 **Correct Pattern:**
 - SKILL.md should directly route to the appropriate reference document

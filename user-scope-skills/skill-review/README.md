@@ -2,7 +2,7 @@
 
 ## Intent
 
-Provide automated verification of skill documentation to ensure standards compliance, catch inconsistencies, and prevent maintenance issues before they cause problems. This is the "Phase 2" skill in the edit-skill-workflow pattern (draft-* → *-review → finalize-*).
+Provide automated verification of skill documentation to ensure standards compliance, catch inconsistencies, and prevent maintenance issues before they cause problems. Also validates adherence to the skill writing philosophy (intent-focused, concise workflow, guardrails emphasis). This is the "Phase 2" skill in the edit-skill-workflow pattern (draft-* → *-review → finalize-*).
 
 This skill serves as a quality gate for skill development by:
 - Detecting structural violations (non-standard directories, missing files)
